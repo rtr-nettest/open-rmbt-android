@@ -127,17 +127,17 @@ abstract class AbstractQoSTask : AbstractRMBTTest, QoSTask {
     fun getQoSTest(): QualityOfServiceTest = qoSTest
 
     fun onStart(result: QoSTestResult) {
-        this.testStartTimestampNs = System.nanoTime() - getQoSTest().getTestSettings().startTimeNs
+        this.testStartTimestampNs = System.nanoTime() - getQoSTest().getTestSettings()!!.startTimeNs
         this.hasStartedFlag = true
         result.resultMap[PARAM_QOS_RESULT_START_TIME] = this.testStartTimestampNs
-        getQoSTest().getTestSettings().dispatchTestProgressEvent(TestProgressEvent.ON_START, this)
+        getQoSTest().getTestSettings()!!.dispatchTestProgressEvent(TestProgressEvent.ON_START, this)
     }
 
     fun onEnd(result: QoSTestResult) {
-        this.testEndTimestampNs = System.nanoTime() - getQoSTest().getTestSettings().startTimeNs
+        this.testEndTimestampNs = System.nanoTime() - getQoSTest().getTestSettings()!!.startTimeNs
         result.resultMap[PARAM_QOS_RESULT_DURATION_NS] = this.testEndTimestampNs - this.testStartTimestampNs
         this.hasFinishedFlag = true
-        getQoSTest().getTestSettings().dispatchTestProgressEvent(TestProgressEvent.ON_END, this)
+        getQoSTest().getTestSettings()!!.dispatchTestProgressEvent(TestProgressEvent.ON_END, this)
     }
 
     fun getTestStartTimestampNs(): Long = this.testStartTimestampNs
@@ -149,7 +149,7 @@ abstract class AbstractQoSTask : AbstractRMBTTest, QoSTask {
     fun hasStarted(): Boolean = this.hasStartedFlag
 
     fun getRelativeDurationNs(timeStampNs: Long): Long =
-        timeStampNs - getQoSTest().getTestSettings().startTimeNs - this.testStartTimestampNs
+        timeStampNs - getQoSTest().getTestSettings()!!.startTimeNs - this.testStartTimestampNs
 
     fun getControlConnection(): QoSControlConnection? = controlConnection
 

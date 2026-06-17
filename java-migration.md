@@ -120,9 +120,15 @@ Converted `VoipTestResult` (689-line Gson data class) to `var` properties with `
 
 Converted `BandCalculationUtil` (607-line band/frequency lookup tables) to an `object` with nested `Band`/`LTEBand`/`NRBand`/`UMTSBand`/`GSMBand`/`WifiBand`/`FrequencyInformation`. `core` accesses `getBandFromArfcn(...)?.frequencyDL` as a **property**, so `FrequencyInformation.frequencyDL` is a Kotlin `val` (→ `.frequencyDL` for Kotlin + `getFrequencyDL()` for Java). Used distinct private backing names (`bandNumber`, `bandValue`) to dodge Kotlin getter clashes with the public `getBand()`. Preserved exact map types (`LinkedHashMap` for nrBands, ordered `ArrayList` for gsmBands).
 
+## Checkpoint 17 — helpers + QoS test hierarchy
+
+Converted the independent helpers `Dig` (dnsjava; `DnsRequest` exposes `val response`/`request` for the property access in `DnsTask`), `JSONParser` (`object`, `@JvmStatic`/`@JvmField` for the still-Java `ControlServerConnection`), `TracerouteAndroidImpl` (relaxed `HopDetail.toJson` return to `JSONObject?`), `WebsiteTestServiceImpl` (WebView; relaxed `WebsiteTestService.getHash()` to `String?`), and deleted dead `OptionFunction`.
+
+Then the **QoS-test hierarchy** `QualityOfServiceTest → VoipTest → JitterTest`. The Java code *shadowed* fields in subclasses; in Kotlin I unified to one set of `protected` backing fields in the base that subclasses populate (no shadowing, no accessor overrides). Exposed `progress`/`testSize`/`status`/`testMap`/`testGroupCounterMap` as **Kotlin properties** (backed by renamed atomics like `progressCounter`/`statusRef`) so app/core's `.progress`/`.status` synthetic-property access keeps working *and* Java still gets `getProgress()`/`getStatus()`. `getRMBTClient`/`getTestSettings` stayed functions (only Java/Kotlin-via-function callers). `VoipTest` now only overrides `call()`+`getTestId()`; `JitterTest` collapses to a single `getTestId()` override (its `call()` was identical to VoipTest's). Verified full QoS test on device: 64/64 → `QOS_END` → results.
+
 ---
 
 ### Progress
-- 102 original Java files → 62 converted + 24 dead removed + 3 app/core handled.
-- Checkpoint numbering matches commit phases (Checkpoint N == Phase N). HEAD = Phase 13 (UdpTask). Working tree (uncommitted): the QoS-hang bugfix + Checkpoints 14–16.
-- **12 Java files remain** (all in `rmbt-client`): the QoS-test hierarchy `QualityOfServiceTest`→`VoipTest`→`JitterTest` (convert as a cluster), `WebsiteTestServiceImpl`, `TracerouteAndroidImpl`, `helper/{JSONParser, Dig, ControlServerConnection}`, and the `AbstractRMBTTest` → `RMBTTest`/`RMBTClient` finale (`RMBTClient` 1,163 + `RMBTTest` 957, last).
+- 102 original Java files → 69 converted + 25 dead removed + 3 app/core handled.
+- Working tree (uncommitted): QoS-hang bugfix + Checkpoints 14–17.
+- **4 Java files remain** (all in `rmbt-client`): the finale — `AbstractRMBTTest` (base of `RMBTTest` + the converted `AbstractQoSTask`/`QoSControlConnection`), `helper/ControlServerConnection` (702), `RMBTTest` (957), `RMBTClient` (1,163).

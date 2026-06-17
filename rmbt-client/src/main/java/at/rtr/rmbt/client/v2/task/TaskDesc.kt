@@ -24,7 +24,7 @@ import at.rtr.rmbt.client.helper.Config
  */
 class TaskDesc : RMBTTestParameter {
 
-    private val params: HashMap<String, Any>
+    private val params: HashMap<String, Any?>
 
     constructor(
         host: String?,
@@ -35,7 +35,7 @@ class TaskDesc : RMBTTestParameter {
         numThreads: Int,
         numPings: Int,
         startTime: Long,
-        params: HashMap<String, Any>
+        params: HashMap<String, Any?>
     ) : super(host, port, encryption, token, duration, numThreads, numPings, startTime, Config.SERVER_TYPE_QOS) {
         this.params = params
     }
@@ -49,13 +49,13 @@ class TaskDesc : RMBTTestParameter {
         numThreads: Int,
         numPings: Int,
         startTime: Long,
-        params: HashMap<String, Any>,
+        params: HashMap<String, Any?>,
         qosTestId: String
     ) : this(host, port, encryption, token, duration, numThreads, numPings, startTime, params) {
         params[QOS_TEST_IDENTIFIER_KEY] = qosTestId
     }
 
-    fun getParams(): HashMap<String, Any> = params
+    fun getParams(): HashMap<String, Any?> = params
 
     override fun toString(): String = "TaskDesc [params=$params]"
 

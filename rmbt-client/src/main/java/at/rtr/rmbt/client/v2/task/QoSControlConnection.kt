@@ -56,7 +56,7 @@ class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
     override fun run() {
         try {
             while (isRunning.get()) {
-                val response = reader.readLine()
+                val response = reader!!.readLine()
                 if (response != null) {
                     val m = ID_REGEX_PATTERN.matcher(response)
                     if (m.find()) {

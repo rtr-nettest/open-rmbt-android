@@ -201,7 +201,7 @@ class TestControllerImpl(
                 config.controlServerPort,
                 config.controlServerUseSSL,
                 geoInfo,
-                clientUUID.value,
+                clientUUID.value ?: "",
                 deviceInfo.clientType,
                 deviceInfo.clientName,
                 deviceInfo.softwareVersionName,
@@ -226,26 +226,26 @@ class TestControllerImpl(
             client.commonCallback = clientCallback
             client.trafficService = TrafficServiceImpl()
 
-            val connection = client.controlConnection
-            Timber.i("Client UUID: ${connection?.clientUUID}")
-            Timber.i("Test UUID: ${connection.testUuid}")
-            Timber.i("Server Name: ${connection?.serverName}")
-            Timber.i("Loop Id: ${connection?.loopUuid}")
-            Timber.i("Start Time Nanos: ${connection?.startTimeNs}")
+            val connection = client.controlConnection!!
+            Timber.i("Client UUID: ${connection.getClientUUID()}")
+            Timber.i("Test UUID: ${connection.getTestUuid()}")
+            Timber.i("Server Name: ${connection.getServerName()}")
+            Timber.i("Loop Id: ${connection.getLoopUuid()}")
+            Timber.i("Start Time Nanos: ${connection.getStartTimeNs()}")
 
-            _testStartTimeNanos = connection?.startTimeNs ?: 0
-            _testUUID = connection.testUuid
+            _testStartTimeNanos = connection.getStartTimeNs()
+            _testUUID = connection.getTestUuid()
 
-            val loopUUIDFromBackend = if (connection.loopUuid == "null") {
+            val loopUUIDFromBackend = if (connection.getLoopUuid() == "null") {
                 null
             } else {
-                connection.loopUuid
+                connection.getLoopUuid()
             }
             _listener?.onClientReady(_testUUID!!, loopUUIDFromBackend, loopLocalUUID, _testStartTimeNanos)
 
             var skipQoSTests = !config.shouldRunQosTest
 
-            if (client.taskDescList == null || client.taskDescList.isEmpty()) {
+            if (client.taskDescList.isNullOrEmpty()) {
                 skipQoSTests = true
             }
 

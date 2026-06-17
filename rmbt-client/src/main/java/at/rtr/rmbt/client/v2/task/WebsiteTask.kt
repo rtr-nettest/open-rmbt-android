@@ -35,7 +35,7 @@ class WebsiteTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: In
     private val timeout: Long
 
     init {
-        this.testImpl = nnTest.getTestSettings().websiteTestService!!.getInstance()
+        this.testImpl = nnTest.getTestSettings()!!.websiteTestService!!.getInstance()
 
         var value = taskDesc.getParams()[PARAM_URL] as String?
         this.url = value

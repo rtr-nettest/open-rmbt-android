@@ -72,7 +72,7 @@ class TcpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                                 var socketOut: Socket? = null
 
                                 try {
-                                    val s = getSocket(getTestServerAddr(), testPortOut!!, false, (timeout / 1000000).toInt())
+                                    val s = getSocket(getTestServerAddr()!!, testPortOut!!, false, (timeout / 1000000).toInt())
                                     socketOut = s
                                     s.soTimeout = (timeout / 1000000).toInt()
                                     sendMessage(s, "PING\n")

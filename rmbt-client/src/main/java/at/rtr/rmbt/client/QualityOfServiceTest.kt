@@ -49,25 +49,44 @@ import java.util.concurrent.atomic.AtomicReference
  */
 open class QualityOfServiceTest : Callable<QoSResultCollector> {
 
-    private val client: RMBTClient
+    protected val client: RMBTClient
 
-    private val progress = AtomicInteger()
-    private val testCount = AtomicInteger()
-    private val concurrentGroupCount = AtomicInteger()
-    private val status = AtomicReference<QoSTestEnum>()
-    private val errorStatus = AtomicReference(QoSTestErrorEnum.NONE)
+    protected val progressCounter = AtomicInteger()
+    protected val testCountValue = AtomicInteger()
+    protected val concurrentGroupCounter = AtomicInteger()
+    protected val statusRef = AtomicReference<QoSTestEnum>()
+    protected val errorStatusRef = AtomicReference(QoSTestErrorEnum.NONE)
 
-    private val executor: ExecutorService?
-    private val executorService: ExecutorCompletionService<QoSTestResult>?
+    protected var executor: ExecutorService? = null
+    protected var executorService: ExecutorCompletionService<QoSTestResult>? = null
 
-    private val qoSTestSettings: TestSettings?
+    protected val qoSTestSettings: TestSettings?
 
-    private val concurrentTasks = TreeMap<Int, MutableList<AbstractQoSTask>>()
-    private val testMap = TreeMap<QoSTestResultEnum, MutableList<AbstractQoSTask>>()
-    private val controlConnectionMap = TreeMap<String, QoSControlConnection>()
+    protected val concurrentTasks = TreeMap<Int, MutableList<AbstractQoSTask>>()
+    protected val testMapBacking = TreeMap<QoSTestResultEnum, MutableList<AbstractQoSTask>>()
+    protected val controlConnectionMap = TreeMap<String, QoSControlConnection>()
     private var onlyVoipTest = false
 
-    private val testGroupCounterMap = TreeMap<QoSTestResultEnum, Counter>()
+    protected val testGroupCounterMapBacking = TreeMap<QoSTestResultEnum, Counter>()
+
+    // Kotlin-property views over the backing fields (Java sees getProgress()/getStatus()/… etc.)
+    val progress: Int
+        get() = progressCounter.get()
+
+    val testSize: Int
+        get() = testCountValue.get()
+
+    var status: QoSTestEnum?
+        get() = statusRef.get()
+        set(value) {
+            statusRef.set(value)
+        }
+
+    val testMap: TreeMap<QoSTestResultEnum, MutableList<AbstractQoSTask>>
+        get() = testMapBacking
+
+    val testGroupCounterMap: Map<QoSTestResultEnum, Counter>
+        get() = testGroupCounterMapBacking
 
     /**
      * Only for purposes of inheritance
@@ -76,23 +95,21 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
         this.client = client
         this.onlyVoipTest = onlyVoipTest
         this.qoSTestSettings = nnTestSettings
-        this.executor = null
-        this.executorService = null
     }
 
     constructor(client: RMBTClient, nnTestSettings: TestSettings?) {
         println("\n\n---- Initializing QoS Tests ----\n")
         this.client = client
-        val exec = Executors.newFixedThreadPool(client.getTaskDescList().size)
+        val exec = Executors.newFixedThreadPool(client.taskDescList!!.size)
         executor = exec
         executorService = ExecutorCompletionService(exec)
-        status.set(QoSTestEnum.START)
-        testCount.set(client.getTaskDescList().size)
+        statusRef.set(QoSTestEnum.START)
+        testCountValue.set(client.taskDescList!!.size)
         this.qoSTestSettings = nnTestSettings
 
         var threadCounter = 0
 
-        for (taskDesc in client.getTaskDescList()) {
+        for (taskDesc in client.taskDescList!!) {
             val taskId = taskDesc.getParams()[TaskDesc.QOS_TEST_IDENTIFIER_KEY] as String?
             var test: AbstractQoSTask? = null
 
@@ -135,20 +152,20 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
 
             if (test != null) {
                 // manage taskMap:
-                var testList = testMap[test.getTestType()]
+                var testList = testMapBacking[test.getTestType()]
                 if (testList == null) {
                     testList = ArrayList()
-                    testMap[test.getTestType()] = testList
+                    testMapBacking[test.getTestType()] = testList
                 }
                 testList.add(test)
 
                 val testTypeCounter: Counter
-                if (testGroupCounterMap.containsKey(test.getTestType())) {
-                    testTypeCounter = testGroupCounterMap[test.getTestType()]!!
+                if (testGroupCounterMapBacking.containsKey(test.getTestType())) {
+                    testTypeCounter = testGroupCounterMapBacking[test.getTestType()]!!
                     testTypeCounter.increaseCounter(test.getConcurrencyGroup())
                 } else {
                     testTypeCounter = Counter(test.getTestType(), 1, test.getConcurrencyGroup())
-                    testGroupCounterMap[test.getTestType()] = testTypeCounter
+                    testGroupCounterMapBacking[test.getTestType()] = testTypeCounter
                 }
 
                 // manage concurrent test groups
@@ -159,20 +176,21 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
                 }
                 tasks.add(test)
 
-                if (!controlConnectionMap.containsKey(test.getTestServerAddr())) {
+                val serverAddr = test.getTestServerAddr()!!
+                if (!controlConnectionMap.containsKey(serverAddr)) {
                     val params = RMBTTestParameter(
-                        test.getTestServerAddr(), test.getTestServerPort(),
+                        serverAddr, test.getTestServerPort(),
                         nnTestSettings!!.isUseSsl, test.getTaskDesc().token,
                         test.getTaskDesc().duration, test.getTaskDesc().numThreads,
                         test.getTaskDesc().numPings, test.getTaskDesc().startTime, Config.SERVER_TYPE_QOS
                     )
-                    controlConnectionMap[test.getTestServerAddr()] = QoSControlConnection(getRMBTClient(), params)
+                    controlConnectionMap[serverAddr] = QoSControlConnection(getRMBTClient(), params)
                 }
 
                 // check if qos test need test server
                 if (test.needsQoSControlConnection()) {
-                    test.setControlConnection(controlConnectionMap[test.getTestServerAddr()])
-                    controlConnectionMap[test.getTestServerAddr()]!!.concurrencyGroupSet.add(test.getConcurrencyGroup())
+                    test.setControlConnection(controlConnectionMap[serverAddr])
+                    controlConnectionMap[serverAddr]!!.concurrencyGroupSet.add(test.getConcurrencyGroup())
                 }
             }
         }
@@ -182,10 +200,10 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
 
     @Throws(Exception::class)
     override fun call(): QoSResultCollector {
-        status.set(QoSTestEnum.QOS_RUNNING)
+        statusRef.set(QoSTestEnum.QOS_RUNNING)
         val result = QoSResultCollector()
 
-        val testSize = testCount.get()
+        val testSize = testCountValue.get()
 
         var trafficServiceStatus = TrafficService.SERVICE_NOT_SUPPORTED
 
@@ -194,14 +212,14 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
         }
 
         val groupIterator = concurrentTasks.keys.iterator()
-        while (groupIterator.hasNext() && status.get() != QoSTestEnum.ERROR) {
+        while (groupIterator.hasNext() && statusRef.get() != QoSTestEnum.ERROR) {
             val groupId = groupIterator.next()
-            concurrentGroupCount.set(groupId)
+            concurrentGroupCounter.set(groupId)
 
             // check if a qos control server connection needs to be initialized:
             openControlConnections(groupId)
 
-            if (status.get() == QoSTestEnum.ERROR) {
+            if (statusRef.get() == QoSTestEnum.ERROR) {
                 break
             }
 
@@ -226,10 +244,10 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
                             println("test: " + curResult.testType.name + " failed. Could not connect to QoSControlServer.")
                         }
                         println(
-                            "test " + curResult.testType.name + " finished (" + (progress.get() + 1) + " out of " +
+                            "test " + curResult.testType.name + " finished (" + (progressCounter.get() + 1) + " out of " +
                                 testSize + ", CONCURRENCY GROUP=" + groupId + ")"
                         )
-                        val testTypeCounter = testGroupCounterMap[curResult.testType]
+                        val testTypeCounter = testGroupCounterMapBacking[curResult.testType]
                         if (testTypeCounter != null) {
                             testTypeCounter.value++
                         }
@@ -237,20 +255,20 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
                 } catch (e: InterruptedException) {
                     executor!!.shutdownNow()
                     e.printStackTrace()
-                    status.set(QoSTestEnum.ERROR)
+                    statusRef.set(QoSTestEnum.ERROR)
                     break
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    progress.incrementAndGet()
+                    progressCounter.incrementAndGet()
                 }
             }
 
             closeControlConnections(groupId)
         }
 
-        if (status.get() == QoSTestEnum.ERROR) {
-            progress.set(testCount.get())
+        if (statusRef.get() == QoSTestEnum.ERROR) {
+            progressCounter.set(testCountValue.get())
         }
 
         if (trafficServiceStatus != TrafficService.SERVICE_NOT_SUPPORTED) {
@@ -261,8 +279,8 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
             )
         }
 
-        if (status.get() != QoSTestEnum.ERROR) {
-            status.set(QoSTestEnum.QOS_FINISHED)
+        if (statusRef.get() != QoSTestEnum.ERROR) {
+            statusRef.set(QoSTestEnum.QOS_FINISHED)
         }
 
         executor?.shutdownNow()
@@ -270,31 +288,17 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
         return result
     }
 
-    open fun getProgress(): Int = progress.get()
+    fun getErrorStatus(): QoSTestErrorEnum = errorStatusRef.get()
 
-    open fun getTestSize(): Int = testCount.get()
-
-    open fun getStatus(): QoSTestEnum? = status.get()
-
-    open fun setStatus(newStatus: QoSTestEnum) {
-        status.set(newStatus)
+    fun setErrorStatus(newStatus: QoSTestErrorEnum) {
+        errorStatusRef.set(newStatus)
     }
 
-    open fun getErrorStatus(): QoSTestErrorEnum = errorStatus.get()
+    fun getCurrentConcurrentGroup(): Int = concurrentGroupCounter.get()
 
-    open fun setErrorStatus(newStatus: QoSTestErrorEnum) {
-        errorStatus.set(newStatus)
-    }
-
-    open fun getCurrentConcurrentGroup(): Int = concurrentGroupCount.get()
-
-    open fun getTestGroupCounterMap(): Map<QoSTestResultEnum, Counter> = testGroupCounterMap
-
-    open fun getTestSettings(): TestSettings? = qoSTestSettings
+    fun getTestSettings(): TestSettings? = qoSTestSettings
 
     open fun getRMBTClient(): RMBTClient = client
-
-    open fun getTestMap(): TreeMap<QoSTestResultEnum, MutableList<AbstractQoSTask>> = testMap
 
     @Synchronized
     open fun interrupt() {
@@ -302,15 +306,15 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
     }
 
     @Throws(Throwable::class)
-    protected fun finalize() {
+    protected open fun finalize() {
         executor?.shutdownNow()
     }
 
-    private fun openControlConnections(concurrencyGroup: Int) {
+    protected fun openControlConnections(concurrencyGroup: Int) {
         manageControlConnections(concurrencyGroup, true)
     }
 
-    private fun closeControlConnections(concurrencyGroup: Int) {
+    protected fun closeControlConnections(concurrencyGroup: Int) {
         manageControlConnections(concurrencyGroup, false)
     }
 

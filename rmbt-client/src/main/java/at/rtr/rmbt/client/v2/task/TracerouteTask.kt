@@ -58,7 +58,7 @@ class TracerouteTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId:
 
         try {
             onStart(testResult)
-            val pingTool = getQoSTest().getTestSettings().tracerouteServiceClazz!!.newInstance()
+            val pingTool = getQoSTest().getTestSettings()!!.tracerouteServiceClazz!!.newInstance()
             pingTool.setHost(host)
             pingTool.setMaxHops(maxHops)
 
