@@ -17,7 +17,6 @@ import at.specure.data.MeasurementServers
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
-import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfoLiveData
@@ -40,6 +39,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 const val LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS = 60_000L
 
@@ -55,7 +55,6 @@ class HomeViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
-    private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val controlServerModule: ControlServerModule,
     measurementServers: MeasurementServers,
@@ -112,7 +111,7 @@ class HomeViewModel @Inject constructor(
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Timber.d("Signal measurement service connected")
-            producer = service as SignalMeasurementProducer
+            producer = service as SignalMeasurementProducer?
 
             if (producer != null && toggleService) {
                 toggleService = false
@@ -199,10 +198,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun stopSignalMeasurement() {
+    fun stopSignalMeasurement(): LiveData<Boolean>? {
         coverageMeasurementSettings.signalMeasurementIsRunning = false
         Timber.d("Stopping coverage session HVM2")
         producer?.stopMeasurement(false)
+        return producer?.activeStateLiveData
     }
 
     fun attach(context: Context) {
@@ -254,7 +254,7 @@ class HomeViewModel @Inject constructor(
     fun silenceLocationDialogWarning() {
         state.locationWarningDialogSilenced.set(true)
         launch(CoroutineName("SilenceLocationDialogWarning")) {
-            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
+            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS.milliseconds)
             state.locationWarningDialogSilenced.set(false)
         }
     }
@@ -262,14 +262,13 @@ class HomeViewModel @Inject constructor(
     fun silenceNetworkWarning() {
         state.networkWarningDialogSilenced.set(true)
         launch(CoroutineName("SilenceNetworkDialogWarning")) {
-            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
+            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS.milliseconds)
             state.networkWarningDialogSilenced.set(false)
         }
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {
         return state.isSignalMeasurementActive.get() == true
-//        return coverageMeasurementSettings.signalMeasurementIsRunning
     }
 
     fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
