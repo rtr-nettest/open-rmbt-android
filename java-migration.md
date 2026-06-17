@@ -152,6 +152,19 @@ Deleted `RMBTClient.java`. **Verified end-to-end on device** (motorola edge 70):
 - 102 original Java files → converted to Kotlin or removed as dead code; final batch (Checkpoints 18–20) covered `AbstractRMBTTest`, `ControlServerConnection`, `RMBTTest`, `RMBTClient`.
 - Verified: `:rmbt-client:compileDebugSources` ✓, `:app:compileRmbtDebugSources` ✓, installed + full QoS test on device → results screen ✓.
 
+### Lines of code — before vs after migration
+
+Measured 2026-06-17 by counting `*.java`/`*.kt` files, excluding `build/` directories. "Before" = the pre-migration mixed tree (branch `develop`); "After" = the fully-converted branch `feeature/dz03`.
+
+| | Java files | Java lines | Kotlin files | Kotlin lines | Total lines |
+|---|---:|---:|---:|---:|---:|
+| **Before** (`develop`) | 103 | 18,003 | 668 | 57,033 | **75,036** |
+| **After** (`feeature/dz03`) | 0 | 0 | 740 | 66,495 | **66,495** |
+| **Δ** | −103 | −18,003 | +72 | +9,462 | **−8,541** |
+
+- After migration the codebase is **100% Kotlin** (0 Java lines); almost all of the removed Java was the `rmbt-client` measurement engine (~100 files in `rmbt-client/src/main`).
+- Net **−8,541 lines (≈ −11%)** overall, despite +9,462 Kotlin lines — the converted Kotlin is more compact than the Java it replaced *and* ~24 dead Java files were dropped rather than converted (see Checkpoints 1/3).
+
 ## Checkpoint 21 — VoIP in_port fix + interop-annotation cleanup
 
 **VoIP `in_port` fix** (`RtpUtil.runVoipStream`): the internal `onBind` reported `incomingPort` (null when the server sends only `out_port`) instead of the actual bound socket port, so `voip_objective_in_port` serialized as null. Now reports the real bound port. (This is a latent bug present in the original Java too; it makes the result more complete but the persistent VoIP QoS failure is a **server-side evaluation** issue — the client submits a healthy 100/100-packet result that the netztest.at eval rejects regardless.)
