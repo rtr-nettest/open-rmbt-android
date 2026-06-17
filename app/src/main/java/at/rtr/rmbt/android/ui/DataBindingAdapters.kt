@@ -827,6 +827,27 @@ fun AppCompatTextView.setFrequencyValue(detailedNetworkInfo: DetailedNetworkInfo
 }
 
 /**
+ * Signal strength heading on the measurement screen, e.g. "Signal" or "Signal 4G/5G".
+ * Uses the same logic and strings as the start screen.
+ */
+@BindingAdapter("signalLabelMainText", "signalLabelStrength", "signalLabelNetwork", requireAll = false)
+fun AppCompatTextView.setSignalLabel(
+    mainText: String,
+    signalStrengthInfo: SignalStrengthInfo?,
+    detailedNetworkInfo: DetailedNetworkInfo?
+) {
+    val signal = signalStrengthInfo?.value
+    val signalSecondary = detailedNetworkInfo?.secondary5GActiveSignalStrengthInfos?.firstOrNull()?.value
+    text = prepareSignalLabel(
+        mainText,
+        detailedNetworkInfo?.networkInfo,
+        detailedNetworkInfo.secondaryNetworkInfo(),
+        signal,
+        signalSecondary
+    ).toString()
+}
+
+/**
  * Signal strength value on the measurement screen, e.g. "-93 dBm".
  */
 @BindingAdapter("signalValue", "signalDetailed", requireAll = false)

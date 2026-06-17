@@ -5,8 +5,6 @@
 
     <data>
 
-        <import type="android.view.View" />
-
         <import type="at.specure.measurement.MeasurementState" />
 
         <import type="at.specure.info.strength.SignalStrengthInfo" />
@@ -141,10 +139,12 @@
                     android:id="@+id/signal_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/home_signal"
                     android:textColor="@color/text_white_transparency_40"
                     android:textSize="@dimen/signal_bar_label"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:signalLabelMainText="@{@string/home_signal}"
+                    app:signalLabelStrength="@{state.signalStrengthInfo}"
+                    app:signalLabelNetwork="@{state.detailedNetworkInfo}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/signal_value"
@@ -189,8 +189,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:visibility="@{state.speedKmh != null ? View.VISIBLE : View.INVISIBLE}">
+                android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/speed_label"

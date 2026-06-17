@@ -24,6 +24,8 @@ import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Rational
 import android.view.View
 import android.view.WindowManager
@@ -39,6 +41,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
+import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
@@ -50,6 +53,12 @@ private const val CODE_ERROR = 1
 private const val CODE_LOOP_FINISHED = 2
 private const val TAG_LOOP_FINISHED = "LOOP_FINISHED_DIALOG"
 
+/** Hide the GPS speed once its fix is older than this (15 s). */
+private const val SPEED_MAX_AGE_NANOS = 15_000_000_000L
+
+/** How often the GPS speed age is re-checked while the screen is visible. */
+private const val SPEED_REFRESH_INTERVAL_MS = 1_000L
+
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
@@ -57,6 +66,29 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
     private var loopFinishedHandled = false
+
+    /** Most recent location fix, used to expire the GPS speed once it gets too old. */
+    private var lastLocationInfo: LocationInfo? = null
+
+    private val speedRefreshHandler = Handler(Looper.getMainLooper())
+    private val speedRefreshRunnable = object : Runnable {
+        override fun run() {
+            updateSpeedFromLocation()
+            speedRefreshHandler.postDelayed(this, SPEED_REFRESH_INTERVAL_MS)
+        }
+    }
+
+    /**
+     * Publishes the GPS speed in km/h, or null when there is no fresh fix. The value is dropped once
+     * the underlying location fix is older than [SPEED_MAX_AGE_NANOS] so a stale speed does not stay
+     * on screen after GPS stops delivering updates.
+     */
+    private fun updateSpeedFromLocation() {
+        val info = lastLocationInfo
+        viewModel.state.speedKmh.set(
+            if (info != null && info.hasSpeed && info.ageNanos in 0..SPEED_MAX_AGE_NANOS) info.speed * 3.6f else null
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,10 +210,8 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.locationLiveData.listen(this) { locationInfo ->
-            // Location speed is provided in m/s; convert to km/h. Null when no valid (GPS) speed.
-            viewModel.state.speedKmh.set(
-                if (locationInfo != null && locationInfo.hasSpeed) locationInfo.speed * 3.6f else null
-            )
+            lastLocationInfo = locationInfo
+            updateSpeedFromLocation()
         }
 
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
@@ -315,11 +345,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         super.onStart()
         Timber.d("MeasurementViewModel START")
         viewModel.attach(this)
+        speedRefreshHandler.post(speedRefreshRunnable)
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
+        speedRefreshHandler.removeCallbacks(speedRefreshRunnable)
     }
 
     override fun onResume() {
