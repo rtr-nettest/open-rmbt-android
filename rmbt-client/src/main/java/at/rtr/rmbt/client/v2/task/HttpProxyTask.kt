@@ -70,7 +70,6 @@ class HttpProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: 
         var generatingTimeNs: Long = 0
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val result = initQoSTestResult(QoSTestResultEnum.HTTP_PROXY)
         try {
@@ -80,7 +79,6 @@ class HttpProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: 
             onStart(result)
 
             val httpTimeoutTask = RMBTClient.getCommonThreadPool().submit(object : Callable<QoSTestResult> {
-                @Throws(Exception::class)
                 override fun call(): QoSTestResult {
                     httpGet(result)
                     return result
@@ -100,7 +98,6 @@ class HttpProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: 
         return result
     }
 
-    @Throws(Exception::class)
     private fun httpGet(result: QoSTestResult): QoSTestResult {
         val url = URL(this.target)
         val connection: HttpURLConnection
@@ -183,12 +180,10 @@ class HttpProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: 
         return result
     }
 
-    @Throws(IOException::class)
     fun writeFileFromInputStream(input: InputStream, outputFile: File): Long {
         return copyInputStreamToOutputStream(input, FileOutputStream(outputFile))
     }
 
-    @Throws(IOException::class)
     fun copyInputStreamToOutputStream(input: InputStream, output: OutputStream): Long {
         val buffer = ByteArray(4096)
         var count = 0L
@@ -266,7 +261,6 @@ class HttpProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: 
             return sb.toString()
         }
 
-        @Throws(NoSuchAlgorithmException::class)
         fun generateChecksum(input: ByteArray): String {
             val md = MessageDigest.getInstance("MD5")
             val hash = md.digest(input)
@@ -274,12 +268,10 @@ class HttpProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: 
             return generateChecksumFromDigest(hash)
         }
 
-        @Throws(NoSuchAlgorithmException::class, IOException::class)
         fun generateChecksum(file: File): Md5Result {
             return generateChecksum(FileInputStream(file))
         }
 
-        @Throws(NoSuchAlgorithmException::class, IOException::class)
         fun generateChecksum(inputStream: InputStream): Md5Result {
             val md5 = Md5Result()
             val md = MessageDigest.getInstance("MD5")

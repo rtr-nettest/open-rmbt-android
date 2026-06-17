@@ -39,8 +39,6 @@ import java.util.concurrent.TimeoutException
  */
 object RtpUtil {
 
-    @JvmStatic
-    @Throws(InterruptedException::class, TimeoutException::class, IOException::class)
     fun <T : Closeable> runVoipStream(
         socket: T?,
         closeOnFinish: Boolean,
@@ -66,9 +64,7 @@ object RtpUtil {
     /**
      * runs an rtp/voip stream (incoming and outgoing)
      */
-    @JvmStatic
     @Suppress("UNCHECKED_CAST")
-    @Throws(InterruptedException::class, TimeoutException::class, IOException::class)
     fun <T : Closeable> runVoipStream(
         socket: T?,
         closeOnFinish: Boolean,
@@ -103,7 +99,6 @@ object RtpUtil {
 
         val callback: UdpStreamCallback = object : UdpStreamCallback {
 
-            @Throws(IOException::class)
             override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
                 if (packetNumber > 0) {
                     initialRtpPacket.increaseSequenceNumber(1)
@@ -122,12 +117,10 @@ object RtpUtil {
                 return true
             }
 
-            @Throws(IOException::class)
             override fun onReceive(dp: DatagramPacket) {
                 receiveCallback?.onReceive(dp)
             }
 
-            @Throws(IOException::class)
             override fun onBind(port: Int?) {
                 // report the actually bound local port (was: incomingPort, which is null when the
                 // server provides no in_port objective → voip_objective_in_port serialized as null
@@ -148,7 +141,6 @@ object RtpUtil {
     /**
      * extract the rtp version from the first header byte
      */
-    @JvmStatic
     fun getVersion(firstHeaderByte: Byte): RealtimeTransportProtocol.RtpVersion {
         return RealtimeTransportProtocol.RtpVersion.getByVersion((firstHeaderByte.toInt() shr 6) and 0x03)
     }
@@ -157,7 +149,6 @@ object RtpUtil {
      * get the synchronization source identifier
      * @return rtp packet ssrc or -1 if packet data is invalid
      */
-    @JvmStatic
     fun getSsrc(data: ByteArray?): Long {
         return if (data != null && data.size >= 11) {
             ByteUtil.getLong(data, 8, 11, ByteOrder.BIG_ENDIAN)
@@ -166,7 +157,6 @@ object RtpUtil {
         }
     }
 
-    @JvmStatic
     fun calculateQoS(rtpControlDataMap: Map<Int, RtpControlData>, initialSequenceNumber: Long, sampleRate: Int): RtpQoSResult {
         val sequenceNumberSet = TreeSet(rtpControlDataMap.keys)
 
@@ -256,7 +246,7 @@ object RtpUtil {
     /**
      * @author lb
      */
-    class RtpControlData(@JvmField val rtpPacket: RtpPacket, @JvmField val receivedNs: Long)
+    class RtpControlData(val rtpPacket: RtpPacket, val receivedNs: Long)
 
     private class RtpSequence(val timestampNs: Long, val seq: Int) : Comparable<RtpSequence> {
         override fun compareTo(o: RtpSequence): Int {

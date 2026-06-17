@@ -29,7 +29,6 @@ class QualityOfServiceCapability {
     override fun toString(): String = "QualityOfServiceCapability [supportsInfo=$isSupportsInfo]"
 
     companion object {
-        @JvmField
         var DEFAULT_QOS_SUPPORTS_INFO = false
     }
 }

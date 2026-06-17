@@ -82,7 +82,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                 "rcvServerResponse=$rcvServerResponse]"
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val result = initQoSTestResult(QoSTestResultEnum.UDP)
         try {
@@ -109,7 +108,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                                 } else if (request != null && request.startsWith("UDPTEST OUT")) {
                                     if (response != null && response.startsWith("OK")) {
                                         val udpOutTimeoutTask = RMBTClient.getCommonThreadPool().submit(object : Callable<UdpPacketData> {
-                                            @Throws(Exception::class)
                                             override fun call(): UdpPacketData {
                                                 sendUdpPackets(outgoingPacketData)
                                                 return outgoingPacketData
@@ -172,7 +170,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                     dgSocket.soTimeout = (timeout / 1000000).toInt()
 
                     val udpInTimeoutTask = RMBTClient.getCommonThreadPool().submit(object : Callable<UdpPacketData> {
-                        @Throws(Exception::class)
                         override fun call(): UdpPacketData {
                             receiveUdpPackets(dgSocket, packetCountIncoming, incomingPacketData)
                             return incomingPacketData
@@ -267,7 +264,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
     override fun initTask() {
     }
 
-    @Throws(Exception::class)
     fun sendUdpPackets(packetData: UdpPacketData): DatagramChannel? {
         val udpSettings = UdpStreamSenderSettings<DatagramChannel>(
             null, true,
@@ -279,7 +275,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
             val packetsReceived = TreeSet<Int>()
             val duplicatePackets = TreeSet<Int>()
 
-            @Throws(IOException::class)
             override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
                 println("UDP OUT Test: sending packet #$packetNumber")
                 dataOut.writeByte(UDP_TEST_AWAIT_RESPONSE_IDENTIFIER)
@@ -290,7 +285,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
             }
 
             @Synchronized
-            @Throws(IOException::class)
             override fun onReceive(dp: DatagramPacket) {
                 val buffer = dp.data
                 val packetNumber = buffer[1].toInt()
@@ -319,7 +313,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                 packetData.dupNumPackets = duplicatePackets.size
             }
 
-            @Throws(IOException::class)
             override fun onBind(port: Int?) {
                 println("UDP; Binding on port $port")
             }
@@ -328,7 +321,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
         return udpStreamSender.send()
     }
 
-    @Throws(InterruptedException::class)
     fun receiveUdpPackets(socket: DatagramSocket, packets: Int, packetData: UdpPacketData) {
         val packetsReceived = TreeSet<Int>()
         val duplicatePackets = TreeSet<Int>()
@@ -341,7 +333,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
 
             val udpStreamReceiver = UdpStreamReceiver(settings, object : UdpStreamCallback {
 
-                @Throws(IOException::class)
                 override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
                     dataOut.writeByte(UDP_TEST_RESPONSE)
                     dataOut.writeByte(packetNumber)
@@ -350,7 +341,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                     return true
                 }
 
-                @Throws(IOException::class)
                 override fun onReceive(dp: DatagramPacket) {
                     val data = dp.data
                     val packetNumber = data[1].toInt()
@@ -376,7 +366,6 @@ class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
                     packetData.numPackets = packetsReceived.size
                 }
 
-                @Throws(IOException::class)
                 override fun onBind(port: Int?) {
                 }
             })

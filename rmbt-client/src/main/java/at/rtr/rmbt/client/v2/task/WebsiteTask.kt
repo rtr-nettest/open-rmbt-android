@@ -44,7 +44,6 @@ class WebsiteTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: In
         this.timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val result = initQoSTestResult(QoSTestResultEnum.WEBSITE)
         try {

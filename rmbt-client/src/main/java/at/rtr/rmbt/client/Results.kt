@@ -17,10 +17,8 @@
 package at.rtr.rmbt.client
 
 class Results {
-    @JvmField
     val bytes: LongArray
 
-    @JvmField
     val nsec: LongArray
 
     constructor(numResults: Int) {

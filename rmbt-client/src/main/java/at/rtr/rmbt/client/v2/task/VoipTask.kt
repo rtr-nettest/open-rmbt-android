@@ -91,7 +91,6 @@ class VoipTask(
         this.payloadType = if (value != null) PayloadType.getByCodecValue(value.toInt(), DEFAULT_PAYLOAD_TYPE) else DEFAULT_PAYLOAD_TYPE
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val ssrc = AtomicInteger(-1)
         val result = initQoSTestResult(QoSTestResultEnum.VOIP)
@@ -124,14 +123,12 @@ class VoipTask(
                                 dgsock = DatagramSocket()
 
                                 val receiveCallback = object : UdpStreamCallback {
-                                    @Throws(IOException::class)
                                     override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
                                         // nothing to do here
                                         return true
                                     }
 
                                     @Synchronized
-                                    @Throws(IOException::class)
                                     override fun onReceive(dp: DatagramPacket) {
                                         val receivedNs = System.nanoTime()
                                         val data = dp.data
@@ -143,7 +140,6 @@ class VoipTask(
                                         }
                                     }
 
-                                    @Throws(IOException::class)
                                     override fun onBind(port: Int?) {
                                         result.resultMap[RESULT_IN_PORT] = port
                                     }

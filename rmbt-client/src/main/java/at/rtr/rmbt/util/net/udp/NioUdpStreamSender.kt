@@ -51,7 +51,6 @@ class NioUdpStreamSender(
      * send a stream of udp packets
      * @return the [DatagramChannel] used for this stream or null if an exception occurred
      */
-    @Throws(InterruptedException::class, TimeoutException::class)
     override fun send(): DatagramChannel? {
         isRunning.set(true)
 

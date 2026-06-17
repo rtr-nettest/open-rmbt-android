@@ -110,7 +110,6 @@ class RMBTClient private constructor(
 
     val errorMsg: String = ""
 
-    @JvmField
     var commonCallback: RMBTClientCallback? = null
 
     val taskDescList: List<TaskDesc>?
@@ -221,7 +220,6 @@ class RMBTClient private constructor(
         return null
     }
 
-    @Throws(InterruptedException::class)
     fun runTest(): TotalTestResult? {
         println("starting test...")
 
@@ -527,7 +525,6 @@ class RMBTClient private constructor(
         println("Shutdown finished.")
     }
 
-    @Throws(Throwable::class)
     protected fun finalize() {
         testThreadPool?.shutdownNow()
         stopInactivityCheck()
@@ -904,10 +901,8 @@ class RMBTClient private constructor(
         private const val MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS = 120L
         private const val MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS = 1L
 
-        @JvmStatic
         fun getCommonThreadPool(): ExecutorService = COMMON_THREAD_POOL
 
-        @JvmStatic
         fun getInstance(
             host: String,
             pathPrefix: String?,
@@ -932,7 +927,6 @@ class RMBTClient private constructor(
         /**
          * Gets a new instance of RMBTClient or "null", if the connection to the given ControlServer cannot be established
          */
-        @JvmStatic
         fun getInstance(
             host: String,
             pathPrefix: String?,
@@ -981,28 +975,22 @@ class RMBTClient private constructor(
             return RMBTClient(params, controlConnection, cacheDir, enabledJitterAndPacketLoss)
         }
 
-        @JvmStatic
         fun getInstance(params: RMBTTestParameter): RMBTClient {
             return RMBTClient(params, null)
         }
 
-        @JvmStatic
         fun getTrustingManager(): TrustManager {
             return object : X509TrustManager {
                 override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
 
-                @Throws(CertificateException::class)
                 override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {
                 }
 
-                @Throws(CertificateException::class)
                 override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {
                 }
             }
         }
 
-        @JvmStatic
-        @Throws(NoSuchAlgorithmException::class, KeyManagementException::class)
         fun getSSLContext(caResource: String?, certResource: String?): SSLContext {
             var caTmp: X509Certificate? = null
             try {
@@ -1035,11 +1023,9 @@ class RMBTClient private constructor(
                         return if (ca == null) arrayOf(cert) else arrayOf(ca)
                     }
 
-                    @Throws(CertificateException::class)
                     override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {
                     }
 
-                    @Throws(CertificateException::class)
                     override fun checkServerTrusted(certs: Array<X509Certificate>?, authType: String) {
                         if (certs == null) {
                             throw CertificateException()

@@ -53,7 +53,6 @@ class RtpPacket {
         this.payload = payload
     }
 
-    @Throws(RtpException::class)
     constructor(packet: ByteArray?) {
         if (packet == null || packet.size < 12) {
             throw RtpException(RtpErrorType.PACKET_SIZE_TOO_SMALL)

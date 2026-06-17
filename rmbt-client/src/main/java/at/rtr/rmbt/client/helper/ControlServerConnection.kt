@@ -70,24 +70,18 @@ class ControlServerConnection {
 
     private var lastErrorList: MutableSet<ErrorStatus>? = null
 
-    @JvmField
     var udpTaskDesc: TaskDesc? = null
 
-    @JvmField
     var dnsTaskDesc: TaskDesc? = null
 
-    @JvmField
     var ntpTaskDesc: TaskDesc? = null
 
-    @JvmField
     var httpTaskDesc: TaskDesc? = null
 
-    @JvmField
     var tcpTaskDesc: TaskDesc? = null
 
     private var lastTestResult: JSONObject? = null
 
-    @JvmField
     var v2TaskDesc: MutableList<TaskDesc>? = null
 
     private var startTimeMillis: Long = 0
@@ -209,7 +203,6 @@ class ControlServerConnection {
         lastErrorList = null
     }
 
-    @Throws(JSONException::class)
     private fun checkHasErrors(response: JSONObject): Boolean {
         val errorList = response.getJSONArray("error")
         val errorFlags = response.optJSONArray("error_flags")
@@ -664,8 +657,6 @@ class ControlServerConnection {
             }
         }
 
-        @JvmStatic
-        @Throws(JSONException::class)
         fun addToJSONObject(data: JSONObject, additionalValues: JSONObject?) {
             if (additionalValues != null && additionalValues.length() > 0) {
                 val attr = additionalValues.names()!!

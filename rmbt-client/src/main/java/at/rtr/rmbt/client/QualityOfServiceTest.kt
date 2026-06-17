@@ -198,7 +198,6 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
         qoSTestSettings?.dispatchTestProgressEvent(TestProgressEvent.ON_CREATED, null, this)
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSResultCollector {
         statusRef.set(QoSTestEnum.QOS_RUNNING)
         val result = QoSResultCollector()
@@ -305,7 +304,6 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
         executor?.shutdownNow()
     }
 
-    @Throws(Throwable::class)
     protected open fun finalize() {
         executor?.shutdownNow()
     }
@@ -345,17 +343,13 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
     /**
      * @author lb
      */
-    class Counter(@JvmField var testType: QoSTestResultEnum, target: Int, concurrencyGroup: Int) {
-        @JvmField
+    class Counter(var testType: QoSTestResultEnum, target: Int, concurrencyGroup: Int) {
         var value: Int = 0
 
-        @JvmField
         var target: Int = target
 
-        @JvmField
         var firstTest: Int = concurrencyGroup
 
-        @JvmField
         var lastTest: Int = concurrencyGroup
 
         fun increaseCounter(concurrencyGroup: Int) {

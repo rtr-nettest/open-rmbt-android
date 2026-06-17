@@ -9,7 +9,6 @@ object Helperfunctions {
      * @param inetAddress the IP address to be anonymized
      * @param replaceLastOctetWith the String which shall replace the last octet in IPv4
      */
-    @JvmStatic
     fun anonymizeIp(inetAddress: InetAddress, replaceLastOctetWith: String): String? {
         return try {
             val address = inetAddress.address

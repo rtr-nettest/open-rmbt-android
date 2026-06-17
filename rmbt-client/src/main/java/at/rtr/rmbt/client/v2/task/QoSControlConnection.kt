@@ -33,10 +33,8 @@ import java.util.regex.Pattern
 class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
     AbstractRMBTTest(client, params, 1), Runnable {
 
-    @JvmField
     val isRunning = AtomicBoolean(true)
 
-    @JvmField
     val couldNotConnect = AtomicBoolean(false)
 
     private val requestMap = ConcurrentHashMap<Int, ControlConnectionResponseCallbackHolder>()
@@ -45,7 +43,6 @@ class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
 
     private var controlSocket: Socket? = null
 
-    @Throws(IOException::class)
     fun sendTaskCommand(qosTask: AbstractQoSTask, command: String, callback: ControlConnectionResponseCallback?) {
         if (callback != null) {
             requestMap[qosTask.getId()] = ControlConnectionResponseCallbackHolder(command, callback)
@@ -87,7 +84,6 @@ class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
         }
     }
 
-    @Throws(Exception::class)
     fun connect() {
         isRunning.set(true)
         try {
@@ -102,7 +98,6 @@ class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
         }
     }
 
-    @Throws(IOException::class)
     fun close() {
         sendMessage("QUIT\n")
         isRunning.set(false)
@@ -118,7 +113,6 @@ class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
     }
 
     companion object {
-        @JvmField
         val ID_REGEX_PATTERN: Pattern = Pattern.compile("\\+ID([\\d]*)")
     }
 }

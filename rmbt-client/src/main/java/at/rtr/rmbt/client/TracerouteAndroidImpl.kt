@@ -102,11 +102,9 @@ class TracerouteAndroidImpl : TracerouteService {
         }
 
         companion object {
-            @JvmField
             val PATTERN_PING_PACKET: Pattern =
                 Pattern.compile("([\\d]*) packets transmitted, ([\\d]*) received, ([+-]?([\\d]*) errors, )?([\\d]*)% packet loss, time ([\\d]*)ms")
 
-            @JvmField
             val PATTERN_FROM_IP: Pattern =
                 Pattern.compile("[fF]rom ([\\.\\-_\\d\\w\\s\\(\\)]*)(:|icmp)+(.*time=([\\d\\.]*))?")
         }
@@ -130,7 +128,6 @@ class TracerouteAndroidImpl : TracerouteService {
         this.maxHops = maxHops
     }
 
-    @Throws(Exception::class)
     override fun call(): List<TracerouteService.HopDetail> {
         isRunning.set(true)
         var list = resultList
@@ -175,8 +172,6 @@ class TracerouteAndroidImpl : TracerouteService {
     }
 
     companion object {
-        @JvmStatic
-        @Throws(PingException::class)
         fun readFromProcess(proc: Process): String {
             var brErr: BufferedReader? = null
             var br: BufferedReader? = null

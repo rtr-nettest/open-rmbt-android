@@ -20,12 +20,11 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class SpeedItem(
-    @JvmField val upload: Boolean,
-    @JvmField val thread: Int,
-    @JvmField val time: Long,
-    @JvmField val bytes: Long
+    val upload: Boolean,
+    val thread: Int,
+    val time: Long,
+    val bytes: Long
 ) {
-    @Throws(JSONException::class)
     fun toJSON(): JSONObject {
         val result = JSONObject()
         result.put("direction", if (upload) "upload" else "download")

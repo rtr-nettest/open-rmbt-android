@@ -24,13 +24,11 @@ class OutputStreamCounter(out: OutputStream) : FilterOutputStream(out) {
     var count: Long = 0
         private set
 
-    @Throws(IOException::class)
     override fun write(buffer: ByteArray, offset: Int, length: Int) {
         out.write(buffer, offset, length)
         count += length.toLong()
     }
 
-    @Throws(IOException::class)
     override fun write(oneByte: Int) {
         out.write(oneByte)
         count++

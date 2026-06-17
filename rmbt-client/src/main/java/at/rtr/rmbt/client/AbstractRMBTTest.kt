@@ -30,33 +30,25 @@ import java.util.regex.Pattern
 import javax.net.ssl.SSLSocket
 
 abstract class AbstractRMBTTest(
-    @JvmField protected val client: RMBTClient,
-    @JvmField protected val params: RMBTTestParameter,
-    @JvmField protected val threadId: Int
+    protected val client: RMBTClient,
+    protected val params: RMBTTestParameter,
+    protected val threadId: Int
 ) {
 
-    @JvmField
     protected var `in`: InputStreamCounter? = null
 
-    @JvmField
     protected var reader: BufferedReader? = null
 
-    @JvmField
     protected var out: OutputStreamCounter? = null
 
-    @JvmField
     protected var totalDown: Long = 0
 
-    @JvmField
     protected var totalUp: Long = 0
 
-    @JvmField
     protected var chunksize = 0
 
-    @JvmField
     protected var buf: ByteArray? = null
 
-    @Throws(IOException::class)
     protected fun getSocket(host: String, port: Int, isSecure: Boolean, timeOut: Int): Socket {
         val sockAddr = InetSocketAddress(host, port)
 
@@ -73,7 +65,6 @@ abstract class AbstractRMBTTest(
         return socket
     }
 
-    @Throws(IOException::class)
     protected fun connect(
         testResult: TestResult?,
         host: InetAddress,
@@ -172,12 +163,10 @@ abstract class AbstractRMBTTest(
         }
     }
 
-    @Throws(IOException::class)
     protected open fun connect(testResult: TestResult?): Socket? {
         return connect(testResult, InetAddress.getByName(params.host), params.port, EXPECT_GREETING, "CHUNKSIZE", true, 20000)
     }
 
-    @Throws(IOException::class)
     protected fun sendMessage(message: String) {
         val send = String.format(Locale.US, message)
 
@@ -195,10 +184,12 @@ abstract class AbstractRMBTTest(
     }
 
     companion object {
-        @JvmField
+        // @JvmStatic is required by Kotlin (not for Java interop) so the RMBTTest subclass
+        // can access these protected companion members.
+        @JvmStatic
         protected val EXPECT_GREETING: String = Config.RMBT_SERVER_NAME
 
-        @JvmField
+        @JvmStatic
         protected val RMBT_SERVER_PATTERN: Pattern = Pattern.compile(Config.RMBT_VERSION_EXPRESSION)
     }
 }

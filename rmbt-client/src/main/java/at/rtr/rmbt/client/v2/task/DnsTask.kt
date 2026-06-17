@@ -49,7 +49,6 @@ class DnsTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
         this.timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val testResult = initQoSTestResult(QoSTestResultEnum.DNS)
 
@@ -121,7 +120,6 @@ class DnsTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
 
         const val RESULT_DNS_ENTRIES_FOUND = "dns_result_entries_found"
 
-        @JvmStatic
         fun lookupDns(domainName: String?, record: String?, resolver: String?, timeout: Int, testResult: QoSTestResult): List<JSONObject>? {
             val result: MutableList<JSONObject> = ArrayList()
 

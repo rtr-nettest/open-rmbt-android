@@ -41,14 +41,12 @@ object Dig {
         System.exit(0)
     }
 
-    @Throws(IOException::class)
     private fun doQuery(response: Message, ms: Long) {
         println("; java dig 0.0")
         println(response)
         println(";; Query time: $ms ms")
     }
 
-    @Throws(IOException::class)
     private fun doAXFR(response: Message) {
         println("; java dig 0.0 <> $name axfr")
         if (response.isSigned) {
@@ -77,8 +75,6 @@ object Dig {
         println(" additional)")
     }
 
-    @JvmStatic
-    @Throws(IOException::class)
     fun run(argv: Array<String>) {
         var server: String? = null
         var arg: Int
@@ -195,14 +191,10 @@ object Dig {
         }
     }
 
-    @JvmStatic
-    @Throws(Exception::class)
     fun doRequest(domain: String?, record: String?, timeout: Int): DnsRequest {
         return doRequest(domain, record, null, timeout)
     }
 
-    @JvmStatic
-    @Throws(Exception::class)
     fun doRequest(domain: String?, record: String?, resolver: String?, timeout: Int): DnsRequest {
         val res: Resolver = if (resolver != null) SimpleResolver(resolver) else SimpleResolver()
 

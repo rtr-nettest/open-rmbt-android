@@ -46,6 +46,10 @@ abstract class AbstractQoSTask : AbstractRMBTTest, QoSTask {
     private var hasFinishedFlag = false
     private var hasStartedFlag = false
 
+    // @JvmField required (not for Java interop): these are exposed both as fields (subclasses
+    // access them directly) and via getter methods below (getTaskDesc() is a QoSTask interface
+    // override; getQoSTest()/getId()/getControlConnection() are called as functions). Without
+    // @JvmField the property's auto-generated getter would clash with those methods.
     @JvmField
     protected val taskDesc: TaskDesc
 
@@ -103,7 +107,6 @@ abstract class AbstractQoSTask : AbstractRMBTTest, QoSTask {
 
     override fun compareTo(o: QoSTask): Int = priority.compareTo(o.getPriority())
 
-    @Throws(IOException::class)
     fun sendMessage(socket: Socket, message: String) {
         val fos = FilterOutputStream(socket.getOutputStream())
         val send = String.format(Locale.US, message)
@@ -111,7 +114,6 @@ abstract class AbstractQoSTask : AbstractRMBTTest, QoSTask {
         fos.flush()
     }
 
-    @Throws(IOException::class)
     fun readLine(socket: Socket): String? {
         val fis = BufferedInputStream(socket.getInputStream())
         val r = BufferedReader(InputStreamReader(fis, "US-ASCII"), 4096)
@@ -167,7 +169,6 @@ abstract class AbstractQoSTask : AbstractRMBTTest, QoSTask {
         return false
     }
 
-    @Throws(IOException::class)
     fun sendCommand(command: String, callback: ControlConnectionResponseCallback?) {
         controlConnection!!.sendTaskCommand(this, command, callback)
     }

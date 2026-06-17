@@ -19,19 +19,14 @@ package at.rtr.rmbt.client.helper
 import java.util.Properties
 
 object RevisionHelper {
-    @JvmField
     val describe: String
 
-    @JvmField
     val revision: String
 
-    @JvmField
     val gitId: String
 
-    @JvmField
     val branch: String
 
-    @JvmField
     val dirty: Boolean
 
     init {
@@ -67,9 +62,7 @@ object RevisionHelper {
         dirty = dirtyValue
     }
 
-    @JvmStatic
     fun getVerboseRevision(): String = String.format("%s_%s", branch, describe)
 
-    @JvmStatic
     fun getServerVersion(): String = gitId
 }

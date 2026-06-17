@@ -24,21 +24,18 @@ class InputStreamCounter(`in`: InputStream) : FilterInputStream(`in`) {
     var count: Long = 0
         private set
 
-    @Throws(IOException::class)
     override fun read(): Int {
         val read = `in`.read()
         if (read != -1) count++
         return read
     }
 
-    @Throws(IOException::class)
     override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
         val read = `in`.read(buffer, offset, length)
         if (read != -1) count += read.toLong()
         return read
     }
 
-    @Throws(IOException::class)
     override fun skip(byteCount: Long): Long {
         val skip = `in`.skip(byteCount)
         count += skip
@@ -53,7 +50,6 @@ class InputStreamCounter(`in`: InputStream) : FilterInputStream(`in`) {
     }
 
     @Synchronized
-    @Throws(IOException::class)
     override fun reset() {
         throw UnsupportedOperationException()
     }

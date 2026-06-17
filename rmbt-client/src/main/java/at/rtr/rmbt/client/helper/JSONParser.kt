@@ -29,15 +29,12 @@ import java.net.URL
 import java.nio.charset.Charset
 
 object JSONParser {
-    @JvmField
     var CONNECT_TIMEOUT = 5000
 
-    @JvmField
     var READ_TIMEOUT = 8000
 
     private var CAPABILITIES: JSONObject? = null
 
-    @JvmStatic
     fun setCapabilities(capabilities: Capabilities?) {
         try {
             CAPABILITIES = if (capabilities == null) {
@@ -50,8 +47,6 @@ object JSONParser {
         }
     }
 
-    @JvmStatic
-    @Throws(IOException::class)
     fun readUrl(url: URL): String {
         val urlConnection = url.openConnection()
         try {
@@ -73,8 +68,6 @@ object JSONParser {
         }
     }
 
-    @JvmStatic
-    @Throws(IOException::class)
     fun sendToUrl(url: URL, data: String, connectTimeout: Int, headerValue: String?): String {
         val urlConnection = url.openConnection() as HttpURLConnection
         try {
@@ -107,7 +100,6 @@ object JSONParser {
         }
     }
 
-    @JvmStatic
     fun getURL(url: URL): JSONObject? {
         // try parse the string to a JSON object
         return try {
@@ -118,17 +110,14 @@ object JSONParser {
         }
     }
 
-    @JvmStatic
     fun sendJSONToUrl(url: URL, data: JSONObject): JSONObject? {
         return sendJSONToUrl(url, data, CONNECT_TIMEOUT, null)
     }
 
-    @JvmStatic
     fun sendJSONToUrl(url: URL, data: JSONObject, headerValue: String?): JSONObject? {
         return sendJSONToUrl(url, data, CONNECT_TIMEOUT, headerValue)
     }
 
-    @JvmStatic
     fun sendJSONToUrl(url: URL, data: JSONObject, connectTimeout: Int, headerValue: String?): JSONObject? {
         return try {
             if (CAPABILITIES != null) {
@@ -142,8 +131,6 @@ object JSONParser {
         }
     }
 
-    @JvmStatic
-    @Throws(JSONException::class)
     fun toMap(obj: JSONObject): Map<String, Any?> {
         val map: MutableMap<String, Any?> = HashMap()
         val keys = obj.keys()
@@ -154,8 +141,6 @@ object JSONParser {
         return map
     }
 
-    @JvmStatic
-    @Throws(JSONException::class)
     fun toList(array: JSONArray): List<Any?> {
         val list: MutableList<Any?> = ArrayList()
         for (i in 0 until array.length()) {
@@ -164,7 +149,6 @@ object JSONParser {
         return list
     }
 
-    @Throws(JSONException::class)
     private fun fromJson(json: Any?): Any? {
         return when {
             json === JSONObject.NULL -> null

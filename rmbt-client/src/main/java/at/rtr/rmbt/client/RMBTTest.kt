@@ -166,10 +166,8 @@ class RMBTTest(
     }
 
     class CurrentSpeed {
-        @JvmField
         var trans: Long = 0
 
-        @JvmField
         var time: Long = 0
 
         override fun toString(): String = "CurrentSpeed [trans=$trans, time=$time]"
@@ -182,7 +180,6 @@ class RMBTTest(
         return r
     }
 
-    @Throws(IOException::class)
     override fun connect(testResult: TestResult?): Socket? {
         val tr = testResult!!
         log(String.format(Locale.US, "thread %d: connecting...", threadId))
@@ -504,7 +501,6 @@ class RMBTTest(
         return testResult
     }
 
-    @Throws(InterruptedException::class, IOException::class)
     private fun downloadChunks(chunks: Int) {
         if (Thread.interrupted()) {
             throw InterruptedException()
@@ -553,7 +549,6 @@ class RMBTTest(
         rdr.readLine() // read TIME line
     }
 
-    @Throws(IOException::class, InterruptedException::class, IllegalStateException::class)
     private fun download(seconds: Int, additionalWait: Int, result: SingleResult): Boolean {
         if (Thread.interrupted()) {
             throw InterruptedException()
@@ -632,7 +627,6 @@ class RMBTTest(
         return false
     }
 
-    @Throws(InterruptedException::class, IOException::class)
     private fun uploadChunks(chunks: Int) {
         if (Thread.interrupted()) {
             throw InterruptedException()
@@ -672,7 +666,6 @@ class RMBTTest(
         rdr.readLine() // TIME line
     }
 
-    @Throws(IOException::class, InterruptedException::class, IllegalStateException::class)
     private fun upload(seconds: Int, result: SingleResult): Boolean {
         if (Thread.interrupted()) {
             throw InterruptedException()
@@ -712,7 +705,6 @@ class RMBTTest(
         val terminateRxAtAllEvents = AtomicBoolean(false)
 
         val futureRx = RMBTClient.getCommonThreadPool().submit(object : Callable<Boolean> {
-            @Throws(Exception::class)
             override fun call(): Boolean {
                 val patternFull = Pattern.compile("TIME (\\d+) BYTES (\\d+)")
                 val patternTime = Pattern.compile("TIME (\\d+)")
@@ -766,7 +758,6 @@ class RMBTTest(
         val bufTx = buffer.clone()
         val terminateTx = AtomicBoolean(false)
         val futureTx = RMBTClient.getCommonThreadPool().submit(object : Callable<Void?> {
-            @Throws(Exception::class)
             override fun call(): Void? {
                 while (true) {
                     if (Thread.interrupted()) {
@@ -827,7 +818,6 @@ class RMBTTest(
         return returnValue
     }
 
-    @Throws(IOException::class)
     private fun ping(): Ping? {
         log(String.format(Locale.US, "thread %d: ping test", threadId))
 

@@ -44,7 +44,6 @@ class TcpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
         timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val result = initQoSTestResult(QoSTestResultEnum.TCP)
         try {

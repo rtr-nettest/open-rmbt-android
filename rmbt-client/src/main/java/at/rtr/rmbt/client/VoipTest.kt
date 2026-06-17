@@ -123,7 +123,6 @@ open class VoipTest : QualityOfServiceTest {
 
     protected open fun getTestId(): String = RMBTClient.TASK_VOIP
 
-    @Throws(Exception::class)
     override fun call(): QoSResultCollector {
         statusRef.set(QoSTestEnum.VOIP)
         val result = QoSResultCollector()

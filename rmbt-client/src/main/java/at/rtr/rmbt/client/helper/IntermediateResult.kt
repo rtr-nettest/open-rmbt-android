@@ -17,37 +17,26 @@
 package at.rtr.rmbt.client.helper
 
 class IntermediateResult {
-    @JvmField
     var pingNano: Long = 0
 
-    @JvmField
     var downBitPerSec: Long = 0
 
-    @JvmField
     var upBitPerSec: Long = 0
 
-    @JvmField
     var status: TestStatus? = null
 
-    @JvmField
     var progress = 0f
 
-    @JvmField
     var downBitPerSecLog = 0.0
 
-    @JvmField
     var upBitPerSecLog = 0.0
 
-    @JvmField
     var remainingWait: Long = 0
 
-    @JvmField
     var jitter: Long = 0
 
-    @JvmField
     var packetLossUp: Long = 0
 
-    @JvmField
     var packetLossDown: Long = 0
 
     fun setLogValues() {
@@ -56,7 +45,6 @@ class IntermediateResult {
     }
 
     companion object {
-        @JvmStatic
         fun toLog(value: Long): Double {
             if (value < 1e5) return 0.0
             return (2.0 + Math.log10(value / 1e7)) / 4.0

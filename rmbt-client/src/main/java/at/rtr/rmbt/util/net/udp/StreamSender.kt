@@ -25,7 +25,6 @@ import java.util.concurrent.TimeoutException
 
 interface StreamSender<T> {
 
-    @Throws(InterruptedException::class, IOException::class, TimeoutException::class)
     fun send(): T?
 
     /**
@@ -38,21 +37,18 @@ interface StreamSender<T> {
          * @param dataOut output stream for the packet's payload
          * @param packetNumber the current packet number
          */
-        @Throws(IOException::class)
         fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean
 
         /**
          * is called after a datagram packet has been received
          * @param dp the received datagram packet
          */
-        @Throws(IOException::class)
         fun onReceive(dp: DatagramPacket)
 
         /**
          * is called when the socket/channel is bound to a specific port
          * @param port
          */
-        @Throws(IOException::class)
         fun onBind(port: Int?)
     }
 

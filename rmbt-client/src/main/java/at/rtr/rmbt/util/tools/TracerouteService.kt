@@ -20,8 +20,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.Callable
 
-@JvmSuppressWildcards
-interface TracerouteService : Callable<@JvmSuppressWildcards List<TracerouteService.HopDetail>> {
+interface TracerouteService : Callable<List<TracerouteService.HopDetail>> {
 
     class PingException(msg: String) : IOException(msg) {
         companion object {

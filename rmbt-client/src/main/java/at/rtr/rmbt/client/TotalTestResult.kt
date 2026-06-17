@@ -21,28 +21,20 @@ import at.rtr.rmbt.client.v2.task.service.TestMeasurement
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 
 class TotalTestResult : TestResult() {
-    @JvmField
     var speed_upload = 0.0
 
-    @JvmField
     var speed_download = 0.0
 
-    @JvmField
     var bytes_download: Long = 0
 
-    @JvmField
     var nsec_download: Long = 0
 
-    @JvmField
     var bytes_upload: Long = 0
 
-    @JvmField
     var nsec_upload: Long = 0
 
-    @JvmField
     var totalDownBytes: Long = 0
 
-    @JvmField
     var totalUpBytes: Long = 0
 
     private var measurementMap: Map<TestStatus, TestMeasurement>? = null
@@ -159,7 +151,6 @@ class TotalTestResult : TestResult() {
     }
 
     companion object {
-        @JvmStatic
         fun calculateAndGet(speedMap: Map<Int, List<SpeedItem>>): TotalTestResult {
             val threads = speedMap.keys.size
 
@@ -188,7 +179,6 @@ class TotalTestResult : TestResult() {
             return calculateAndGet(allBytes ?: arrayOfNulls(0), allNsecs ?: arrayOfNulls(0), false)
         }
 
-        @JvmStatic
         fun calculateAndGet(allBytes: Array<LongArray?>, allNsecs: Array<LongArray?>, upload: Boolean): TotalTestResult {
             val totalResult = TotalTestResult()
             totalResult.calculate(allBytes, allNsecs, upload)

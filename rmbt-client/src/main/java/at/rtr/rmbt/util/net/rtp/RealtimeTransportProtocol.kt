@@ -92,7 +92,6 @@ class RealtimeTransportProtocol {
         H263_1998(-1, 90000, -1, CodecType.VIDEO);
 
         companion object {
-            @JvmStatic
             fun getByCodecValue(value: Int): PayloadType {
                 for (p in values()) {
                     if (p.value == value) {
@@ -103,7 +102,6 @@ class RealtimeTransportProtocol {
                 return UNKNOWN
             }
 
-            @JvmStatic
             fun getByCodecValue(value: Int, defaultType: PayloadType): PayloadType {
                 val p = getByCodecValue(value)
                 if (UNKNOWN == p) {
@@ -121,7 +119,6 @@ class RealtimeTransportProtocol {
         UNKNOWN(-1);
 
         companion object {
-            @JvmStatic
             fun getByVersion(version: Int): RtpVersion {
                 for (v in values()) {
                     if (v.version == version) {
@@ -138,7 +135,6 @@ class RealtimeTransportProtocol {
         /**
          * creates the first 4 bytes of the RTP header
          */
-        @JvmStatic
         fun createHeaderBytes(
             version: RtpVersion,
             hasPadding: Boolean,
@@ -164,7 +160,6 @@ class RealtimeTransportProtocol {
             return h
         }
 
-        @JvmStatic
         fun createCsrcIdentifierBytes(csrcIds: LongArray?): ByteArray? {
             if (csrcIds != null && csrcIds.isNotEmpty()) {
                 val h = ByteArray(csrcIds.size * 4)

@@ -46,7 +46,6 @@ class TracerouteTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId:
         this.maxHops = if (value != null) value.toInt() else DEFAULT_MAX_HOPS
     }
 
-    @Throws(Exception::class)
     override fun call(): QoSTestResult {
         val qostestresult = if (masked) QoSTestResultEnum.TRACEROUTE_MASKED else QoSTestResultEnum.TRACEROUTE
 

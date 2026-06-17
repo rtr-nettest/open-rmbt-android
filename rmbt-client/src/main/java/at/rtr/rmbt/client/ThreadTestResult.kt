@@ -17,20 +17,15 @@
 package at.rtr.rmbt.client
 
 class ThreadTestResult : TestResult() {
-    @JvmField
     var down: Results? = null
 
-    @JvmField
     var up: Results? = null
 
-    @JvmField
     var totalDownBytes: Long = 0
 
-    @JvmField
     var totalUpBytes: Long = 0
 
     companion object {
-        @JvmStatic
         fun getLastEntry(data: LongArray?): Long {
             if (data == null || data.isEmpty()) return 0
             return data[data.size - 1]

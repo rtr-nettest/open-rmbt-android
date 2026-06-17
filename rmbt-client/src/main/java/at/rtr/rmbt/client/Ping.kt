@@ -17,7 +17,7 @@
 package at.rtr.rmbt.client
 
 class Ping(
-    @JvmField val client: Long,
-    @JvmField val server: Long,
-    @JvmField val timeNs: Long
+    val client: Long,
+    val server: Long,
+    val timeNs: Long
 )

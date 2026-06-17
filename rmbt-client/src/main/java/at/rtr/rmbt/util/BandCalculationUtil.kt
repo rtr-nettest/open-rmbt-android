@@ -21,7 +21,6 @@ object BandCalculationUtil {
      * @param earfcn Frequency to check
      * @return LTEBand object for matched band, or NULL if invalid earfcn is passed
      */
-    @JvmStatic
     fun getBandFromEarfcn(earfcn: Int): FrequencyInformation<LTEBand>? {
         if (earfcn in 1..17999) { // DL
             for (band in lteBands.values) {
@@ -41,7 +40,6 @@ object BandCalculationUtil {
         return null
     }
 
-    @JvmStatic
     fun getBandFromNrarfcn(nrarfcn: Int): FrequencyInformation<NRBand>? {
         // different calculation - get frequency from nrarfcn directly, then assign band
         val frequencyMHz = getNrFrequencyFromNrArfcn(nrarfcn)
@@ -62,7 +60,6 @@ object BandCalculationUtil {
      * @param uarfcn Frequency to check
      * @return UMTSBand object for matched band, or NULL if invalid uarfcn is passed
      */
-    @JvmStatic
     fun getBandFromUarfcn(uarfcn: Int): FrequencyInformation<UMTSBand>? {
         // we can't differentiate between UL and DL with umts?
         for (umtsBand in umtsBands.values) {
@@ -79,7 +76,6 @@ object BandCalculationUtil {
      * @param arfcn Frequency to check
      * @return GSMBand object for matched band, or NULL if invalid arfcn is passed
      */
-    @JvmStatic
     fun getBandFromArfcn(arfcn: Int): FrequencyInformation<GSMBand>? {
         // we can't differentiate between UL and DL with umts?
         for (gsmBand in gsmBands) {
@@ -92,7 +88,6 @@ object BandCalculationUtil {
         return null
     }
 
-    @JvmStatic
     fun getBandFromWifiFrequency(frequency: Int): WifiBand? {
         return wifiBands[frequency]
     }

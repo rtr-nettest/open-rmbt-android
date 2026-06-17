@@ -151,3 +151,13 @@ Deleted `RMBTClient.java`. **Verified end-to-end on device** (motorola edge 70):
 - **0 Java files remain** in `app`, `core`, and `rmbt-client` (`src/main`). The Android app is now 100% Kotlin.
 - 102 original Java files → converted to Kotlin or removed as dead code; final batch (Checkpoints 18–20) covered `AbstractRMBTTest`, `ControlServerConnection`, `RMBTTest`, `RMBTClient`.
 - Verified: `:rmbt-client:compileDebugSources` ✓, `:app:compileRmbtDebugSources` ✓, installed + full QoS test on device → results screen ✓.
+
+## Checkpoint 21 — VoIP in_port fix + interop-annotation cleanup
+
+**VoIP `in_port` fix** (`RtpUtil.runVoipStream`): the internal `onBind` reported `incomingPort` (null when the server sends only `out_port`) instead of the actual bound socket port, so `voip_objective_in_port` serialized as null. Now reports the real bound port. (This is a latent bug present in the original Java too; it makes the result more complete but the persistent VoIP QoS failure is a **server-side evaluation** issue — the client submits a healthy 100/100-packet result that the netztest.at eval rejects regardless.)
+
+**Interop-annotation cleanup:** removed the now-vestigial Kotlin→Java interop annotations that were only needed during the mixed-migration phase — **240 of 244** stripped from `rmbt-client` (all `@Throws`, plus the Java-only `@JvmStatic`/`@JvmField`/`@JvmName`/`@JvmSuppressWildcards`). Kept **6** that are genuine Kotlin *language* requirements (not Java interop):
+- `@JvmStatic` ×2 on `AbstractRMBTTest`'s `protected` companion members `EXPECT_GREETING`/`RMBT_SERVER_PATTERN` (Kotlin disallows non-`@JvmStatic` protected companion members accessed from a subclass).
+- `@JvmField` ×4 on `AbstractQoSTask`'s `taskDesc`/`qoSTest`/`id`/`controlConnection` — these are exposed both as fields (subclass access) and via getter methods (`getTaskDesc()` is a `QoSTask` interface override; the others are called as functions); without `@JvmField` the property auto-getter clashes with those methods.
+
+Verified: `:rmbt-client:compileDebugSources` ✓, `:app:compileRmbtDebugSources` ✓, installed + on-device test ✓.

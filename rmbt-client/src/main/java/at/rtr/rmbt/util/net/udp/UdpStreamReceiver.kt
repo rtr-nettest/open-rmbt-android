@@ -44,7 +44,6 @@ class UdpStreamReceiver(
         isRunning.set(false)
     }
 
-    @Throws(InterruptedException::class, IOException::class)
     fun receive() {
         val byteOut = ByteArrayOutputStream()
         val dataOut = DataOutputStream(byteOut)

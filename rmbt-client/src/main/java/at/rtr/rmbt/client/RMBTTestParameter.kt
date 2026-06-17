@@ -39,7 +39,6 @@ open class RMBTTestParameter(
         this(host, port, encryption, null, duration, numThreads, numPings, 0, Config.SERVER_TYPE_QOS)
 
     val uuid: String?
-        @JvmName("getUUID")
         get() {
             val t = token ?: return null
             val parts = t.split("_")
@@ -49,7 +48,6 @@ open class RMBTTestParameter(
             return parts[0]
         }
 
-    @Throws(IllegalArgumentException::class)
     fun check() {
         if (host == null || host.isEmpty()) {
             throw IllegalArgumentException("no host")

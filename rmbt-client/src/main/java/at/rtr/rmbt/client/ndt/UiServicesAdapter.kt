@@ -19,22 +19,16 @@ package at.rtr.rmbt.client.ndt
 import net.measurementlab.ndt.UiServices
 
 class UiServicesAdapter : UiServices {
-    @JvmField
     var s2cspd: Double? = null
 
-    @JvmField
     var c2sspd: Double? = null
 
-    @JvmField
     var avgrtt: Double? = null
 
-    @JvmField
     val sbMain = StringBuffer()
 
-    @JvmField
     val sbStat = StringBuffer()
 
-    @JvmField
     val sbDiag = StringBuffer()
 
     var startTimeNs: Long = 0
