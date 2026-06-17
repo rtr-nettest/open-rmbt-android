@@ -161,3 +161,58 @@ Deleted `RMBTClient.java`. **Verified end-to-end on device** (motorola edge 70):
 - `@JvmField` ×4 on `AbstractQoSTask`'s `taskDesc`/`qoSTest`/`id`/`controlConnection` — these are exposed both as fields (subclass access) and via getter methods (`getTaskDesc()` is a `QoSTask` interface override; the others are called as functions); without `@JvmField` the property auto-getter clashes with those methods.
 
 Verified: `:rmbt-client:compileDebugSources` ✓, `:app:compileRmbtDebugSources` ✓, installed + on-device test ✓.
+
+---
+
+## Appendix — How the speed test was migrated (threads & callbacks)
+
+The speed test is the most concurrency-heavy part of the app. It is split across three converted classes — `RMBTClient` (orchestrator), `RMBTTest` (per-thread worker), `AbstractRMBTTest` (socket/stream plumbing) — plus the `RMBTClientCallback` interface. This section documents how that machinery was carried into Kotlin.
+
+### Thread & executor model (unchanged in behaviour, restated in Kotlin)
+
+- **Worker pool** — `RMBTClient.testThreadPool = Executors.newFixedThreadPool(numThreads)`. `runTest()` builds N `RMBTTest` workers, `submit()`s each, and keeps the `Future`s:
+  - `val results = arrayOfNulls<Future<ThreadTestResult?>>(numThreads)` and `results[i] = testThreadPool.submit(task)`.
+  - It then blocks on `results[i].get()` to join all workers, aggregates the per-thread `ThreadTestResult`s into the `TotalTestResult`, and computes the combined up/down speeds.
+- **Shared cached pool** — `RMBTClient.COMMON_THREAD_POOL = Executors.newCachedThreadPool()`, exposed as `@JvmStatic getCommonThreadPool()`. Used by the upload phase's reader/writer split and by QoS. (`@JvmStatic` is kept only because it is called as `RMBTClient.getCommonThreadPool()` from many sites — it is *not* Java interop.)
+- **Inactivity watchdog** — a single-thread `ScheduledExecutorService` (`inactivityExecutor`) re-arms itself every second (`scheduleNextInactivityCheck()`); if `RMBTClient` produces no callback for > 120 s it posts `ERROR` and aborts. It is re-armed from inside the data callbacks (see below).
+- **Caller side (`core`)** — `TestControllerImpl` runs `client.runTest()` inside `GlobalScope.async { … }` (the `clientJob` coroutine) so the blocking test loop never touches the main thread.
+
+### Phase synchronization — `CyclicBarrier` + `AtomicBoolean`
+
+All N workers share one `CyclicBarrier(numThreads)` and one `AtomicBoolean fallbackToOneThread`, both injected through the `RMBTTest` constructor as Kotlin constructor-val properties:
+
+```kotlin
+class RMBTTest(
+    client, params, threadId,
+    private val barrier: CyclicBarrier,
+    storeResults: Int,
+    private val minDiffTime: Long,
+    private val fallbackToOneThread: AtomicBoolean,
+) : AbstractRMBTTest(client, params, threadId), Callable<ThreadTestResult?>
+```
+
+`call()` choreographs the phases with `barrier.await()` between each: connect → short pretest-download → PING → DOWN → INIT_UP → UP. If the pretest shows a slow link, a worker sets `fallbackToOneThread`; thereafter only thread 0 continues (the others `return null`) and the remaining `barrier.await()` calls are guarded by `if (!fallbackToOneThreadLocal)` so the reduced thread count doesn't dead-lock the barrier. Only **thread 0** drives global state (`setStatus(...)`) and runs the ping loop and the embedded jitter/VoIP test.
+
+### The upload phase — producer/consumer on the common pool
+
+`upload()` splits into two anonymous `Callable`s submitted to `getCommonThreadPool()`, converted to Kotlin `object : Callable<…>`:
+- **`futureRx`** (`Callable<Boolean>`) — a reader that `Scanner`s the socket for `TIME <ns> BYTES <n>` feedback lines and records throughput samples.
+- **`futureTx`** (`Callable<Void?>`) — a writer that streams chunks until a terminate flag flips, checking `Thread.interrupted()` so a cancelled test stops promptly.
+
+Coordination is via `AtomicBoolean`s (`terminateRxIfEnough`, `terminateRxAtAllEvents`, `terminateTx`) and `AtomicLong` speed snapshots (`curTransfer`/`curTime`).
+
+### Callbacks — `RMBTClient` is both sink and relay
+
+`RMBTClientCallback` (Kotlin interface) declares: `onClientReady`, `onSpeedDataChanged`, `onPingDataChanged`, `onTestCompleted`, `onQoSTestCompleted`, `onTestStatusUpdate`. `RMBTClient` **implements** it *and* holds a `var commonCallback: RMBTClientCallback?` that `core` sets to its own listener:
+
+- Worker threads push progress *into* `RMBTClient`: `client.onSpeedDataChanged(thread, bytes, nsec, upload)` and `client.onPingDataChanged(client, server, timeNs)`.
+- `RMBTClient`'s implementations relay *out* to the app (`commonCallback?.onSpeedDataChanged(...)`) **and** stamp `measurementLastUpdate` + re-arm the inactivity watchdog. So the same method both forwards to the UI and keeps the watchdog alive.
+- Phase changes flow through the `status` property setter: `RMBTTest.setStatus()` (thread 0 only) does `client.status = status`; the setter centralizes the side effects (timestamp, reset speed on `INIT_UP`, jitter-start on `PACKET_LOSS_AND_JITTER`).
+
+### Kotlin-specific concerns that mattered for threads/callbacks
+
+1. **Nullable `Callable` result.** `call()` returns `null` for an aborted/fallback worker, so the type is `Callable<ThreadTestResult?>` and the futures are `Future<ThreadTestResult?>`. In Java the null was implicit; Kotlin forces it to be explicit (and `runTest` dereferences thread-0's result with `!!`).
+2. **Nullable callback params = silent hangs if ignored.** Any callback argument the producing thread might pass as `null` must be a nullable Kotlin type (`onTestStatusUpdate(status: TestStatus?)`, `onQoSTestCompleted(qosResult: QoSResultCollector?)`, `onClientReady(..., loopUUID: String?, ...)`). A non-null param receiving `null` on a worker thread throws an inserted null-check NPE whose failure isn't surfaced — it manifests as a **hang**, not a crash (the same class of bug as the earlier QoS `dispatchTestProgressEvent` fix).
+3. **Capture nullable streams once per phase.** The inherited stream fields (`in`/`reader`/`out`/`buf`) are nullable `var`; each loop captures them into non-null locals up front (`val outStream = out!!`, `val rdr = reader!!`, `val inStream = \`in\`!!`, `val buffer = buf!!`) so the hot read/write loops — and the two upload threads — don't re-null-check or fight Kotlin's cross-thread smart-cast limits.
+4. **Interrupt propagation preserved.** `futureTx` throws `InterruptedException` on `Thread.interrupted()`; `runTest()` catches `InterruptedException` (user pressed "Back") to `abortTest(false)` and rethrow. The old `@Throws(InterruptedException)` was dropped (Kotlin has no checked exceptions) but the propagation path is identical.
+5. **`commonCallback`** is now a plain Kotlin `var` property (the migration-phase `@JvmField` was removed in the cleanup); `core` still assigns `client.commonCallback = clientCallback` unchanged.
