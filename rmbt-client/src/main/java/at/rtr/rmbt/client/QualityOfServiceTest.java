@@ -371,6 +371,15 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
     public synchronized void interrupt() {
         if (executor != null)
             executor.shutdownNow();
+        // Tear down any open QoS control connections so their blocking reader threads/sockets don't
+        // leak when the QoS phase is abandoned (e.g. skipped because the server is unresponsive).
+        for (QoSControlConnection connection : controlConnectionMap.values()) {
+            try {
+                connection.interrupt();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 
     @Override

@@ -14,6 +14,7 @@ import at.rtr.rmbt.client.TrafficServiceImpl
 import at.rtr.rmbt.client.WebsiteTestServiceImpl
 import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.client.v2.task.service.TestSettings
 import at.rtr.rmbt.util.model.shared.LoopModeSettings
@@ -31,7 +32,11 @@ import kotlinx.coroutines.delay
 import org.json.JSONObject
 import timber.log.Timber
 import java.net.InetAddress
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.floor
 
 private const val KEY_TEST_COUNTER = "testCounter"
@@ -47,6 +52,10 @@ private const val KEY_COVERAGE = "coverage"
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
+
+// If the QoS server does not respond (no QoS task makes any progress) within this time, the QoS
+// phase is skipped silently and the test continues to the results without QoS.
+private const val QOS_RESPONSE_TIMEOUT_MS = 5000L
 
 class TestControllerImpl(
     private val context: Context,
@@ -261,20 +270,20 @@ class TestControllerImpl(
 
                 // clientCallback.onTestCompleted(result, !skipQoSTests)
                 if (!skipQoSTests) { // needs to prevent calling onTestCompleted and finishing before unimplemented QoS phase
-                    val qosTestSettings = TestSettings()
-                    qosTestSettings.cacheFolder = context.cacheDir
-                    qosTestSettings.websiteTestService = WebsiteTestServiceImpl(context)
-                    qosTestSettings.tracerouteServiceClazz = TracerouteAndroidImpl::class.java
-                    qosTestSettings.trafficService = TrafficServiceImpl()
-                    qosTestSettings.startTimeNs = _testStartTimeNanos
-                    qosTestSettings.isUseSsl = config.qosSSL
+                    val qosResult = runQosPhaseSafely {
+                        val qosTestSettings = TestSettings()
+                        qosTestSettings.cacheFolder = context.cacheDir
+                        qosTestSettings.websiteTestService = WebsiteTestServiceImpl(context)
+                        qosTestSettings.tracerouteServiceClazz = TracerouteAndroidImpl::class.java
+                        qosTestSettings.trafficService = TrafficServiceImpl()
+                        qosTestSettings.startTimeNs = _testStartTimeNanos
+                        qosTestSettings.isUseSsl = config.qosSSL
 
-                    // get default dns servers
-                    qosTestSettings.defaultDnsResolvers = getDnsServers()
+                        // get default dns servers
+                        qosTestSettings.defaultDnsResolvers = getDnsServers()
 
-                    qosTest = QualityOfServiceTest(client, qosTestSettings)
-                    client.status = TestStatus.QOS_TEST_RUNNING
-                    val qosResult = qosTest?.call()
+                        QualityOfServiceTest(client, qosTestSettings)
+                    }
                     Timber.d("qos finished")
                     client.status = TestStatus.QOS_END
                     config.lastQosTestExecutionTimestampMillis = System.currentTimeMillis()
@@ -521,6 +530,58 @@ class TestControllerImpl(
             stop()
         } else {
             lastNetwork = activeNetwork
+        }
+    }
+
+    /**
+     * Builds and runs the QoS test, but gives up *silently* if QoS can't be set up or the QoS server
+     * is unresponsive, so the test never gets stuck on the measurement screen:
+     *  - if building the test or connecting fails (e.g. malformed QoS config / server down), the
+     *    exception is swallowed and QoS is skipped;
+     *  - if no QoS task makes any progress within [QOS_RESPONSE_TIMEOUT_MS], the QoS phase is
+     *    abandoned and the test continues to the results without QoS.
+     * Once the server has responded (progress > 0) the test runs to completion (still backstopped by
+     * the client inactivity watchdog). Returns null when QoS was skipped, which downstream handlers
+     * (e.g. StateRecorder.onQoSTestCompleted) already treat as "no QoS results". The whole phase runs
+     * on a worker thread (not the GlobalScope.async coroutine) so a throw there isn't silently
+     * swallowed, leaving the test status stuck.
+     */
+    private fun runQosPhaseSafely(build: () -> QualityOfServiceTest): QoSResultCollector? {
+        val client = client ?: return null
+        val qosRef = AtomicReference<QualityOfServiceTest?>()
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            val future = executor.submit(
+                Callable {
+                    val test = build()
+                    qosRef.set(test)
+                    qosTest = test
+                    client.status = TestStatus.QOS_TEST_RUNNING
+                    test.call()
+                }
+            )
+            val deadline = System.currentTimeMillis() + QOS_RESPONSE_TIMEOUT_MS
+            while (true) {
+                try {
+                    return future.get(200, TimeUnit.MILLISECONDS)
+                } catch (e: TimeoutException) {
+                    val test = qosRef.get()
+                    val responded = test != null && test.progress > 0
+                    if (!responded && System.currentTimeMillis() >= deadline) {
+                        Timber.w("QoS did not respond within ${QOS_RESPONSE_TIMEOUT_MS}ms - skipping QoS silently")
+                        future.cancel(true)
+                        runCatching { qosRef.get()?.interrupt() }
+                        return null
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // ExecutionException (e.g. malformed QoS config threw while building), interruption, etc.
+            Timber.w(e, "QoS phase failed - skipping QoS silently")
+            runCatching { qosRef.get()?.interrupt() }
+            return null
+        } finally {
+            executor.shutdownNow()
         }
     }
 

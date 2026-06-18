@@ -138,6 +138,22 @@ public class QoSControlConnection extends AbstractRMBTTest implements Runnable {
 	}
 
 	/**
+	 * Abandon the connection without the graceful QUIT handshake: stop the reader loop and close the
+	 * socket so a blocking read returns immediately. Safe to call on an unresponsive or
+	 * never-fully-established connection (used when the QoS phase is skipped).
+	 */
+	public void interrupt() {
+		isRunning.set(false);
+		try {
+			if (controlSocket != null) {
+				controlSocket.close();
+			}
+		} catch (IOException e) {
+			// ignore
+		}
+	}
+
+	/**
 	 * 
 	 * @return
 	 */
