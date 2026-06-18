@@ -34,6 +34,7 @@ class MapSearchDialog : FullscreenBottomDialog() {
 
     private val callback: Callback?
         get() = when {
+            parentFragment is Callback -> parentFragment as Callback
             targetFragment is Callback -> targetFragment as Callback
             activity is Callback -> activity as Callback
             else -> null
@@ -162,7 +163,6 @@ class MapSearchDialog : FullscreenBottomDialog() {
             requestCode: Int
         ): FullscreenBottomDialog {
             val mapSearchDialog = MapSearchDialog()
-            mapSearchDialog.setTargetFragment(fragment, requestCode)
             return mapSearchDialog
         }
     }

@@ -126,7 +126,8 @@ class HistoryDownloadDialog : FullscreenDialog() {
 
     companion object {
 
+        // Shown on the host fragment's childFragmentManager; no target fragment needed.
         fun instance(fragment: Fragment, requestCode: Int): FullscreenDialog =
-            HistoryDownloadDialog().apply { setTargetFragment(fragment, requestCode) }
+            HistoryDownloadDialog()
     }
 }
