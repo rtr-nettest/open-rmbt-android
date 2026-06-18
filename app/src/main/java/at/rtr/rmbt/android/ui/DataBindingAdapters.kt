@@ -34,6 +34,11 @@ import at.specure.info.network.*
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
+import at.specure.util.getEuBand
+import cz.mroczis.netmonster.core.model.cell.CellLte
+import cz.mroczis.netmonster.core.model.cell.CellNr
+import cz.mroczis.netmonster.core.model.cell.ICell
+import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -55,6 +60,78 @@ fun intText(textView: TextView, value: Int) {
 @BindingAdapter("visibleOrGone")
 fun View.setVisibleOrGone(show: Boolean) {
     visibility = if (show) View.VISIBLE else View.GONE
+}
+
+/**
+ * Expert-mode overlay (start screen) showing the identifiers of the primary cell of the active data
+ * connection, or the Wi-Fi band/channel when on Wi-Fi. Only available values are shown (a key whose
+ * value is null is omitted). 5G: EARFCN, NCI, TAC, PCI. 4G: EARFCN, CI, eNB, CID, TAC, PCI, BW. For
+ * 5G NSA the 4G anchor is shown first, then a "5G NR" section with the NR cell's TAC, PCI, EARFCN
+ * (the section/header is omitted when no NR info is available). The view is hidden when not in expert
+ * mode or when there is nothing to show.
+ */
+@BindingAdapter(value = ["primaryCellInfo", "primaryCellInfoExpert"], requireAll = false)
+fun AppCompatTextView.setPrimaryCellInfo(info: DetailedNetworkInfo?, expert: Boolean?) {
+    val content = if (expert == true) buildPrimaryCellInfo(info) else null
+    text = content ?: ""
+    visibility = if (content.isNullOrEmpty()) View.GONE else View.VISIBLE
+}
+
+private fun infoLine(key: String, value: Any?): String? = if (value == null) null else "$key: $value"
+
+private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
+    info ?: return null
+
+    (info.networkInfo as? WifiNetworkInfo)?.let { wifi ->
+        return listOfNotNull(
+            wifi.band.name.takeIf { it.isNotEmpty() }?.let { "Band: $it" },
+            "Channel: ${wifi.band.channelNumber} (${wifi.band.frequency} MHz)"
+        ).joinToString("\n")
+    }
+
+    val cells = info.allCellInfos ?: return null
+    val subId = info.dataSubscriptionId
+    fun matchesSub(c: ICell) = subId == -1 || c.subscriptionId == subId
+
+    val primary = cells.firstOrNull { it.connectionStatus is PrimaryConnection && matchesSub(it) }
+        ?: cells.firstOrNull { it.connectionStatus is PrimaryConnection }
+        ?: return null
+
+    val lines = mutableListOf<String>()
+    when (primary) {
+        is CellNr -> lines += listOfNotNull(
+            infoLine("EARFCN", primary.getEuBand()?.channelNumber),
+            infoLine("NCI", primary.nci),
+            infoLine("TAC", primary.tac),
+            infoLine("PCI", primary.pci)
+        )
+        is CellLte -> {
+            lines += listOfNotNull(
+                infoLine("EARFCN", primary.band?.channelNumber),
+                infoLine("CI", primary.eci),
+                infoLine("eNB", primary.enb),
+                infoLine("CID", primary.cid),
+                infoLine("TAC", primary.tac),
+                infoLine("PCI", primary.pci),
+                primary.bandwidth?.let { "BW: ${it / 1000} MHz" }
+            )
+            // 5G NSA: append the NR section if an NR cell is present (no header if no info)
+            val nr = (cells.firstOrNull { it is CellNr && matchesSub(it) } ?: cells.firstOrNull { it is CellNr }) as? CellNr
+            if (nr != null) {
+                val nrLines = listOfNotNull(
+                    infoLine("TAC", nr.tac),
+                    infoLine("PCI", nr.pci),
+                    infoLine("EARFCN", nr.getEuBand()?.channelNumber)
+                )
+                if (nrLines.isNotEmpty()) {
+                    lines += "5G NR"
+                    lines += nrLines
+                }
+            }
+        }
+        else -> return null
+    }
+    return lines.joinToString("\n").takeIf { it.isNotEmpty() }
 }
 
 private fun AppCompatTextView.prepareSignalLabel(
