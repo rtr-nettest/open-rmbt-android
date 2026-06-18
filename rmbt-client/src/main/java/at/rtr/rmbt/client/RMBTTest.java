@@ -54,11 +54,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     private static final long UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL;
     private static final long UPLOAD_MAX_WAIT_SECS = 3;
 
-    // Upper bound for the adaptive I/O batch (see computeIoBufferSize). Reading/writing one chunk
-    // per syscall makes the syscall rate scale with throughput (≈ throughput / chunksize), which
-    // dominates CPU at multi-Gbit/s. The batch is sized from the pre-test (~20 ms of data) and
-    // capped here at 256 KiB; bytes on the wire and chunk-boundary semantics stay unchanged.
-    private static final int MAX_IO_BUFFER_BYTES = 256 * 1024;
+    // Upper bound for the dynamically chosen protocol chunk size (see computeChunkSize). The
+    // server's announced max can be several MB; cap it here to bound per-thread memory on mobile.
+    private static final int MAX_CHUNK_SIZE = 256 * 1024;
     private static final Pattern TIME_PATTERN = Pattern.compile("TIME (\\d+)");
 
     private final CyclicBarrier barrier;
@@ -70,10 +68,10 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     private final AtomicLong curTransfer = new AtomicLong();
     private final AtomicLong curTime = new AtomicLong();
 
-    // Adaptive socket I/O batch size (bytes), sized from the pre-test throughput estimate so each
-    // read/write carries ~20 ms of data at any speed. 0 = not yet estimated → use chunksize.
-    private int ioBufferSize = 0;
-    private byte[] dlBuf = null;
+    // Server-announced chunk-size bounds, parsed from the greeting line
+    // "CHUNKSIZE <default> <min> <max>". If the server sends only the default, min = max = default.
+    private int chunksizeMin = 0;
+    private int chunksizeMax = 0;
 
     private final long minDiffTime;
     private final int maxCoarseResults;
@@ -348,7 +346,10 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             }
             try {
                 chunksize = scanner.nextInt();
-                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d", threadId, chunksize));
+                // newer servers announce "CHUNKSIZE <default> <min> <max>"; fall back to default
+                chunksizeMin = scanner.hasNextInt() ? scanner.nextInt() : chunksize;
+                chunksizeMax = scanner.hasNextInt() ? scanner.nextInt() : chunksize;
+                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d (min %d, max %d)", threadId, chunksize, chunksizeMin, chunksizeMax));
             } catch (final Exception e) {
                 log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line));
                 return null;
@@ -374,7 +375,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId));
             barrier.await();
 
-            /***** short download (pre-test): also estimate throughput to size the I/O batch *****/
+            /***** short download (pre-test): estimate throughput, then choose the chunk size *****/
             {
                 final long targetTimeEnd = System.nanoTime() + params.getPretestDuration() * nsecsL;
                 int chunks = 1;
@@ -397,8 +398,8 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                     // connection is quite slow, we'll only use 1 thread
                     fallbackToOneThread.set(true);
 
-                // size the adaptive read/write batch from the largest pre-test batch (bps / 50)
-                computeIoBufferSize(lastBytes, lastNs, rttNs);
+                // choose the protocol chunk size from the estimate (bps / 50, clamped to [min, max])
+                computeChunkSize(lastBytes, lastNs, rttNs);
             }
             /*********************/
 
@@ -592,25 +593,18 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         return testResult;
     }
 
-    private int ioBatchSize() {
-        return ioBufferSize > 0 ? ioBufferSize : chunksize;
-    }
-
-    private byte[] downloadBuffer() {
-        final int target = ioBatchSize();
-        if (dlBuf == null || dlBuf.length != target)
-            dlBuf = new byte[target];
-        return dlBuf;
-    }
-
     /**
-     * Mirrors the Rust CLI client's pre-test heuristic (clientRust/src/pretest.rs): target ~50
-     * batches/sec (one per ~20 ms), i.e. batchBytes = bytesPerSecond / 50, rounded to a whole
-     * number of chunks and clamped to [chunksize, MAX_IO_BUFFER_BYTES]. {@code ns} is the
-     * server-reported TIME of the largest pre-test batch; {@code rttNs} (first tiny batch's TIME)
-     * is subtracted as a round-trip estimate.
+     * Choose the protocol chunk size from the pre-test throughput estimate, mirroring the Rust
+     * reference client (clientRust/src/pretest.rs): target ~50 chunks/sec (one chunk per ~20 ms),
+     * i.e. chunkSize = bytesPerSecond / 50, rounded to the nearest KiB and clamped to the server's
+     * [min, max] (further capped at MAX_CHUNK_SIZE to bound per-thread memory on mobile). {@code ns}
+     * is the server-reported TIME of the largest pre-test batch; {@code rttNs} (first tiny batch's
+     * TIME) is subtracted as a round-trip estimate. The chosen size is stored in {@code chunksize}
+     * and sent to the server on GETTIME / PUTNORESULT / PUT; {@code buf} is (re)allocated to match.
      */
-    private void computeIoBufferSize(final long bytes, final long ns, final long rttNs) {
+    private void computeChunkSize(final long bytes, final long ns, final long rttNs) {
+        final long lo = (chunksizeMin > 0 ? chunksizeMin : chunksize);
+        final long hi = Math.min(chunksizeMax > 0 ? chunksizeMax : MAX_CHUNK_SIZE, MAX_CHUNK_SIZE);
         final long transferNs = ns - rttNs;
         final double bps;
         if (bytes <= 0L)
@@ -621,18 +615,22 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             bps = bytes / (ns / 1e9);
         else
             bps = 0.0;
+        final long chosen;
         if (bps <= 0.0) {
-            ioBufferSize = chunksize;
-            return;
+            chosen = lo;
+        } else {
+            final long ideal = (long) (bps / 50.0);
+            long roundedKiB = (ideal + 512) / 1024 * 1024; // round to nearest KiB, like the Rust client
+            if (roundedKiB < lo)
+                roundedKiB = lo;
+            if (roundedKiB > hi)
+                roundedKiB = hi;
+            chosen = roundedKiB;
         }
-        final long ideal = (long) (bps / 50.0);
-        long clamped = (ideal + chunksize / 2) / chunksize * chunksize;
-        if (clamped < chunksize)
-            clamped = chunksize;
-        if (clamped > MAX_IO_BUFFER_BYTES)
-            clamped = MAX_IO_BUFFER_BYTES;
-        ioBufferSize = (int) clamped;
-        log(String.format(Locale.US, "thread %d: io batch = %d KiB (%.1f Mbit/s)", threadId, ioBufferSize / 1024, bps * 8.0 / 1e6));
+        chunksize = (int) chosen;
+        if (buf == null || buf.length != chunksize)
+            buf = new byte[chunksize];
+        log(String.format(Locale.US, "thread %d: chunk size = %d KiB (%.1f Mbit/s)", threadId, chunksize / 1024, bps * 8.0 / 1e6));
     }
 
     private long parseTimeNs(final String line) {
@@ -672,7 +670,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         out.flush();
 
         // long expectBytes = chunksize * chunks;
-        final byte[] buffer = downloadBuffer();
+        final byte[] buffer = buf;
         long totalRead = 0;
         long read;
         byte lastByte = (byte) 0;
@@ -734,11 +732,11 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         final long timeLatestEnd = timeStart + (seconds + additionalWait) * nsecsL;
 
         String send;
-        send = String.format(Locale.US, "GETTIME %d\n", seconds);
+        send = String.format(Locale.US, "GETTIME %d %d\n", seconds, chunksize);
         out.write(send.getBytes("US-ASCII"));
         out.flush();
 
-        final byte[] buffer = downloadBuffer();
+        final byte[] buffer = buf;
         long totalRead = 0;
         long read;
         byte lastByte = (byte) 0;
@@ -812,7 +810,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             throw new IllegalStateException();
         }
 
-        out.write("PUTNORESULT\n".getBytes("US-ASCII"));
+        out.write(String.format(Locale.US, "PUTNORESULT %d\n", chunksize).getBytes("US-ASCII"));
         out.flush();
 
         line = reader.readLine();
@@ -866,7 +864,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             throw new IllegalStateException();
         }
 
-        out.write("PUT\n".getBytes("US-ASCII"));
+        out.write(String.format(Locale.US, "PUT %d\n", chunksize).getBytes("US-ASCII"));
         out.flush();
 
         line = reader.readLine();
@@ -930,12 +928,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         buf[chunksize - 1] = (byte) 0x00; // set last byte to continue value
 
         final byte[] bufTx = buf.clone();
-        // batch many continue-chunks per write() to cut the upload syscall rate at high speed;
-        // every chunk keeps its last byte 0x00 (continue), the terminating 0xff chunk is sent singly
-        final int batchChunks = Math.max(1, ioBatchSize() / chunksize);
-        final byte[] bufTxBatch = new byte[chunksize * batchChunks];
-        for (int c = 0; c < batchChunks; c++)
-            System.arraycopy(bufTx, 0, bufTxBatch, c * chunksize, chunksize);
+        // One protocol chunk per write(). The chunk size is the throughput-adapted value chosen by
+        // the pre-test (~20 ms of data), so this stays responsive at low speed and efficient at high
+        // speed without any extra client-side batching.
         final AtomicBoolean terminateTx = new AtomicBoolean(false);
         final Future<Void> futureTx = RMBTClient.getCommonThreadPool().submit(new Callable<Void>() {
             public Void call() throws Exception {
@@ -950,7 +945,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                         out.flush();
                         return null;
                     } else
-                        out.write(bufTxBatch, 0, bufTxBatch.length);
+                        out.write(bufTx, 0, chunksize);
                 }
             }
         });
