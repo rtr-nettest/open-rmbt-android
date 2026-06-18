@@ -33,7 +33,7 @@
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequency</string>
-    <string name="home_speed">Speed</string>
+    <string name="home_speed">Movement</string>
     <string name="home_speed_value" translatable="false">%1$.1f km/h</string>
     <string name="home_no_internet_connection">No Internet connection!</string>
     <string name="home_no_internet_connection_details">No test is possible.</string>

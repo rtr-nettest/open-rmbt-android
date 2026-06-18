@@ -123,39 +123,11 @@
             android:layout_marginEnd="@dimen/padding_large"
             android:orientation="horizontal"
             android:baselineAligned="false"
-            android:weightSum="3"
+            android:weightSum="2"
             app:layout_constraintStart_toStartOf="@id/measurementBottomView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/header_barrier"
             app:visibleOrGone="@{state.expertModeEnabled}">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/signal_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_white_transparency_40"
-                    android:textSize="@dimen/signal_bar_label"
-                    android:textStyle="bold"
-                    app:signalLabelMainText="@{@string/home_signal}"
-                    app:signalLabelStrength="@{state.signalStrengthInfo}"
-                    app:signalLabelNetwork="@{state.detailedNetworkInfo}" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/signal_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/background_light"
-                    android:textSize="@dimen/signal_bar_value"
-                    app:signalValue="@{state.signalStrengthInfo}"
-                    app:signalDetailed="@{state.detailedNetworkInfo}" />
-
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/frequency_block"
@@ -198,7 +170,8 @@
                     android:text="@string/home_speed"
                     android:textColor="@color/text_white_transparency_40"
                     android:textSize="@dimen/signal_bar_label"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:speedLabelKmh="@{state.speedKmh}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/speed_value"
@@ -209,6 +182,41 @@
                     app:speedValueKmh="@{state.speedKmh}" />
 
             </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Signal heading + value: shown on the left half, to the right of the signal-strength
+             gauge (the vertical bar inside the curve), since that gauge is visible in non-expert
+             mode too. The start margin clears the strength bar (16dp margin + bar width). -->
+        <LinearLayout
+            android:id="@+id/signal_block"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="72dp"
+            android:layout_marginTop="@dimen/signal_bar_top_margin"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/signal_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_white_transparency_40"
+                android:textSize="@dimen/signal_bar_label"
+                android:textStyle="bold"
+                app:signalLabelMainText="@{@string/home_signal}"
+                app:signalLabelStrength="@{state.signalStrengthInfo}"
+                app:signalLabelNetwork="@{state.detailedNetworkInfo}" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/signal_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/background_light"
+                android:textSize="@dimen/signal_bar_value"
+                app:signalValue="@{state.signalStrengthInfo}"
+                app:signalDetailed="@{state.detailedNetworkInfo}" />
 
         </LinearLayout>
 
