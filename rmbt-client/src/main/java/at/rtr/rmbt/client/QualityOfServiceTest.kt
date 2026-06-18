@@ -302,6 +302,9 @@ open class QualityOfServiceTest : Callable<QoSResultCollector> {
     @Synchronized
     open fun interrupt() {
         executor?.shutdownNow()
+        // Tear down any open QoS control connections so their blocking reader threads/sockets don't
+        // leak when the QoS phase is abandoned (e.g. skipped because the server is unresponsive).
+        controlConnectionMap.values.forEach { runCatching { it.interrupt() } }
     }
 
     protected open fun finalize() {

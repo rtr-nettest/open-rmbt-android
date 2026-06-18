@@ -105,6 +105,16 @@ class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
     }
 
     /**
+     * Abandon the connection without the graceful QUIT handshake: stop the reader loop and close the
+     * socket so a blocking [reader] read returns immediately. Safe to call on an unresponsive or
+     * never-fully-established connection (used when the QoS phase is skipped).
+     */
+    fun interrupt() {
+        isRunning.set(false)
+        runCatching { controlSocket?.close() }
+    }
+
+    /**
      * @author lb
      */
     class ControlConnectionResponseCallbackHolder(request: String?, callback: ControlConnectionResponseCallback?) {
