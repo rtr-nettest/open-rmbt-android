@@ -28,6 +28,7 @@ class MapLayersDialog : FullscreenBottomDialog() {
 
     private val callback: Callback?
         get() = when {
+            parentFragment is Callback -> parentFragment as Callback
             targetFragment is Callback -> targetFragment as Callback
             activity is Callback -> activity as Callback
             else -> null
@@ -115,7 +116,6 @@ class MapLayersDialog : FullscreenBottomDialog() {
         ): FullscreenBottomDialog =
             MapLayersDialog()
                 .apply {
-                    requestCode?.let { setTargetFragment(fragment, it) }
                     args {
                         activeStyle?.let { putInt(KEY_STYLE, it) }
                         activeType?.let { putInt(KEY_TYPE, it) }
