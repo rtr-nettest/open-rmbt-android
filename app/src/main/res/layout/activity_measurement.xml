@@ -229,6 +229,22 @@
 
             </LinearLayout>
 
+            <!-- Expert-mode overlay: primary-cell identifiers (or Wi-Fi band/channel) in the free
+                 space at the bottom-right of the S curve. Hidden when not in expert mode / no data. -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPrimaryCellInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/padding_medium"
+                android:layout_marginBottom="@dimen/padding_medium"
+                android:gravity="end"
+                android:textColor="@android:color/background_light"
+                android:textSize="11sp"
+                app:layout_constraintBottom_toBottomOf="@id/curve_layout"
+                app:layout_constraintEnd_toEndOf="@id/curve_layout"
+                app:primaryCellInfo="@{state.detailedNetworkInfo}"
+                app:primaryCellInfoExpert="@{state.expertModeEnabled}" />
+
             <ImageView
                 android:id="@+id/buttonCancel"
                 android:contentDescription="@{@string/measurement_cancel}"
