@@ -157,7 +157,8 @@
                         android:text="@string/home_speed"
                         android:textColor="@color/text_white_transparency_40"
                         android:textSize="@dimen/signal_bar_label"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:speedLabelKmh="@{state.speedKmh}" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/speed_value"

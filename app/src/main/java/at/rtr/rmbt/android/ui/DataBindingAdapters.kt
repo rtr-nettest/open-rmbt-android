@@ -838,6 +838,14 @@ fun AppCompatTextView.setSignalLabel(
 ) {
     val signal = signalStrengthInfo?.value
     val signalSecondary = detailedNetworkInfo?.secondary5GActiveSignalStrengthInfos?.firstOrNull()?.value
+    // Hide the "Signal" heading when there is no signal value/gauge to show (otherwise the label
+    // would linger after the gauge is removed).
+    if (signal == null && signalSecondary == null) {
+        visibility = View.GONE
+        text = ""
+        return
+    }
+    visibility = View.VISIBLE
     text = prepareSignalLabel(
         mainText,
         detailedNetworkInfo?.networkInfo,
@@ -864,6 +872,14 @@ fun AppCompatTextView.setSignalValue(signalStrengthInfo: SignalStrengthInfo?, de
 @BindingAdapter("speedValueKmh")
 fun AppCompatTextView.setSpeedValue(speedKmh: Float?) {
     text = if (speedKmh != null) context.getString(R.string.home_speed_value, speedKmh) else ""
+}
+
+/**
+ * Show the movement (GPS speed) heading only while a current speed value is being displayed.
+ */
+@BindingAdapter("speedLabelKmh")
+fun AppCompatTextView.setSpeedLabelVisibility(speedKmh: Float?) {
+    visibility = if (speedKmh != null) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("measurementPhase")
