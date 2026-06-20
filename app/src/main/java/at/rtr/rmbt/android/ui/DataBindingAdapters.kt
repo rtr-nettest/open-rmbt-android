@@ -964,6 +964,21 @@ fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
     setMeasurementState(state)
 }
 
+/**
+ * UDP ping (prototype) on the measurement screen, e.g. "UDP-Ping: 23 ms". Hidden until a value is
+ * available.
+ */
+@BindingAdapter("udpPingMs")
+fun AppCompatTextView.setUdpPingMs(pingMs: Float?) {
+    if (pingMs == null) {
+        visibility = View.GONE
+        text = ""
+    } else {
+        visibility = View.VISIBLE
+        text = context.getString(R.string.measurement_udp_ping, pingMs)
+    }
+}
+
 @BindingAdapter("qosEnabled")
 fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
     setQoSEnabled(enabled)

@@ -15,6 +15,9 @@ interface MeasurementClient {
 
     fun onPingChanged(pingNanos: Long)
 
+    /** Latest UDP ping round-trip time in milliseconds (sampled every 100 ms during the test). */
+    fun onUdpPingChanged(pingMs: Float) {}
+
     fun onJitterChanged(jitterNanos: Long)
 
     fun onPacketLossPercentChanged(packetLossPercent: Int)

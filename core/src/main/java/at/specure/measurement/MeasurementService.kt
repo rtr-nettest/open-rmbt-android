@@ -149,6 +149,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
     private var measurementProgress = 0
     private var pingNanos = 0L
+    private var udpPingMs: Float? = null
     private var jitterNanos = 0L
     private var packetLossPercent = 0
     private var downloadSpeedBps = 0L
@@ -237,6 +238,11 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         override fun onPingChanged(pingNanos: Long) {
             this@MeasurementService.pingNanos = pingNanos
             clientAggregator.onPingChanged(pingNanos)
+        }
+
+        override fun onUdpPingChanged(pingMs: Float) {
+            this@MeasurementService.udpPingMs = pingMs
+            clientAggregator.onUdpPingChanged(pingMs)
         }
 
         override fun onJitterChanged(jitterNanos: Long) {
@@ -849,6 +855,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         override val pingNanos: Long
             get() = this@MeasurementService.pingNanos
 
+        override val udpPingMs: Float?
+            get() = this@MeasurementService.udpPingMs
+
         override val loopModeState: LoopModeState
             get() = this@MeasurementService.loopModeState
 
@@ -919,6 +928,12 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         override fun onPingChanged(pingNanos: Long) {
             clients.forEach {
                 it.onPingChanged(pingNanos)
+            }
+        }
+
+        override fun onUdpPingChanged(pingMs: Float) {
+            clients.forEach {
+                it.onUdpPingChanged(pingMs)
             }
         }
 

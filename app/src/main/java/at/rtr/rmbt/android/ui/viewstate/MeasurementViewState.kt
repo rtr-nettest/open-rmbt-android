@@ -41,6 +41,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val downloadSpeedBps = ObservableLong()
     val uploadSpeedBps = ObservableLong()
     val pingNanos = ObservableLong()
+    /** Latest UDP ping round-trip time in milliseconds, or null if none measured yet. */
+    val udpPingMs = ObservableField<Float?>()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val signalStrengthInfoResult = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()

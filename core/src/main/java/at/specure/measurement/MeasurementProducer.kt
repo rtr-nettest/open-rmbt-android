@@ -21,6 +21,9 @@ interface MeasurementProducer {
 
     val pingNanos: Long
 
+    /** Latest UDP ping round-trip time in milliseconds, or null if none measured yet. */
+    val udpPingMs: Float?
+
     val isTestsRunning: Boolean
 
     val testUUID: String?

@@ -55,6 +55,13 @@ class ControlServerConnection {
     private var serverName: String? = null
     private var provider: String? = null
 
+    // Optional UDP-ping server info, provided by newer control servers in the /testRequest response.
+    // When absent the client falls back to a prototype default (udpv4/udpv6.netztest.at:444 and the
+    // v2 token extracted from test_token).
+    private var pingHost: String? = null
+    private var pingPort = 0
+    private var pingToken: String? = null
+
     private var testDuration = 0
     private var testNumThreads = 0
     private var testNumPings = 0
@@ -308,6 +315,11 @@ class ControlServerConnection {
                     testNumPings = response.optInt("test_numpings", 10) // pings default to 10
 
                     remoteIp = response.getString("client_remote_ip")
+
+                    // Optional UDP-ping server info (prototype: not yet sent by the control server)
+                    pingHost = response.optString("ping_host", null)
+                    pingPort = response.optInt("ping_port", 0)
+                    pingToken = response.optString("ping_token", null)
 
                     resultURL = URL(response.getString("result_url"))
                     resultQoSURI = URL(response.getString("result_qos_url"))
@@ -571,6 +583,15 @@ class ControlServerConnection {
     }
 
     fun getRemoteIp(): String = remoteIp
+
+    /** UDP-ping server host from /testRequest, or null if the control server didn't provide one. */
+    fun getPingHost(): String? = pingHost
+
+    /** UDP-ping server port from /testRequest, or 0 if not provided. */
+    fun getPingPort(): Int = pingPort
+
+    /** UDP-ping token from /testRequest, or null if not provided (then use the v2 part of the token). */
+    fun getPingToken(): String? = pingToken
 
     fun getClientUUID(): String = clientUUID
 

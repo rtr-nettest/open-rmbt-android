@@ -171,6 +171,7 @@
     <string name="measurement_speed_chart_x_label_min">0s</string>
     <string name="measurement_speed_chart_x_label_max">7s</string>
     <string name="measurement_ping">Ping</string>
+    <string name="measurement_udp_ping" translatable="false">UDP-Ping: %1$.0f ms</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
     <string name="measurement_qos">Quality of service (QoS)</string>

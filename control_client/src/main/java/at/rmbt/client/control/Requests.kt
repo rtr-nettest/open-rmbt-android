@@ -534,7 +534,24 @@ data class TestResultBody(
      * packet loss in percents
      */
     @SerializedName("voip_result_packet_loss_percents")
-    val packetLoss: Double?
+    val packetLoss: Double?,
+
+    /**
+     * UDP pings sampled across the whole measurement (prototype). Each entry has the time relative
+     * to the measurement start in nanoseconds and the round-trip time in milliseconds.
+     */
+    @SerializedName("udp_pings")
+    val udpPings: List<UdpPingBody>? = null
+)
+
+@Keep
+data class UdpPingBody(
+    /** time of the ping relative to the measurement start, in nanoseconds */
+    @SerializedName("t_ns")
+    val timeNs: Long,
+    /** round-trip time in milliseconds */
+    @SerializedName("value_ms")
+    val valueMs: Float
 )
 
 @Keep

@@ -197,6 +197,22 @@
                 tools:text="1000.0 Mbit/s"
                 tools:textColor="@android:color/white" />
 
+            <!-- UDP ping (prototype), sampled every 100 ms across the whole measurement. Hidden until
+                 the first value arrives. -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textUdpPing"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginBottom="@dimen/margin_small"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/appCompatImageView1"
+                app:udpPingMs="@{state.udpPingMs}"
+                tools:text="UDP-Ping: 23 ms" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

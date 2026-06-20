@@ -120,6 +120,7 @@ class MeasurementViewModel @Inject constructor(
                     _loopUUIDLiveData.postValue(it.loopLocalUUID)
                     measurementProgress.set(it.measurementProgress)
                     pingNanos.set(it.pingNanos)
+                    udpPingMs.set(it.udpPingMs)
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
                     signalStrengthInfoResult.set(it.lastMeasurementSignalInfo)
@@ -221,6 +222,10 @@ class MeasurementViewModel @Inject constructor(
 //        _measurementResultShownLiveData.value = false
         Timber.i("Ping value from: $pingNanos")
         state.pingNanos.set(pingNanos)
+    }
+
+    override fun onUdpPingChanged(pingMs: Float) {
+        state.udpPingMs.set(pingMs)
     }
 
     override fun onJitterChanged(jitterNanos: Long) {

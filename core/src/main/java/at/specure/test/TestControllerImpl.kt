@@ -12,8 +12,13 @@ import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TracerouteAndroidImpl
 import at.rtr.rmbt.client.TrafficServiceImpl
 import at.rtr.rmbt.client.WebsiteTestServiceImpl
+import at.rtr.rmbt.client.helper.ControlServerConnection
 import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
+import at.rmbt.client.control.UdpPingBody
+import at.specure.client.PingClientConfiguration
+import at.specure.client.PingResult
+import at.specure.client.UdpHmacPingFlow
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.client.v2.task.service.TestSettings
@@ -25,10 +30,15 @@ import at.specure.data.MeasurementServers
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.measurement.MeasurementState
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
 import java.net.InetAddress
@@ -89,6 +99,11 @@ class TestControllerImpl(
     private var client: RMBTClient? = null
     private var qosTest: QualityOfServiceTest? = null
 
+    // UDP ping running for the whole measurement (prototype)
+    private var udpPingJob: Job? = null
+    private var udpPingStartNanos: Long = 0L
+    private val udpPingResults = java.util.Collections.synchronizedList(mutableListOf<UdpPingBody>())
+
     private var finalDownloadValuePosted = false
     private var finalUploadValuePosted = false
 
@@ -96,6 +111,8 @@ class TestControllerImpl(
         lastNetwork = null
         client?.shutdown()
         qosTest?.interrupt()
+        udpPingJob?.cancel()
+        udpPingJob = null
 
         if (clientJob == null) {
             Timber.w("client job is already stopped")
@@ -252,6 +269,8 @@ class TestControllerImpl(
             }
             _listener?.onClientReady(_testUUID!!, loopUUIDFromBackend, loopLocalUUID, _testStartTimeNanos)
 
+            startUdpPing(connection)
+
             var skipQoSTests = !config.shouldRunQosTest
 
             if (client.taskDescList.isNullOrEmpty()) {
@@ -329,6 +348,7 @@ class TestControllerImpl(
                     client.commonCallback = null
                     client.shutdown()
                     qosTest?.interrupt()
+                    stopUdpPing()
 
                     this@TestControllerImpl.client = null
                     qosTest = null
@@ -341,6 +361,77 @@ class TestControllerImpl(
                     delay(100)
                 }
             }
+        }
+    }
+
+    /** The v2 (UDP-ping) token is the part of the combined test_token after the `#v2#` marker. */
+    private fun extractV2Token(token: String?): String? {
+        if (token == null) return null
+        val idx = token.indexOf("#v2#")
+        return if (idx >= 0) token.substring(idx + 4).takeIf { it.isNotEmpty() } else null
+    }
+
+    /**
+     * Starts a UDP ping (every 100 ms) for the whole measurement. Uses the ping host/port/token from
+     * the /testRequest response when present; otherwise falls back to the prototype default:
+     * udpv4/udpv6.netztest.at:444 with the v2 token extracted from the combined test_token. Each
+     * round-trip is pushed to the UI ("UDP-Ping: xxx ms") and recorded (time-from-start in ns, ms).
+     */
+    private fun startUdpPing(connection: ControlServerConnection) {
+        val token = connection.getPingToken()?.takeIf { it.isNotEmpty() }
+            ?: extractV2Token(connection.getTestToken())
+        if (token == null) {
+            Timber.w("No UDP-ping token (no ping_token and no #v2# in test_token) - skipping UDP ping")
+            return
+        }
+        val isIpv6 = connection.getRemoteIp().contains(":")
+        val host = connection.getPingHost()?.takeIf { it.isNotEmpty() }
+            ?: if (isIpv6) "udpv6.netztest.at" else "udpv4.netztest.at"
+        val port = connection.getPingPort().takeIf { it > 0 } ?: 444
+
+        val configuration = PingClientConfiguration(
+            host = host,
+            port = port,
+            token = token,
+            protocolId = "RP01",
+            pingIntervalMillis = 100,
+            pingTimeoutMillis = 2000,
+            successResponseHeader = "RR01",
+            errorResponseHeader = "RE01"
+        )
+
+        udpPingResults.clear()
+        udpPingStartNanos = System.nanoTime()
+        val tokenSource = if (connection.getPingToken()?.isNotEmpty() == true) "ping_token" else "v2(test_token)"
+        Timber.d("Starting UDP ping to $host:$port token[$tokenSource] len=${token.length} '${token.take(6)}…' remoteIp=${connection.getRemoteIp()}")
+        udpPingJob = CoroutineScope(Dispatchers.IO).launch {
+            try {
+                UdpHmacPingFlow(configuration).pingFlow().collect { result ->
+                    when (result) {
+                        is PingResult.Success -> {
+                            val tNs = System.nanoTime() - udpPingStartNanos
+                            udpPingResults.add(UdpPingBody(tNs, result.rttMillis.toFloat()))
+                            _listener?.onUdpPingChanged(result.rttMillis.toFloat())
+                        }
+                        is PingResult.ServerError -> Timber.w("UDP ping server error: ${result.exception}")
+                        is PingResult.ClientError -> Timber.w(result.exception, "UDP ping client error")
+                        is PingResult.Lost -> Timber.v("UDP ping lost: seq=${result.sequenceNumber}")
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.w(e, "UDP ping flow error")
+            }
+        }
+    }
+
+    /** Stops the UDP ping and hands the collected samples to [UdpPingResultStore] keyed by test UUID. */
+    private fun stopUdpPing() {
+        udpPingJob?.cancel()
+        udpPingJob = null
+        _testUUID?.let { uuid ->
+            UdpPingResultStore.put(uuid, ArrayList(udpPingResults))
         }
     }
 

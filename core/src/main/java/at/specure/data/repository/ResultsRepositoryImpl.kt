@@ -18,6 +18,7 @@ import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
+import at.specure.test.UdpPingResultStore
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
@@ -109,8 +110,10 @@ class ResultsRepositoryImpl @Inject constructor(
                     Timber.d("valid cells: ${it.uuid}   technology: ${it.technology}")
                 }
 
-                val result = client.sendTestResults(body)
-                Timber.d("TRS sending result with UUID ${body.testUUID} download speed: ${body.downloadSpeedKbs}")
+                // attach UDP-ping samples collected during the measurement (prototype, in-memory)
+                val bodyToSend = body.copy(udpPings = UdpPingResultStore.take(testUUID))
+                val result = client.sendTestResults(bodyToSend)
+                Timber.d("TRS sending result with UUID ${bodyToSend.testUUID} download speed: ${bodyToSend.downloadSpeedKbs}, udpPings: ${bodyToSend.udpPings?.size ?: 0}")
 
                 result.onSuccess {
                     Timber.d("Sending result successfully finished")
