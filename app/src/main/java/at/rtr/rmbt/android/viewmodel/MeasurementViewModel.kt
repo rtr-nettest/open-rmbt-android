@@ -121,6 +121,7 @@ class MeasurementViewModel @Inject constructor(
                     measurementProgress.set(it.measurementProgress)
                     pingNanos.set(it.pingNanos)
                     udpPingMs.set(it.udpPingMs)
+                    udpPingCount.set(it.udpPingCount)
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
                     signalStrengthInfoResult.set(it.lastMeasurementSignalInfo)
@@ -224,8 +225,9 @@ class MeasurementViewModel @Inject constructor(
         state.pingNanos.set(pingNanos)
     }
 
-    override fun onUdpPingChanged(pingMs: Float) {
+    override fun onUdpPingChanged(pingMs: Float?, count: Int) {
         state.udpPingMs.set(pingMs)
+        state.udpPingCount.set(count)
     }
 
     override fun onJitterChanged(jitterNanos: Long) {

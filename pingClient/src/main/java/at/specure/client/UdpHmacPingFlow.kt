@@ -85,9 +85,9 @@ class UdpHmacPingFlow(
                     if (sendInfo != null) {
                         val rttMs = (now - sendInfo.first) / 1_000_000.0
                         if (rttMs <= configuration.pingTimeoutMillis) {
-                            send(PingResult.Success(seq, rttMs))
+                            send(PingResult.Success(seq, rttMs, sendInfo.first))
                         } else {
-                            send(PingResult.Lost(seq))
+                            send(PingResult.Lost(seq, sendInfo.first))
                         }
                     }
                 } catch (e: CancellationException) {
@@ -166,10 +166,10 @@ class UdpHmacPingFlow(
                 val timedOut = sentTimes.filterValues { (sendTime, _, _) ->
                     (nowNs - sendTime) / 1_000_000 > configuration.pingTimeoutMillis
                 }
-                for ((seqTimeout, _) in timedOut) {
+                for ((seqTimeout, info) in timedOut) {
                     // remove before sending Lost to ensure we don't double emit
                     if (sentTimes.remove(seqTimeout) != null) {
-                        send(PingResult.Lost(seqTimeout))
+                        send(PingResult.Lost(seqTimeout, info.first))
                     }
                 }
 

@@ -113,7 +113,7 @@ class ResultsRepositoryImpl @Inject constructor(
                 // attach UDP-ping samples collected during the measurement (prototype, in-memory)
                 val bodyToSend = body.copy(udpPings = UdpPingResultStore.take(testUUID))
                 val result = client.sendTestResults(bodyToSend)
-                Timber.d("TRS sending result with UUID ${bodyToSend.testUUID} download speed: ${bodyToSend.downloadSpeedKbs}, udpPings: ${bodyToSend.udpPings?.size ?: 0}")
+                Timber.d("TRS sending result with UUID ${bodyToSend.testUUID} download speed: ${bodyToSend.downloadSpeedKbs}, udpPings: ${bodyToSend.udpPings?.size ?: 0} (lost: ${bodyToSend.udpPings?.count { it.valueMs == null } ?: 0})")
 
                 result.onSuccess {
                     Timber.d("Sending result successfully finished")

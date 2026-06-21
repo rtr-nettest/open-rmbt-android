@@ -6,7 +6,7 @@ sealed class PingResult {
         return null
     }
 
-    data class Success(val sequenceNumber: Int, val rttMillis: Double) : PingResult() {
+    data class Success(val sequenceNumber: Int, val rttMillis: Double, val sentAtNanos: Long = 0L) : PingResult() {
 
         override fun getRTTMillis(): Double? {
             return rttMillis
@@ -17,6 +17,6 @@ sealed class PingResult {
         }
     }
     data class ServerError(val sequenceNumber: Int, val exception: PingServerException) : PingResult()
-    data class Lost(val sequenceNumber: Int) : PingResult()
+    data class Lost(val sequenceNumber: Int, val sentAtNanos: Long = 0L) : PingResult()
     data class ClientError(val sequenceNumber: Int, val exception: Exception) : PingResult()
 }

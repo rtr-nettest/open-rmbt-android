@@ -43,6 +43,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val pingNanos = ObservableLong()
     /** Latest UDP ping round-trip time in milliseconds, or null if none measured yet. */
     val udpPingMs = ObservableField<Float?>()
+    /** Running count of successful UDP pings so far. */
+    val udpPingCount = ObservableInt()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val signalStrengthInfoResult = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()

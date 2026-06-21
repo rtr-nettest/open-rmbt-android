@@ -15,8 +15,8 @@ interface MeasurementClient {
 
     fun onPingChanged(pingNanos: Long)
 
-    /** Latest UDP ping round-trip time in milliseconds (sampled every 100 ms during the test). */
-    fun onUdpPingChanged(pingMs: Float) {}
+    /** Latest UDP ping RTT in ms (null = lost) and the running count of all UDP pings (1-based). */
+    fun onUdpPingChanged(pingMs: Float?, count: Int) {}
 
     fun onJitterChanged(jitterNanos: Long)
 

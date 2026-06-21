@@ -37,16 +37,27 @@ If the control server later sends a dedicated `ping_token` (see below) that is p
 ### 3. The ping itself
 Reuses `UdpHmacPingFlow` + `PingClientConfiguration` from the `pingClient` module (the same client the
 coverage/signal measurement uses), with the established protocol headers `RP01` / `RR01` / `RE01`,
-100 ms interval, 2000 ms timeout. The wire packet is `protocolId(4) ‖ seq(4) ‖ token(16)`.
+**100 ms interval**. The wire packet is `protocolId(4) ‖ seq(4) ‖ token(16)`.
+
+**Timeout = 3000 ms (loaded ping).** A packet is sent every 100 ms regardless of load (verified: the
+sender doesn't block on a saturated uplink). **Every** ping is recorded exactly once, keyed by its
+send time:
+- response within 3 s → recorded with its round-trip value;
+- no response within 3 s → recorded as **lost** (`value_ms = null`).
+
+Results arrive out of order (a lost ping is only known after the 3 s timeout), so the list is sorted
+by send time before submission. The running count covers *all* pings, not just the returned ones.
 
 The ping flow is started in `TestControllerImpl` right after `onClientReady` and cancelled in the
 final-state cleanup (and in `reset()`), so it spans the entire measurement. Each `PingResult.Success`:
 - updates the UI (`onUdpPingChanged(ms)`), and
 - is recorded as `(t_ns since measurement start, value_ms)`.
 
-### 4. UI — `UDP-Ping: xxx ms`
-A line in the shared `measurement_bottom_view` (so it shows in portrait and landscape), below the
-Ping/Down/Up row, bound via `app:udpPingMs`. Hidden until the first successful ping.
+### 4. UI — `UDP-Ping: 12,3 ms (#12)` / `UDP-Ping: lost (#12)`
+A line in the shared `measurement_bottom_view` (so it shows in **portrait and landscape**), below the
+Ping/Down/Up row, bound via `app:udpPingMs` + `app:udpPingCount`. Shows the latest ping and the
+running count of all pings — e.g. `UDP-Ping: 12,3 ms (#12)` (one decimal, device-locale formatted),
+or **`UDP-Ping: lost (#12)`** when that ping was lost. Hidden until the first ping.
 
 Plumbing: `TestProgressListener.onUdpPingChanged` → `MeasurementService` (testListener +
 `ClientAggregator`) → `MeasurementClient.onUdpPingChanged` → `MeasurementViewModel` →
@@ -57,14 +68,35 @@ activity restores the last value.
 `TestResultBody` gains an optional field:
 
 ```json
-"udp_pings": [ { "t_ns": <long, ns from measurement start>, "value_ms": <float, ms> }, ... ]
+"udp_pings": [
+  { "t_ns": <long, ns from measurement start (send time)>, "value_ms": <float, ms> },   // returned
+  { "t_ns": <long>, "value_ms": null }                                                  // lost
+]
 ```
+
+`value_ms` is `null` for a lost ping. Gson omits null fields by default, so a small local
+`UdpPingBodySerializer` (registered only for `UdpPingBody`) forces an explicit `"value_ms": null`
+without changing null handling for any other request.
 
 Because the backend isn't upgraded yet, the samples are handed over **in memory** (no DB schema
 change): `TestControllerImpl` writes them to `UdpPingResultStore` keyed by test UUID at the end of the
 measurement; `ResultsRepositoryImpl` drains the store and sets `body.udpPings` (via `copy()`) just
 before sending. Field names are a prototype choice — change `UdpPingBody`'s `@SerializedName`s to match
 the final backend.
+
+**Endpoint.** The array rides along in the normal test-result submission — the `sendTestResultsUrl`,
+i.e. `https://<control-server-host>/RMBTControlServer/result` (POST, body = `TestResultBody`). No new
+endpoint. Observed on device:
+
+```
+POST https://c01v4.netztest.at/RMBTControlServer/result
+{ … , "udp_pings":[
+    {"t_ns":87575521,"value_ms":14.78},
+    {"t_ns":193045365,"value_ms":18.46},
+    {"t_ns":310583542,"value_ms":35.59},
+    …
+] }
+```
 
 ## Files changed
 

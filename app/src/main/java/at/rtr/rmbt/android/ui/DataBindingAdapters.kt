@@ -968,14 +968,22 @@ fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
  * UDP ping (prototype) on the measurement screen, e.g. "UDP-Ping: 23 ms". Hidden until a value is
  * available.
  */
-@BindingAdapter("udpPingMs")
-fun AppCompatTextView.setUdpPingMs(pingMs: Float?) {
-    if (pingMs == null) {
-        visibility = View.GONE
-        text = ""
-    } else {
-        visibility = View.VISIBLE
-        text = context.getString(R.string.measurement_udp_ping, pingMs)
+@BindingAdapter(value = ["udpPingMs", "udpPingCount"], requireAll = false)
+fun AppCompatTextView.setUdpPingMs(pingMs: Float?, count: Int) {
+    when {
+        count <= 0 -> {
+            visibility = View.GONE
+            text = ""
+        }
+        pingMs == null -> {
+            // ping was lost
+            visibility = View.VISIBLE
+            text = context.getString(R.string.measurement_udp_ping_lost, count)
+        }
+        else -> {
+            visibility = View.VISIBLE
+            text = context.getString(R.string.measurement_udp_ping, pingMs, count)
+        }
     }
 }
 

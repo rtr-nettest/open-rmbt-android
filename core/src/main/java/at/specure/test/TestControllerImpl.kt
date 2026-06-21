@@ -395,7 +395,9 @@ class TestControllerImpl(
             token = token,
             protocolId = "RP01",
             pingIntervalMillis = 100,
-            pingTimeoutMillis = 2000,
+            // Loaded ping: a ping is recorded every 100 ms (sent regardless of load). A response later
+            // than this timeout counts as lost (value = null). 3 s is plenty even with bufferbloat.
+            pingTimeoutMillis = 3000,
             successResponseHeader = "RR01",
             errorResponseHeader = "RE01"
         )
@@ -409,13 +411,18 @@ class TestControllerImpl(
                 UdpHmacPingFlow(configuration).pingFlow().collect { result ->
                     when (result) {
                         is PingResult.Success -> {
-                            val tNs = System.nanoTime() - udpPingStartNanos
+                            val tNs = result.sentAtNanos - udpPingStartNanos
                             udpPingResults.add(UdpPingBody(tNs, result.rttMillis.toFloat()))
-                            _listener?.onUdpPingChanged(result.rttMillis.toFloat())
+                            _listener?.onUdpPingChanged(result.rttMillis.toFloat(), udpPingResults.size)
+                        }
+                        is PingResult.Lost -> {
+                            // record every ping; a lost one has a null value
+                            val tNs = result.sentAtNanos - udpPingStartNanos
+                            udpPingResults.add(UdpPingBody(tNs, null))
+                            _listener?.onUdpPingChanged(null, udpPingResults.size)
                         }
                         is PingResult.ServerError -> Timber.w("UDP ping server error: ${result.exception}")
                         is PingResult.ClientError -> Timber.w(result.exception, "UDP ping client error")
-                        is PingResult.Lost -> Timber.v("UDP ping lost: seq=${result.sequenceNumber}")
                     }
                 }
             } catch (e: CancellationException) {
@@ -431,7 +438,8 @@ class TestControllerImpl(
         udpPingJob?.cancel()
         udpPingJob = null
         _testUUID?.let { uuid ->
-            UdpPingResultStore.put(uuid, ArrayList(udpPingResults))
+            // results arrive out of order (lost ones only after the timeout); sort by send time
+            UdpPingResultStore.put(uuid, ArrayList(udpPingResults).sortedBy { it.timeNs })
         }
     }
 

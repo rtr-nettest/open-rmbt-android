@@ -64,6 +64,9 @@ class ControlServerModule {
                 GsonBuilder().registerTypeAdapter(
                     FilterBaseOptionResponse::class.java,
                     FilterBaseOptionDeserializer()
+                ).registerTypeAdapter(
+                    UdpPingBody::class.java,
+                    UdpPingBodySerializer()
                 ).create()
             )
         )

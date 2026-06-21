@@ -24,6 +24,9 @@ interface MeasurementProducer {
     /** Latest UDP ping round-trip time in milliseconds, or null if none measured yet. */
     val udpPingMs: Float?
 
+    /** Running count of successful UDP pings so far. */
+    val udpPingCount: Int
+
     val isTestsRunning: Boolean
 
     val testUUID: String?

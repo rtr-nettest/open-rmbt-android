@@ -211,7 +211,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/appCompatImageView1"
                 app:udpPingMs="@{state.udpPingMs}"
-                tools:text="UDP-Ping: 23 ms" />
+                app:udpPingCount="@{state.udpPingCount}"
+                tools:text="UDP-Ping: 12.3 ms (#12)" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

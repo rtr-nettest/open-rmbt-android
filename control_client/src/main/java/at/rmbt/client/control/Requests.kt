@@ -546,13 +546,29 @@ data class TestResultBody(
 
 @Keep
 data class UdpPingBody(
-    /** time of the ping relative to the measurement start, in nanoseconds */
+    /** time the ping was sent, relative to the measurement start, in nanoseconds */
     @SerializedName("t_ns")
     val timeNs: Long,
-    /** round-trip time in milliseconds */
+    /** round-trip time in milliseconds, or null when the ping was lost (no/late response) */
     @SerializedName("value_ms")
-    val valueMs: Float
+    val valueMs: Float?
 )
+
+/**
+ * Serializes [UdpPingBody] with an explicit `"value_ms": null` for lost pings (the default Gson omits
+ * null fields). Registered locally so it doesn't change null handling for any other request body.
+ */
+class UdpPingBodySerializer : com.google.gson.JsonSerializer<UdpPingBody> {
+    override fun serialize(
+        src: UdpPingBody,
+        typeOfSrc: java.lang.reflect.Type,
+        context: com.google.gson.JsonSerializationContext
+    ): com.google.gson.JsonElement = com.google.gson.JsonObject().apply {
+        addProperty("t_ns", src.timeNs)
+        if (src.valueMs == null) add("value_ms", com.google.gson.JsonNull.INSTANCE)
+        else addProperty("value_ms", src.valueMs)
+    }
+}
 
 @Keep
 data class LoopModeInfo(

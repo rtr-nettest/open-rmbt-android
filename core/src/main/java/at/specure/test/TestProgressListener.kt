@@ -9,8 +9,11 @@ interface TestProgressListener {
 
     fun onPingChanged(pingNanos: Long)
 
-    /** Latest UDP ping round-trip time in milliseconds (sampled every 100 ms during the test). */
-    fun onUdpPingChanged(pingMs: Float) {}
+    /**
+     * Latest UDP ping (sampled every 100 ms during the test): round-trip time in milliseconds, or
+     * null when the ping was lost; plus the running count of all pings so far (1-based).
+     */
+    fun onUdpPingChanged(pingMs: Float?, count: Int) {}
 
     fun onJitterChanged(jitterNanos: Long)
 
