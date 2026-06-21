@@ -54,8 +54,9 @@ final-state cleanup (and in `reset()`), so it spans the entire measurement. Each
 - is recorded as `(t_ns since measurement start, value_ms)`.
 
 ### 4. UI — `UDP-Ping: 12,3 ms (#12)` / `UDP-Ping: lost (#12)`
-A line in the shared `measurement_bottom_view` (so it shows in **portrait and landscape**), below the
-Ping/Down/Up row, bound via `app:udpPingMs` + `app:udpPingCount`. Shows the latest ping and the
+A line below the Ping/Down/Up row in `measurement_bottom_view`, bound via `app:udpPingMs` +
+`app:udpPingCount`. Note there are **two** copies of this layout — `layout/` and `layout-land/` — so
+the line must be added to **both** (it's not actually a shared file). Shows the latest ping and the
 running count of all pings — e.g. `UDP-Ping: 12,3 ms (#12)` (one decimal, device-locale formatted),
 or **`UDP-Ping: lost (#12)`** when that ping was lost. Hidden until the first ping.
 
