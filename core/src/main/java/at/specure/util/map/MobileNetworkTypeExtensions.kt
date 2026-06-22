@@ -1,5 +1,6 @@
 package at.specure.util.map
 
+import android.graphics.Color
 import at.specure.info.network.MobileNetworkType
 import androidx.core.graphics.toColorInt
 
@@ -54,17 +55,18 @@ fun MobileNetworkType.colorInt(): Int {
 fun MobileNetworkType.blendedColorInt(signalDbm: Int?, ping: Double?): Int {
     val colorMax = this.colorInt()
     val colorMin = OFFLINE_GRAY.toColorInt()
-    if (ping == null || (signalDbm != null && signalDbm < MIN_SIGNAL)) {
+    if (ping == null || signalDbm == null) {
         return colorMin
     }
-    if (signalDbm == null || signalDbm > MAX_SIGNAL) {
-        return colorMax
-    }
-    val blendFactor = (signalDbm - MIN_SIGNAL).toFloat() / (MAX_SIGNAL - MIN_SIGNAL).toFloat()
+    val clampedSignal = signalDbm.coerceIn(MIN_SIGNAL, MAX_SIGNAL)
 
-    val r = ((colorMin shr 16 and 0xFF) + blendFactor * ((colorMax shr 16 and 0xFF) - (colorMin shr 16 and 0xFF))).toInt()
-    val g = ((colorMin shr 8 and 0xFF) + blendFactor * ((colorMax shr 8 and 0xFF) - (colorMin shr 8 and 0xFF))).toInt()
-    val b = ((colorMin and 0xFF) + blendFactor * ((colorMax and 0xFF) - (colorMin and 0xFF))).toInt()
+    // Calculate blend factor (0 at min, 1 at max)
+    val t = (clampedSignal - MIN_SIGNAL) / (MAX_SIGNAL - MIN_SIGNAL).toFloat()
 
-    return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+    // Extract RGB channels
+    val r = (Color.red(colorMin) + t * (Color.red(colorMax) - Color.red(colorMin))).toInt()
+    val g = (Color.green(colorMin) + t * (Color.green(colorMax) - Color.green(colorMin))).toInt()
+    val b = (Color.blue(colorMin) + t * (Color.blue(colorMax) - Color.blue(colorMin))).toInt()
+
+    return Color.rgb(r, g, b)
 }

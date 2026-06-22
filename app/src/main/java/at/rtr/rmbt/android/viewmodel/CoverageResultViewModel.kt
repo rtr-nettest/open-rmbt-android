@@ -111,8 +111,6 @@ class CoverageResultViewModel @Inject constructor(
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
 
-    private val markerIconCache = mutableMapOf<Int, Map<String, Int>>()
-
     init {
         addStateSaveHandler(state)
         coverageMeasurementSettings.signalMeasurementLastMeasurementLoopId?.let {
@@ -165,7 +163,7 @@ class CoverageResultViewModel @Inject constructor(
             }
     }
 
-    private fun getCachedIcon(
+    private fun getIcon(
         type: MobileNetworkType,
         signalDbm: Int? = null,
         pingMillis: Double? = null
@@ -175,13 +173,11 @@ class CoverageResultViewModel @Inject constructor(
             pingMillis
         )
 
-        return markerIconCache.getOrPut(fillColor) {
-            mapOf(
-                "strokeColor" to "#ffffff".toColorInt(),
-                "strokeWidth" to 1,
-                "fillColor" to fillColor,
-            )
-        }
+        return mapOf(
+            "strokeColor" to "#ffffff".toColorInt(),
+            "strokeWidth" to 1,
+            "fillColor" to fillColor,
+        )
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
@@ -336,7 +332,7 @@ class CoverageResultViewModel @Inject constructor(
                     val ping =
                         if (isMeasurementInProgress && point.isNotFinished()) livePing else point.averagePingMillis
 
-                    val icon = getCachedIcon(tech, signal, ping)
+                    val icon = getIcon(tech, signal, ping)
                     val colorInt = icon["fillColor"]!!
                     val fillColor = makeSemiTransparent(colorInt)
                     val radius = point.fenceRadiusMeters ?: 0.0
@@ -391,7 +387,7 @@ class CoverageResultViewModel @Inject constructor(
                     marker.tag = updatedData
 
                     // refresh icon in case the technology has changed
-                    val icon = getCachedIcon(tech, point.signalMainDbm, point.averagePingMillis)
+                    val icon = getIcon(tech, point.signalMainDbm, point.averagePingMillis)
                     marker.fillColor = icon["fillColor"]!!
                 }
             }
@@ -444,7 +440,7 @@ class CoverageResultViewModel @Inject constructor(
                 isNotFinished = isLastOngoingPoint
             )
             val latLng = point.toLatLng() ?: return@mapIndexedNotNull null
-            val icon = getCachedIcon(tech, signal, ping)
+            val icon = getIcon(tech, signal, ping)
 
             CircleOptions()
                 .center(latLng)
