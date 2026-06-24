@@ -719,6 +719,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
         fenceRadiusMeters: Double,
     ) {
+        val currentData = stateManager.state.value
         Timber.d("ENDING SESSION: FENCE CREATED: session: $sessionId")
         fencesDataSource.createSignalFence(
             sessionId = sessionId,
@@ -727,7 +728,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             radiusMeters = fenceRadiusMeters,
             entryTimestampMillis = newTimestamp,
             lastFenceMinTechSignal = lastFenceMinTechSignal,
-            avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average,
+            avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.median ?: currentData.currentPingMs,
         )
         stateManager.onFenceExitClean(lastFenceMinTechSignal)
     }
