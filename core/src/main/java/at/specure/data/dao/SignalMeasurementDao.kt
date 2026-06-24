@@ -13,9 +13,7 @@ import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
-import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
-import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 
 const val COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT = 3
@@ -44,7 +42,8 @@ interface SignalMeasurementDao {
     @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
     fun getCoverageMeasurementFencesList(sessionId: String): List<CoverageMeasurementFenceRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT fence.* 
         FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} AS fence
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
@@ -52,37 +51,47 @@ interface SignalMeasurementDao {
         WHERE session.localLoopId = :sessionLoopId
         ORDER BY fence.entryTimestampMillis DESC
         LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
-    """)
-    fun getLastFencesListForSessionLoop(sessionLoopId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
+    """
+    )
+    fun getLastFencesListForSessionLoop(
+        sessionLoopId: String,
+        limit: Int? = null
+    ): List<CoverageMeasurementFenceRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT fence.* 
         FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} AS fence
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
         ORDER BY fence.entryTimestampMillis ASC
-    """)
+    """
+    )
     fun getFencesListForSessionLoop(sessionLoopId: String): List<CoverageMeasurementFenceRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT fence.* 
         FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} AS fence
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
         ORDER BY fence.entryTimestampMillis ASC
-    """)
+    """
+    )
     fun getFencesLiveDataForSessionLoop(sessionLoopId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     @Upsert
     fun upsertSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)
 
-    @Query("""
+    @Query(
+        """
         SELECT COALESCE(MAX(sequenceNumber), -1) 
         FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} 
         WHERE sessionId = :sessionId
-    """)
+    """
+    )
     suspend fun getMaxSequence(sessionId: String): Int
 
     @Transaction
@@ -98,30 +107,13 @@ interface SignalMeasurementDao {
     }
 
     @Transaction
-    open suspend fun insertFenceWithNextSequenceAndUpdateLastOne(
+    suspend fun insertFenceWithNextSequence(
         point: CoverageMeasurementFenceRecord,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
         lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
         val nextSeq = getMaxSequence(point.sessionId) + 1
-        val session = getCoverageMeasurementSessionForMeasurementId(point.sessionId)
-        val lastPoint = session?.localLoopId?.let {
-            getLastFencesListForSessionLoop(sessionLoopId = session.localLoopId, 1).firstOrNull()
-        }
-        lastPoint?.let { lastFence ->
-            if (lastFence.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
-                val updatedFence = lastFence.copy(
-                    leaveTimestampMillis = leaveTimestampMillis,
-                    avgPingMillis = avgPingMillis,
-                    technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
-                    frequencyBand = lastFenceMinTechSignal?.frequencyBand,
-                    signalStrength = lastFenceMinTechSignal?.signalValueDbm
-                )
-                upsertSignalMeasurementPoint(updatedFence)
-            }
-        }
-
         val updatedSequencePoint = point.copy(
             sequenceNumber = nextSeq
         )
@@ -129,7 +121,7 @@ interface SignalMeasurementDao {
     }
 
     @Transaction
-    open suspend fun updateLastPointForSession(
+    suspend fun updateLastPointForSession(
         sessionId: String,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
@@ -140,15 +132,13 @@ interface SignalMeasurementDao {
             getLastFencesListForSessionLoop(sessionLoopId = session.localLoopId, 1).firstOrNull()
         }
         lastPoint?.let { lastFence ->
-            if (lastFence.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
-                val updatedFence = lastFence.copy(
-                    leaveTimestampMillis = leaveTimestampMillis,
-                    avgPingMillis = avgPingMillis,
-                    technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
-                    signalStrength = lastFenceMinTechSignal?.signalValueDbm
-                )
-                upsertSignalMeasurementPoint(updatedFence)
-            }
+            val updatedFence = lastFence.copy(
+                leaveTimestampMillis = leaveTimestampMillis,
+                avgPingMillis = avgPingMillis,
+                technologyId = lastFenceMinTechSignal?.type?.intValue,
+                signalStrength = lastFenceMinTechSignal?.signalValueDbm
+            )
+            updateSignalMeasurementPoint(updatedFence)
         }
     }
 
@@ -162,7 +152,8 @@ interface SignalMeasurementDao {
     @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE localMeasurementId=:measurementId LIMIT 1")
     fun getCoverageMeasurementSessionForMeasurementId(measurementId: String): CoverageMeasurementSession?
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} 
         WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT
           AND serverMeasurementId IS NOT NULL 
@@ -170,10 +161,12 @@ interface SignalMeasurementDao {
       ORDER BY 
         startTimeLoopMillis DESC,
         startTimeMeasurementMillis ASC
-    """)
+    """
+    )
     fun getCoverageMeasurementsForRetrySend(): List<CoverageMeasurementSession>
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} 
         WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT 
           AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis 
@@ -182,7 +175,8 @@ interface SignalMeasurementDao {
       ORDER BY 
         startTimeLoopMillis DESC,
         startTimeMeasurementMillis ASC
-    """)
+    """
+    )
     fun getNotRegisteredCoverageMeasurements(currentTimeMillis: Long = System.currentTimeMillis()): List<CoverageMeasurementSession>
 
     @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
@@ -219,82 +213,100 @@ interface SignalMeasurementDao {
         deleteDeletableSessions(maxRetryCount)
     }
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.PERMISSIONS_STATUS}
             WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.CAPABILITIES}
             WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.CELL_LOCATION}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteCellLocationsForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.CELL_INFO}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteCellInfosForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.GEO_LOCATION}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteGeolocationsForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.TEST_TELEPHONY_RECORD}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.SIGNAL}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteSignalsForDeletableCoverageSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.COVERAGE_MEASUREMENT_FENCE}
         WHERE sessionId IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
-    """)
+    """
+    )
     suspend fun deleteFencesForDeletableSessions(maxRetryCount: Int)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
         WHERE synced = 1 OR retryCount >= :maxRetryCount
-    """)
+    """
+    )
     suspend fun deleteDeletableSessions(maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT)
 
     suspend fun getSignalRecordNullable(id: String?): SignalRecord? {

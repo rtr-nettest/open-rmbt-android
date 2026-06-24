@@ -111,8 +111,6 @@ class CoverageResultViewModel @Inject constructor(
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
 
-    private val markerIconCache = mutableMapOf<Int, Map<String, Int>>()
-
     init {
         addStateSaveHandler(state)
         coverageMeasurementSettings.signalMeasurementLastMeasurementLoopId?.let {
@@ -165,7 +163,7 @@ class CoverageResultViewModel @Inject constructor(
             }
     }
 
-    private fun getCachedIcon(
+    private fun getIcon(
         type: MobileNetworkType,
         signalDbm: Int? = null,
         pingMillis: Double? = null
@@ -175,13 +173,11 @@ class CoverageResultViewModel @Inject constructor(
             pingMillis
         )
 
-        return markerIconCache.getOrPut(fillColor) {
-            mapOf(
-                "strokeColor" to "#ffffff".toColorInt(),
-                "strokeWidth" to 1,
-                "fillColor" to fillColor,
-            )
-        }
+        return mapOf(
+            "strokeColor" to "#ffffff".toColorInt(),
+            "strokeWidth" to 1,
+            "fillColor" to fillColor,
+        )
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
@@ -263,7 +259,8 @@ class CoverageResultViewModel @Inject constructor(
         val pts = points ?: return
         val isMeasurementInProgress =
             coverageMeasurementState != null && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
-        if (!shouldUpdateMap() && isMeasurementInProgress) return
+        val shouldForceUpdate = hasRecentlyClosedLastPoint(pts)
+        if (!shouldUpdateMap() && isMeasurementInProgress && !shouldForceUpdate) return
 
         updateMapJob?.cancel()
         updateMapJob = viewModelScope.launch(Dispatchers.Default) {
@@ -277,7 +274,6 @@ class CoverageResultViewModel @Inject constructor(
 
             // Switch to main thread to add markers and circles
             withContext(Dispatchers.Main) {
-                val markerDetailsMap = mutableMapOf<Long, CoverageMarkerDetailsData>()
                 val liveNetworkInfo =
                     coverageMeasurementDataLiveData.value?.currentNetworkInfo as? CellNetworkInfo
                 val liveNetworkType: MobileNetworkType? = if (isMeasurementInProgress) {
@@ -290,112 +286,121 @@ class CoverageResultViewModel @Inject constructor(
                     coverageMeasurementDataLiveData.value?.currentPingMs
                 } else null
 
-                val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
-
-                updateCurrentLastMarkerIfFinished(pts)
+                updateFinishedPoints(pts)
 
                 val markerOptionsList =
-                    getUpdatedMarkerOptions(
+                    addNewMarkers(
+                        currentMap,
                         newPoints,
                         isMeasurementInProgress,
                         liveNetworkType,
                         liveSignal,
                         livePing,
-                        markerDetailsMap
                     )
 
-                if (coverageMeasurementState == null || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                if (
+                    coverageMeasurementState == null
+                    || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+                ) {
                     zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
                 }
 
-                // Add new markers
-                markerOptionsList.forEachIndexed { index, options ->
-                    currentMap.addCircle(options).let { marker ->
-                        val point = newPoints[index]
-                        state.displayedPointIds.add(point.generateHash())
-                        marker.tag = markerDetailsMap[point.id]
-
-                        state.markers.addLast(marker)
-                    }
-                }
-
-                // Add/update circles for last point
-                lastPoint?.let { point ->
-
-                    val latLng = point.toLatLng() ?: return@let
-                    // Use live network type for the ongoing fence so the circle colour
-                    // matches the current technology in real-time.
-                    val tech =
-                        if (isMeasurementInProgress && point.isNotFinished() && liveNetworkType != null) {
-                            liveNetworkType
-                        } else {
-                            MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-                        }
-                    val signal =
-                        if (isMeasurementInProgress && point.isNotFinished()) liveSignal else point.signalMainDbm
-                    val ping =
-                        if (isMeasurementInProgress && point.isNotFinished()) livePing else point.averagePingMillis
-
-                    val icon = getCachedIcon(tech, signal, ping)
-                    val colorInt = icon["fillColor"]!!
-                    val fillColor = makeSemiTransparent(colorInt)
-                    val radius = point.fenceRadiusMeters ?: 0.0
-
-                    if (lastMarker == null) {
-                        val options = CircleOptions()
-                            .center(latLng)
-                            .radius(radius)
-                            .strokeColor(colorInt)
-                            .strokeWidth(2f)
-                            .fillColor(fillColor)
-                            .zIndex(101f)
-
-                        lastMarker = currentMap.addCircle(
-                            options
-                        )
-                    } else {
-                        lastMarker?.center = latLng
-                        lastMarker?.radius = radius
-                        lastMarker?.strokeColor = colorInt
-                        lastMarker?.fillColor = fillColor
-                    }
-                }
+                val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
+                updateLastPointCircle(
+                    lastPoint,
+                    isMeasurementInProgress,
+                    liveNetworkType,
+                    liveSignal,
+                    livePing,
+                    currentMap
+                )
 
                 togglePointsVisibility()
             }
         }
     }
 
-    private fun updateCurrentLastMarkerIfFinished(pts: List<FencesResultItemRecord>) {
-        val currentLastMarker = state.markers.lastOrNull()
-        currentLastMarker?.let { marker ->
-            val data = marker.tag as? CoverageMarkerDetailsData
-            data?.id?.let { lastId ->
-                val updatedPoint = pts.find { it.id == lastId }
-
-                updatedPoint?.let { point ->
-                    if (point.isNotFinished()) return@let
-                    val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-                    val updatedData = CoverageMarkerDetailsData(
-                        id = point.id,
-                        networkType = tech.intValue,
-                        tech.displayName,
-                        provider = null,
-                        signalClass = null,
-                        signalStrength = point.signalMainDbm,
-                        pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
-                        timestamp = point.fenceTimestampMillis,
-                        isNotFinished = false,
-                    )
-
-                    marker.tag = updatedData
-
-                    // refresh icon in case the technology has changed
-                    val icon = getCachedIcon(tech, point.signalMainDbm, point.averagePingMillis)
-                    marker.fillColor = icon["fillColor"]!!
+    private fun updateLastPointCircle(
+        lastPoint: FencesResultItemRecord?,
+        isMeasurementInProgress: Boolean,
+        liveNetworkType: MobileNetworkType?,
+        liveSignal: Int?,
+        livePing: Double?,
+        currentMap: GoogleMap
+    ) {
+        lastPoint?.let { point ->
+            val latLng = point.toLatLng() ?: return@let
+            // Use live network type for the ongoing fence so the circle colour
+            // matches the current technology in real-time.
+            val tech =
+                if (isMeasurementInProgress && point.isNotFinished() && liveNetworkType != null) {
+                    liveNetworkType
+                } else {
+                    MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
                 }
+            val signal =
+                if (isMeasurementInProgress && point.isNotFinished()) liveSignal else point.signalMainDbm
+            val ping =
+                if (isMeasurementInProgress && point.isNotFinished()) livePing else point.averagePingMillis
+
+            val icon = getIcon(tech, signal, ping)
+            val colorInt = icon["fillColor"]!!
+            val fillColor = makeSemiTransparent(colorInt)
+            val radius = point.fenceRadiusMeters ?: 0.0
+
+            if (lastMarker == null) {
+                val options = CircleOptions()
+                    .center(latLng)
+                    .radius(radius)
+                    .strokeColor(colorInt)
+                    .strokeWidth(2f)
+                    .fillColor(fillColor)
+                    .zIndex(101f)
+
+                lastMarker = currentMap.addCircle(
+                    options
+                )
+            } else {
+                lastMarker?.center = latLng
+                lastMarker?.radius = radius
+                lastMarker?.strokeColor = colorInt
+                lastMarker?.fillColor = fillColor
             }
         }
+    }
+
+    private fun updateFinishedPoints(pts: List<FencesResultItemRecord>) {
+        val marker = state.markers.lastOrNull() ?: return
+        val point =
+            pts.findLast { it.generateHash() == (marker.tag as? CoverageMarkerDetailsData)?.hash } ?: return
+        if (point.isNotFinished()) return
+        val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+        val updatedData = CoverageMarkerDetailsData(
+            id = point.id,
+            networkType = tech.intValue,
+            tech.displayName,
+            provider = null,
+            signalClass = null,
+            signalStrength = point.signalMainDbm,
+            pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
+            timestamp = point.fenceTimestampMillis,
+            isNotFinished = false,
+            hash = point.generateHash()
+        )
+        marker.tag = updatedData
+
+        // refresh icon in case the technology has changed
+        val icon = getIcon(tech, point.signalMainDbm, point.averagePingMillis)
+        marker.fillColor = icon["fillColor"]!!
+    }
+
+    private fun hasRecentlyClosedLastPoint(pts: List<FencesResultItemRecord>): Boolean {
+        val marker = state.markers.lastOrNull() ?: return false
+        val markerTag = marker.tag as? CoverageMarkerDetailsData ?: return false
+        if (!markerTag.isNotFinished) return false
+
+        val point = pts.findLast { it.generateHash() == markerTag.hash } ?: return false
+        return !point.isNotFinished()
     }
 
     private fun togglePointsVisibility() {
@@ -411,19 +416,18 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    private fun getUpdatedMarkerOptions(
+    private fun addNewMarkers(
+        map: GoogleMap,
         newPoints: List<FencesResultItemRecord>,
         isMeasurementInProgress: Boolean,
         liveNetworkType: MobileNetworkType?,
         liveSignal: Int?,
         livePing: Double?,
-        markerDetailsMap: MutableMap<Long, CoverageMarkerDetailsData>
     ): List<CircleOptions> {
         val markerOptionsList = newPoints.mapIndexedNotNull { index, point ->
-            val isLastDuringMeasurement =
-                index == newPoints.lastIndex && isMeasurementInProgress
-
-            val isLastOngoingPoint = isLastDuringMeasurement && point.isNotFinished()
+            val isLastOngoingPoint = index == newPoints.lastIndex
+                    && isMeasurementInProgress
+                    && point.isNotFinished()
             val tech = if (isLastOngoingPoint && liveNetworkType != null) {
                 liveNetworkType
             } else {
@@ -432,7 +436,7 @@ class CoverageResultViewModel @Inject constructor(
             val signal = if (isLastOngoingPoint) liveSignal else point.signalMainDbm
             val ping = if (isLastOngoingPoint) livePing else point.averagePingMillis
 
-            markerDetailsMap[point.id] = CoverageMarkerDetailsData(
+            val tagData = CoverageMarkerDetailsData(
                 id = point.id,
                 networkType = tech.intValue,
                 tech.displayName,
@@ -441,12 +445,12 @@ class CoverageResultViewModel @Inject constructor(
                 signalStrength = signal,
                 pingMillis = (ping?.times(1000000))?.toLong(),
                 timestamp = point.fenceTimestampMillis,
-                isNotFinished = isLastOngoingPoint
+                isNotFinished = isLastOngoingPoint,
+                hash = point.generateHash()
             )
             val latLng = point.toLatLng() ?: return@mapIndexedNotNull null
-            val icon = getCachedIcon(tech, signal, ping)
-
-            CircleOptions()
+            val icon = getIcon(tech, signal, ping)
+            val options = CircleOptions()
                 .center(latLng)
                 .radius(calculateMarkerRadius(state.zoom))
                 .strokeColor(icon["strokeColor"]!!)
@@ -454,6 +458,13 @@ class CoverageResultViewModel @Inject constructor(
                 .fillColor(icon["fillColor"]!!)
                 .clickable(true)
                 .zIndex(100f)
+
+            map.addCircle(options).let { marker ->
+                marker.tag = tagData
+                state.displayedPointIds.add(point.generateHash())
+                state.markers.addLast(marker)
+            }
+            options
         }
         return markerOptionsList
     }

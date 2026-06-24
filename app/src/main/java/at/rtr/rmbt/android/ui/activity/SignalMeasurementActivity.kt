@@ -64,7 +64,8 @@ const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
 const val GPS_CHECK_GRACE_PERIOD = 6000L
 
-class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, CoverageSettingsDialog.Callback {
+class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
+    CoverageSettingsDialog.Callback {
 
     val networkValidator = CoverageNetworkValidator()
     private val viewModel: HomeViewModel by viewModelLazy()
@@ -114,7 +115,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         hideDialog()
 
         coverageViewModel.coverageMeasurementDataLiveData.listen(this) {
-            viewModel.state.coverageSessionStart.set(it?.coverageMeasurementSession?.startTimeLoopMillis ?: 0)
+            viewModel.state.coverageSessionStart.set(
+                it?.coverageMeasurementSession?.startTimeLoopMillis ?: 0
+            )
             updateMapState(it)
         }
 
@@ -198,7 +201,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         return Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE)
             .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
             .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-            .setAction(actionResId) {view ->
+            .setAction(actionResId) { view ->
                 action(view)
             }
             .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
@@ -230,8 +233,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         showMeasurementResultsJob = lifecycleScope.launch {
             coverageViewModel.updateMapPoints(
                 map,
-                coverageMeasurementData?.fences.toCoverageResultItemRecords(),
-                coverageMeasurementData?.state
+                coverageMeasurementData.fences.toCoverageResultItemRecords(),
+                coverageMeasurementData.state
             )
         }
     }
@@ -245,13 +248,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
         updateSendingResultsInfo(coverageMeasurementData?.sendingResults ?: false)
-
         // Launch a coroutine to safely update the map
         updateUnfinishedMeasurementJob?.cancel()
         updateUnfinishedMeasurementJob = lifecycleScope.launch {
 //            map?.awaitMapLoad()
             setMyPositionAndButtonVisible(true)
-            val longEnoughTimePassedFromStart = (3000.plus(coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0) <= System.currentTimeMillis())
+            val longEnoughTimePassedFromStart = (3000.plus(
+                coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0
+            ) <= System.currentTimeMillis())
             if (coverageMeasurementData?.currentLocation != null || (coverageMeasurementData?.coverageMeasurementSession != null
                         && longEnoughTimePassedFromStart)
             ) {
@@ -275,7 +279,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun setMyPositionAndButtonVisible(visible: Boolean) {
 
-        val enabled = visible && coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        val enabled =
+            visible && coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
 
         binding.fabLocation.isEnabled = enabled
 
@@ -304,9 +309,18 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         binding.fabLocation.setOnClickListener {
             if (enabled) {
-                val currentLocation = coverageViewModel.coverageMeasurementDataLiveData?.value?.currentLocation ?: return@setOnClickListener
+                val currentLocation =
+                    coverageViewModel.coverageMeasurementDataLiveData?.value?.currentLocation
+                        ?: return@setOnClickListener
                 Timber.d("Setting latest location to 2: $currentLocation")
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(currentLocation.latitude, currentLocation.longitude), DEFAULT_TRACKING_ZOOM_LEVEL))
+                map?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            currentLocation.latitude,
+                            currentLocation.longitude
+                        ), DEFAULT_TRACKING_ZOOM_LEVEL
+                    )
+                )
             }
         }
 
@@ -319,30 +333,34 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setResultTitleVisible(visible: Boolean) {
-        binding.measurementResultTitle.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        binding.measurementResultTitle.visibility =
+            if (visible && !coverageViewModel.state.pipActive.get()) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
     }
 
     private fun setInfoVisible(visible: Boolean) {
 
-        binding.measurementProgressInfoPipPing.visibility = if (visible && coverageViewModel.state.pipActive.get()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-        binding.measurementProgressInfoPipNetwork.visibility = if (visible && coverageViewModel.state.pipActive.get()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-        binding.measurementProgressInfo.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        binding.measurementProgressInfoPipPing.visibility =
+            if (visible && coverageViewModel.state.pipActive.get()) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        binding.measurementProgressInfoPipNetwork.visibility =
+            if (visible && coverageViewModel.state.pipActive.get()) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        binding.measurementProgressInfo.visibility =
+            if (visible && !coverageViewModel.state.pipActive.get()) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
     }
 
     private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
@@ -352,7 +370,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun showCurrentNetworkType(coverageMeasurementData: CoverageMeasurementData?) {
-        val networkType = coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
+        val networkType =
+            coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
         val frequencyBand = coverageMeasurementData?.currentNetworkInfo?.getFrequencyBand()
         val signal = coverageMeasurementData?.currentNetworkInfo?.getSignalStrengthValue()
         val networkStringRaw = listOfNotNull(networkType, frequencyBand, signal).joinToString(" | ")
@@ -389,7 +408,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         binding.pingValuePip.text = pingText
     }
 
-    private fun updateSendingResultsInfo(sendingResults : Boolean) {
+    private fun updateSendingResultsInfo(sendingResults: Boolean) {
         if (sendingResults) {
             binding.sendingResults.visibility = View.VISIBLE
         } else {
@@ -400,7 +419,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun updateCurrentLocation(location: LocationInfo?) {
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
-        val startTime = coverageViewModel.coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0L
+        val startTime =
+            coverageViewModel.coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeMeasurementMillis
+                ?: 0L
         val gracePeriodEnded = System.currentTimeMillis() - startTime >= GPS_CHECK_GRACE_PERIOD
         val deviceInfoLocation = location.toDeviceInfoLocation()
         if (coverageViewModel.isLocationInfoMeetingQualityCriteria(deviceInfoLocation)) {
@@ -420,7 +441,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.let { gMap ->
             location?.let { latestLocation ->
                 Timber.d("Setting latest location to 1: $latestLocation")
-                coverageViewModel.state.cameraPositionLiveData.postValue(LatLng(latestLocation.latitude, latestLocation.longitude))
+                coverageViewModel.state.cameraPositionLiveData.postValue(
+                    LatLng(
+                        latestLocation.latitude,
+                        latestLocation.longitude
+                    )
+                )
                 if (coverageViewModel.state.zoom <= DefaultLocation.austriaZoomLevel) {
                     coverageViewModel.state.zoom = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
                 }
@@ -439,7 +465,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun checkNetwork(networkInfo: NetworkInfo?) {
         if (!networkValidator.isNetworkToBeLogged(networkInfo = networkInfo)) {
-            val message = getString(R.string.wrong_network_message, coverageViewModel.getCurrentNetworkTypeName(networkInfo))
+            val message = getString(
+                R.string.wrong_network_message,
+                coverageViewModel.getCurrentNetworkTypeName(networkInfo)
+            )
             showNetworkWarningIfNotSilenced(binding.root, message)
         } else {
             hideNetworkWarningSnackbar()
@@ -515,10 +544,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     // Get a handle to the GoogleMap object and display marker.
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
-            coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
-            coverageViewModel.state.zoom
-        ))
+        map?.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                coverageViewModel.state.cameraPositionLiveData.value
+                    ?: DefaultLocation.austriaLocation,
+                coverageViewModel.state.zoom
+            )
+        )
         Timber.d("Setting latest location to 3: ${coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation}")
         lifecycleScope.launch {
             map?.awaitLoadedOnce()
@@ -533,10 +565,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
-        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
-            coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
-            coverageViewModel.state.zoom
-        ))
+        map?.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                coverageViewModel.state.cameraPositionLiveData.value
+                    ?: DefaultLocation.austriaLocation,
+                coverageViewModel.state.zoom
+            )
+        )
         Timber.d("Setting latest location to 4: ${coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation}")
         map?.setOnCameraMoveListener {
             map?.cameraPosition?.zoom?.let { newZoom ->
@@ -663,7 +698,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                     viewModel.state.cameraPositionLiveData.postValue(this)
                     viewModel.state.coordinatesLiveData.postValue(this)
                     Timber.d("Setting latest location to 5: ${it}")
-                    map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
+                    map?.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(
+                                it.latitude,
+                                it.longitude
+                            ), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+                        )
+                    )
                 }
                 return
             }
@@ -679,7 +721,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 }
             }
             Timber.d("Setting latest location to 6: ${latitude} $longitude")
-            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
+            map?.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(latitude, longitude),
+                    zoomLevel
+                )
+            )
 
 //            visiblePosition = RecyclerView.NO_POSITION
 //            onCloseMarkerDetails()
@@ -729,11 +776,15 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             hideDialog()
         }
         viewModel.setIsCloseDialogShown(true)
-        binding.warningMessageTitle.text = ContextCompat.getString(this, R.string.stop_signal_measurement_title)
-        binding.warningMessageContent.text = ContextCompat.getString(this, R.string.stop_signal_measurement_text)
-        binding.warningMessageAction.text = ContextCompat.getString(this, R.string.text_stop_measurement)
+        binding.warningMessageTitle.text =
+            ContextCompat.getString(this, R.string.stop_signal_measurement_title)
+        binding.warningMessageContent.text =
+            ContextCompat.getString(this, R.string.stop_signal_measurement_text)
+        binding.warningMessageAction.text =
+            ContextCompat.getString(this, R.string.text_stop_measurement)
         binding.warningMessageAction.visibility = View.VISIBLE
-        binding.warningMessageCancel.text = ContextCompat.getString(this, R.string.text_continue_measurement)
+        binding.warningMessageCancel.text =
+            ContextCompat.getString(this, R.string.text_continue_measurement)
 
         binding.warningMessageAction.setOnClickListener {
             hideStopDialogJob.cancel()
@@ -761,7 +812,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     companion object {
 
-        fun start(context: Context) = context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
+        fun start(context: Context) =
+            context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
     }
 }
 

@@ -59,7 +59,7 @@ interface SignalMeasurementRepository {
 
     suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord)
 
-    suspend fun createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+    suspend fun createMeasurementPointRecordWithNewSequenceNumber(
         point: CoverageMeasurementFenceRecord,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,

@@ -12,4 +12,5 @@ data class CoverageMarkerDetailsData(
     val pingMillis: Long?,
     val timestamp: Long?,
     val isNotFinished: Boolean,
+    val hash: String? = null,
 )
