@@ -3,11 +3,9 @@ package at.specure.measurement.coverage.presentation
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
-import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.coverage.domain.models.PingData
@@ -107,87 +105,16 @@ class CoverageMeasurementDataStateManager @Inject constructor(
         }
     }
 
-    fun updateLocation(location: LocationInfo?) = update {
-        copy(currentLocation = location)
-    }
-
-    fun updateNetworkInfo(networkInfo: NetworkInfo?) = update {
+    fun updateLocationAndNetworkInfo(
+            data: CoverageMeasurementData,
+            location: LocationInfo?,
+            networkInfo: NetworkInfo?,
+        ) = update {
         copy(
-            technologyMinSignalMapForCurrentFence = updateTechnologyMinSignalMap(
-                data = this,
-                networkInfo = networkInfo
-            ),
-            currentNetworkInfo = networkInfo
+            currentLocation = location,
+            currentNetworkInfo = networkInfo,
+            technologyMinSignalMapForCurrentFence = data.technologyMinSignalMapForCurrentFence
         )
-    }
-
-    private fun updateTechnologyMinSignalMap(data: CoverageMeasurementData, networkInfo: NetworkInfo?): HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?> {
-        val newTechnologySignalPair = getTechnologySignalPair(networkInfo)
-        if (newTechnologySignalPair == null) {
-            return data.technologyMinSignalMapForCurrentFence
-        } else {
-            val (networkType, signalTimestamp) = newTechnologySignalPair
-
-            // Explicitly handle NO_CONNECTIVITY to differentiate from UNKNOWN
-            if (networkType == MobileNetworkType.OFFLINE) {
-                data.technologyMinSignalMapForCurrentFence.put(networkType, signalTimestamp)
-                return data.technologyMinSignalMapForCurrentFence
-            }
-
-            val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkType)?.signalValueDbm
-            val isLastSignalForTechnologyNull = lastMinSignalValueForTechnology == null
-            val newSignalValueForTechnology = signalTimestamp?.signalValueDbm
-            if (isLastSignalForTechnologyNull || (newSignalValueForTechnology != null && newSignalValueForTechnology <= (lastMinSignalValueForTechnology ?: Int.MAX_VALUE))) {
-                data.technologyMinSignalMapForCurrentFence.put(
-                    networkType,
-                    signalTimestamp
-                )
-            }
-            return data.technologyMinSignalMapForCurrentFence
-        }
-    }
-
-    private fun getTechnologySignalPair(networkInfo: NetworkInfo?): Pair<MobileNetworkType, MobileSignalTechnologyTimestamp?>? {
-        if (networkInfo == null) {
-            // Return NO_CONNECTIVITY pair when network info is missing
-            return Pair(
-                MobileNetworkType.OFFLINE,
-                MobileSignalTechnologyTimestamp(
-                    type = MobileNetworkType.OFFLINE,
-                    signalValueDbm = null,
-                    frequencyBand = null,
-                    timestamp = System.currentTimeMillis(),
-                )
-            )
-        }
-        if (networkInfo is CellNetworkInfo) {
-            val newSignalValueForTechnology = networkInfo.signalStrength?.value
-            val networkType = networkInfo.networkType
-            val technologySignalTimestamp = MobileSignalTechnologyTimestamp(
-                type = networkType,
-                signalValueDbm = newSignalValueForTechnology,
-                frequencyBand = networkInfo.getFrequencyBand(),
-                timestamp = System.currentTimeMillis(),
-            )
-            Timber.d("Creating 1 signal technology timestamp: $technologySignalTimestamp")
-            return Pair(
-                networkType,
-                technologySignalTimestamp,
-            )
-        } else {
-            return null
-        }
-    }
-
-    fun getMinSignalForTechnologyForCurrentFence(): MobileSignalTechnologyTimestamp? {
-        Timber.d("CurrentFence minimal signals: ${state.value.technologyMinSignalMapForCurrentFence}")
-        val latestTechnology = pickLatestLoggedMobileTechnology(state.value.technologyMinSignalMapForCurrentFence)
-        return latestTechnology
-    }
-
-    private fun pickLatestLoggedMobileTechnology(technologyMinSignalMapForCurrentFence: HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?>): MobileSignalTechnologyTimestamp? {
-        val latestSignal = technologyMinSignalMapForCurrentFence.values.maxBy { it?.timestamp ?: 0 }
-        return latestSignal
     }
 
     fun onFenceExitClean(networkInfo: MobileSignalTechnologyTimestamp?) = update {
@@ -204,18 +131,18 @@ class CoverageMeasurementDataStateManager @Inject constructor(
     }
 
     fun updatePingData(pingData: PingData?) = update {
-        val newPingAverage = pingData?.pingStatistics?.average
-        val oldPingAverage = currentPingMs
-        if (newPingAverage == null && !this.pingNullSkipped) {
+        val newPingMedian = pingData?.pingStatistics?.median
+        val lastKnownPing = currentPingMs
+        if (newPingMedian == null && !this.pingNullSkipped) {
             copy(
                 currentPingStatus = null,
-                currentPingMs = oldPingAverage,
+                currentPingMs = lastKnownPing,
                 pingNullSkipped = true
             )
         } else {
             copy(
                 currentPingStatus = null,
-                currentPingMs = newPingAverage,
+                currentPingMs = newPingMedian,
                 pingNullSkipped = false
             )
         }
