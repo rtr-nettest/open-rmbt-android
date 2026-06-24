@@ -276,9 +276,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private suspend fun updateLastFence(finish: Boolean = false) {
         val currentData = stateManager.state.value
         val sessionId = currentData.coverageMeasurementSession?.localMeasurementId
-        val avgPingMillis =
-            if (!finish) coveragePingProcessor.onNewFenceStarted()?.average
-            else coveragePingProcessor.stopPing()?.average
+        
+        val fencePingStats =
+            if (!finish) coveragePingProcessor.onNewFenceStarted()
+            else coveragePingProcessor.stopPing()
+            
+        val avgPingMillis = fencePingStats?.median ?: currentData.currentPingMs
+        
         val fenceMinNetworkSignal = getLatestSignalForCurrentFence(currentData)
         sessionId?.let {
             fencesDataSource.updateSignalFenceAndSaveOnLeaving(
