@@ -54,7 +54,6 @@ buildscript {
                 test_runner         : "1.6.2",           // latest stable; rel. 2024-07 (~1.9y)
                 espresso_core       : "3.6.1",           // latest stable; rel. 2024-07 (~1.9y)
                 rules               : "1.6.1",           // latest stable; rel. 2024-07 (~1.9y)
-                markwon             : "4.6.2"            // last release; rel. 2021-04 (~5.2y) — STALE, archived (io.noties.markwon)
         ]
 
 /*
