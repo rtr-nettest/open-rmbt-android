@@ -62,7 +62,7 @@ class RtrPingProcessor : PingProcessor {
             errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
         )
 
-        if (configuration != pingClient?.configuration) {
+        if (configuration != pingClient?.configuration || pingJob?.isActive != true) {
             pingEvaluator?.cancel()
             pingClient = UdpHmacPingFlow(configuration)
             pingEvaluator = PingEvaluator(pingClient!!.pingFlow())
