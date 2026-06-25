@@ -126,13 +126,13 @@ class SignalMeasurementRepositoryImpl(
         dao.insertFenceWithNextSequence(point)
     }
 
-    override suspend fun createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+    override suspend fun createMeasurementPointRecordWithNewSequenceNumber(
         point: CoverageMeasurementFenceRecord,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
         lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
-        dao.insertFenceWithNextSequenceAndUpdateLastOne(
+        dao.insertFenceWithNextSequence(
             point,
             leaveTimestampMillis,
             avgPingMillis,
@@ -521,27 +521,6 @@ class SignalMeasurementRepositoryImpl(
                         session?.let { signalMeasurementInfo ->
                             callback.newUUIDSent(result.success.uuid, signalMeasurementInfo)
                         }
-
-                        /*
-                    info = SignalMeasurementInfo(
-                        measurementId = record.id,
-                        uuid = result.success.uuid,
-                        clientRemoteIp = info.clientRemoteIp,
-                        resultUrl = info.resultUrl,
-                        provider = info.provider
-                    )
-                    dao.saveSignalMeasurementInfo(info)
-                    SignalMeasurementRecord(
-                        id = record.id,
-                        networkUUID = record.networkUUID,
-                        location = record.location,
-                        transportType = record.transportType,
-                        mobileNetworkType = record.mobileNetworkType,
-                        resetChunkNumber = true
-                    ).also {
-                        dao.updateSignalMeasurementRecord(it)
-                        Timber.d("SM Chunk updating record to reset chunk sequence number")
-                    }*/
                     }
                 }
 

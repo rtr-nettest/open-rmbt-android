@@ -1,13 +1,10 @@
 package at.specure.measurement.coverage.data
 
 import androidx.lifecycle.LiveData
-import at.rmbt.util.io
 import at.specure.data.entity.CoverageMeasurementFenceRecord
-import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.test.DeviceInfo
 import timber.log.Timber
@@ -26,7 +23,7 @@ class FencesDataSource @Inject constructor(
         return signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(measurementId = localSessionId)
     }
 
-    suspend fun createSignalFenceAndUpdateLastOne(
+    suspend fun createSignalFence(
         sessionId: String,
         location: DeviceInfo.Location,
         signalRecord: SignalRecord?,
@@ -41,14 +38,14 @@ class FencesDataSource @Inject constructor(
             location = location,
             signalRecordId = signalRecord?.signalMeasurementPointId, // todo: because of signal measurement it is removed when chunk is sent
             entryTimestampMillis = entryTimestampMillis,
-            leaveTimestampMillis = DEFAULT_LEAVE_TIMESTAMP_MILLIS,
+            leaveTimestampMillis = 0L,
             radiusMeters = radiusMeters,
             technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
             signalStrength = null,
             frequencyBand = null,
             avgPingMillis = null,
         )
-        signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+        signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumber(
             point,
             entryTimestampMillis,
             avgPingMillisForLastFence,
@@ -70,23 +67,5 @@ class FencesDataSource @Inject constructor(
             avgPingMillis,
             lastFenceMinTechSignal
         )
-    }
-
-    private fun getNextSequenceNumber(lastPoint: CoverageMeasurementFenceRecord?): Int {
-        val lastPointNumber = lastPoint?.sequenceNumber ?: -1
-        val nextPointNumber = lastPointNumber + 1
-        return nextPointNumber
-    }
-
-    fun updateLastFenceRadius(
-        lastFence: CoverageMeasurementFenceRecord?,
-        newRadiusValue: Double
-    ) = io {
-        lastFence?.let {
-            val updatedFence = it.copy(
-                radiusMeters = newRadiusValue
-            )
-            signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
-        }
     }
 }

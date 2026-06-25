@@ -11,8 +11,6 @@ import at.specure.data.Tables
 import at.specure.test.DeviceInfo
 import java.util.UUID
 
-const val DEFAULT_LEAVE_TIMESTAMP_MILLIS = 0L
-
 @Keep
 @Entity(
     tableName = Tables.COVERAGE_MEASUREMENT_FENCE,
@@ -91,17 +89,7 @@ data class CoverageMeasurementFenceRecord(
 
 )
 
-fun CoverageMeasurementFenceRecord.generateHash(): String {
-    return "${this.id}-${this.radiusMeters}"
-}
-
 fun List<CoverageMeasurementFenceRecord>.removeUnfinishedFences(): List<CoverageMeasurementFenceRecord> {
     return this.filter { it.leaveTimestampMillis != 0L }
 }
 
-fun List<CoverageMeasurementFenceRecord>.hasValidFences(): Boolean {
-    if (this.size == 1 && this[0].leaveTimestampMillis == 0L) {
-        return false
-    }
-    return true
-}

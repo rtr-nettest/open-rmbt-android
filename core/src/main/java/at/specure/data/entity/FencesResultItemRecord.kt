@@ -3,7 +3,6 @@ package at.specure.data.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.specure.data.Tables
-import com.google.gson.annotations.SerializedName
 
 @Entity(
     tableName = Tables.FENCES_RESULT_ITEM
@@ -31,5 +30,5 @@ fun FencesResultItemRecord.generateHash(): String {
 }
 
 fun FencesResultItemRecord.isNotFinished(): Boolean {
-    return (this.durationMillis == null || (this.durationMillis ?: -1) <= 0L)
+    return (this.durationMillis == null || this.durationMillis <= 0L)
 }
