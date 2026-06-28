@@ -276,13 +276,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private suspend fun updateLastFence(finish: Boolean = false) {
         val currentData = stateManager.state.value
         val sessionId = currentData.coverageMeasurementSession?.localMeasurementId
-        
+
+        // DEBUG: capture the raw fence pings BEFORE the processor resets/stops them
+        val rawFencePings = coveragePingProcessor.getCurrentFenceRawPings()
+
         val fencePingStats =
             if (!finish) coveragePingProcessor.onNewFenceStarted()
             else coveragePingProcessor.stopPing()
-            
+
         val avgPingMillis = fencePingStats?.median ?: currentData.currentPingMs
-        
+
         val fenceMinNetworkSignal = getLatestSignalForCurrentFence(currentData)
         sessionId?.let {
             fencesDataSource.updateSignalFenceAndSaveOnLeaving(
@@ -291,7 +294,34 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 avgPingMillis = avgPingMillis,
                 lastFenceMinTechSignal = fenceMinNetworkSignal
             )
+            sendFenceDebug(currentData, rawFencePings)
         } ?: Timber.e("Session id is null - impossible to update last fence")
+    }
+
+    /**
+     * DEBUG: dumps the internal data used to compile the fence that just completed (the per-technology
+     * min-signal map and the raw fence pings) to the control server's /coverageFenceDebug endpoint,
+     * identified by test uuid + the fence sequence number. Fire-and-forget; failures are ignored.
+     */
+    private fun sendFenceDebug(currentData: CoverageMeasurementData, rawPings: List<Pair<Int, Double?>>) {
+        val session = currentData.coverageMeasurementSession ?: return
+        val testUuid = session.serverMeasurementId ?: session.localMeasurementId
+        val technologies = currentData.technologyMinSignalMapForCurrentFence.values.filterNotNull()
+        scope.launch(Dispatchers.IO + CoroutineName("FenceDebugSend")) {
+            try {
+                val sequenceNumber = loadLastFenceForSessionLoop(session.localLoopId)?.sequenceNumber ?: -1
+                signalMeasurementRepository.sendCoverageFenceDebug(
+                    testUuid = testUuid,
+                    sequenceNumber = sequenceNumber,
+                    technologies = technologies,
+                    rawPings = rawPings
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.w(e, "Fence debug send failed")
+            }
+        }
     }
 
     private fun getLatestSignalForCurrentFence(data: CoverageMeasurementData): MobileSignalTechnologyTimestamp? {

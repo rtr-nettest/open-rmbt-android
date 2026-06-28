@@ -1025,6 +1025,56 @@ data class CoverageRequestBody(
 )
 
 
+/**
+ * Debug-only payload: the internal per-fence data the client uses to compile the coverage submission,
+ * sent to /coverageFenceDebug right after each fence completes. `test_uuid` + `sequence_number`
+ * identify the fence. `signals` and `technologies` both come from the per-fence
+ * "min signal per technology" map; `pings` are the raw UDP pings of the fence (rtt null = lost).
+ */
+@Keep
+data class CoverageFenceDebugBody(
+    @SerializedName("test_uuid")
+    val testUUID: String?,
+    @SerializedName("sequence_number")
+    val sequenceNumber: Int,
+    @SerializedName("signals")
+    val signals: List<CoverageFenceDebugSignalBody>,
+    @SerializedName("technologies")
+    val technologies: List<CoverageFenceDebugTechnologyBody>,
+    @SerializedName("pings")
+    val pings: List<CoverageFenceDebugPingBody>
+)
+
+@Keep
+data class CoverageFenceDebugSignalBody(
+    @SerializedName("technology")
+    val technology: String?,
+    @SerializedName("signal_dbm")
+    val signalDbm: Int?,
+    @SerializedName("timestamp_ms")
+    val timestampMs: Long
+)
+
+@Keep
+data class CoverageFenceDebugTechnologyBody(
+    @SerializedName("technology")
+    val technology: String?,
+    @SerializedName("technology_id")
+    val technologyId: Int?,
+    @SerializedName("frequency_band")
+    val frequencyBand: String?,
+    @SerializedName("timestamp_ms")
+    val timestampMs: Long
+)
+
+@Keep
+data class CoverageFenceDebugPingBody(
+    @SerializedName("sequence")
+    val sequence: Int,
+    @SerializedName("rtt_ms")
+    val rttMs: Double?
+)
+
 @Keep
 data class CoverageResultRequestBody(
 

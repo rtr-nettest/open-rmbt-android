@@ -162,4 +162,10 @@ interface ControlServerApi {
      */
     @POST
     fun coverageResult(@Url url: String, @Body body: CoverageResultRequestBody): Call<BaseResponse>
+
+    /**
+     * Debug-only: dump the internal per-fence data (signals/pings/technologies)
+     */
+    @POST
+    fun coverageFenceDebug(@Url url: String, @Body body: CoverageFenceDebugBody): Call<BaseResponse>
 }

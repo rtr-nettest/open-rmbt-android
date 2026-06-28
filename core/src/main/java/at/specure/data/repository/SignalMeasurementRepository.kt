@@ -93,6 +93,17 @@ interface SignalMeasurementRepository {
 
     suspend fun retrySendFences()
 
+    /**
+     * Debug-only: dump the internal per-fence data (the per-technology min signals and the raw fence
+     * pings) used to compile the coverage submission, identified by [testUuid] + [sequenceNumber].
+     */
+    suspend fun sendCoverageFenceDebug(
+        testUuid: String?,
+        sequenceNumber: Int,
+        technologies: List<MobileSignalTechnologyTimestamp>,
+        rawPings: List<Pair<Int, Double?>>
+    )
+
     suspend fun removeOldFencesAndSessions()
 
     suspend fun registerNotRegisteredMeasurementsWithSomeFences()

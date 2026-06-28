@@ -3,6 +3,10 @@ package at.specure.data.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.CoverageFenceDebugBody
+import at.rmbt.client.control.CoverageFenceDebugPingBody
+import at.rmbt.client.control.CoverageFenceDebugSignalBody
+import at.rmbt.client.control.CoverageFenceDebugTechnologyBody
 import at.rmbt.util.exception.NoConnectionException
 import at.rmbt.util.io
 import at.specure.config.Config
@@ -371,6 +375,39 @@ class SignalMeasurementRepositoryImpl(
         } else {
             onSendCompleted?.invoke(true)
         }
+    }
+
+    override suspend fun sendCoverageFenceDebug(
+        testUuid: String?,
+        sequenceNumber: Int,
+        technologies: List<MobileSignalTechnologyTimestamp>,
+        rawPings: List<Pair<Int, Double?>>
+    ) = io {
+        val signals = technologies.map {
+            CoverageFenceDebugSignalBody(
+                technology = it.type.displayName,
+                signalDbm = it.signalValueDbm,
+                timestampMs = it.timestamp
+            )
+        }
+        val technologyBodies = technologies.map {
+            CoverageFenceDebugTechnologyBody(
+                technology = it.type.displayName,
+                technologyId = it.type.intValue,
+                frequencyBand = it.frequencyBand,
+                timestampMs = it.timestamp
+            )
+        }
+        val pingBodies = rawPings.map { CoverageFenceDebugPingBody(sequence = it.first, rttMs = it.second) }
+        val body = CoverageFenceDebugBody(
+            testUUID = testUuid,
+            sequenceNumber = sequenceNumber,
+            signals = signals,
+            technologies = technologyBodies,
+            pings = pingBodies
+        )
+        Timber.d("Sending coverage fence debug: test=$testUuid seq=$sequenceNumber signals=${signals.size} pings=${pingBodies.size}")
+        client.coverageFenceDebug(body)
     }
 
     override suspend fun retrySendFences() {

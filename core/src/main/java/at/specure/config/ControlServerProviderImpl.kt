@@ -86,6 +86,10 @@ class ControlServerProviderImpl(
     override val coverageResultUrl: String
         get() = "$host$routePath/${config.coverageResultRoute}"
 
+    // Debug-only endpoint (fixed leaf, no config route): receives the internal per-fence data.
+    override val coverageFenceDebugUrl: String
+        get() = "$host$routePath/coverageFenceDebug"
+
     override val getNewsUrl: String
         get() = "$host$routePath/${config.controlServerNewsEndpoint}"
 

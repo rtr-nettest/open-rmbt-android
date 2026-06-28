@@ -10,4 +10,7 @@ interface PingProcessor {
     suspend fun stopPing(): PingStats?
     suspend fun getCurrentPingStats(): PingStats?
     suspend fun onNewFenceStarted(): PingStats?
+
+    /** Debug: raw pings collected so far for the current fence as (sequenceNumber, rttMillis|null). */
+    suspend fun getCurrentFenceRawPings(): List<Pair<Int, Double?>>
 }

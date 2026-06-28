@@ -103,6 +103,9 @@ class RtrPingProcessor : PingProcessor {
         return results
     }
 
+    override suspend fun getCurrentFenceRawPings(): List<Pair<Int, Double?>> =
+        pingEvaluator?.snapshotRaw() ?: emptyList()
+
     override suspend fun getCurrentPingStats(): PingStats? {
         val pingStats = pingEvaluator?.evaluateLastItems(PING_EVALUATE_LAST_N_ITEMS)
         if (debug) {

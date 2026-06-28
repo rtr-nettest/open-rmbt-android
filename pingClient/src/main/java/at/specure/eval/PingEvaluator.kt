@@ -115,6 +115,12 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     }
 
     /**
+     * Snapshot of the currently collected raw pings as (sequenceNumber, rttMillis|null) pairs,
+     * without clearing them. Used for debugging (dump the raw pings of the current fence).
+     */
+    suspend fun snapshotRaw(): List<Pair<Int, Double?>> = mutex.withLock { results.toList() }
+
+    /**
      * Evaluates collected results for latest N items.
      */
     suspend fun evaluateLastItems(count: Int): PingStats {

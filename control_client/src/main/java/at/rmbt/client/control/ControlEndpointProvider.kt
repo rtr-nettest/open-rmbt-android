@@ -111,6 +111,11 @@ interface ControlEndpointProvider {
     val coverageResultUrl: String
 
     /**
+     * Debug-only url to dump the internal per-fence data (signals/pings/technologies) after each fence
+     */
+    val coverageFenceDebugUrl: String
+
+    /**
      * Endpoint to get news
      */
     val getNewsUrl: String
