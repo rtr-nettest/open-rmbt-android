@@ -1165,16 +1165,10 @@ data class CoverageResultRequestBody(
 
 @Keep
 data class FenceBody(
+    // accuracy, altitude, bearing and speed are nested inside "location" (SimpleLocationBody),
+    // matching the ControlServer's SimpleLocationRequest contract.
     @SerializedName("location")
     val centerLocation: SimpleLocationBody?,
-    @SerializedName("accuracy")
-    val accuracy: Float?, // location accuracy of the fence center in meters
-    @SerializedName("bearing")
-    val bearing: Float?, // direction of travel in degrees (location bearing)
-    @SerializedName("altitude")
-    val altitude: Double?, // altitude in meters
-    @SerializedName("speed")
-    val speed: Float?, // speed in meters per second
     @SerializedName("technology_id")
     val networkTechnologyId: Int, // 41
     @SerializedName("technology")
@@ -1221,7 +1215,17 @@ data class FenceResponseBody(
 @Keep
 data class SimpleLocationBody(
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    @SerializedName("accuracy")
+    val accuracy: Float? = null, // location accuracy in meters
+    @SerializedName("altitude")
+    val altitude: Double? = null, // altitude in meters
+    @SerializedName("bearing")
+    val bearing: Float? = null, // direction of travel in degrees (location bearing)
+    @SerializedName("speed")
+    val speed: Float? = null, // speed in meters per second
+    @SerializedName("provider")
+    val provider: String? = null // location provider, e.g. "gps"
 )
 
 @Keep
