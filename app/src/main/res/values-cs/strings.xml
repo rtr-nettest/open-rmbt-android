@@ -366,7 +366,7 @@
     <string name="stop_signal_measurement_text">Chcete ukončit měření?</string>
     <string name="no_gps_or_insufficient_precision">Žádný GPS signál nebo kvalita GPS je nedostatečná. Přejděte prosím ven.</string>
     <string name="noSignal">Žádný signál</string>
-    <string name="coverage_result">Výsledek měření signálu</string>
+    <string name="coverage_result">Výsledek</string>
     <string name="number_of_fences_is">Počet bodů je</string>
     <string name="title_coverage_loop_mode">Série měření signálu</string>
     <string name="title_filters_loading_error">Načítání filtrů se nezdařilo</string>

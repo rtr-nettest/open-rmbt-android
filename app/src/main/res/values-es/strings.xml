@@ -379,7 +379,7 @@
     <string name="stop_signal_measurement_text">¿Deseas finalizar la medición?</string>
     <string name="no_gps_or_insufficient_precision">No hay señal GPS o la calidad del GPS es insuficiente. Por favor, sal al exterior.</string>
     <string name="noSignal">Sin señal</string>
-    <string name="coverage_result">Resultado de medición de señal</string>
+    <string name="coverage_result">Resultado</string>
     <string name="number_of_fences_is">El número de puntos es</string>
     <string name="title_coverage_loop_mode">Serie de medición de señal</string>
     <string name="title_filters_loading_error">Error al cargar los filtros</string>
