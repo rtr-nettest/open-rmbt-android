@@ -576,13 +576,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
-        map?.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                coverageViewModel.state.cameraPositionLiveData.value
-                    ?: DefaultLocation.austriaLocation,
-                coverageViewModel.state.zoom
-            )
-        )
         Timber.d("Setting latest location to 4: ${coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation}")
         map?.setOnCameraMoveListener {
             map?.cameraPosition?.zoom?.let { newZoom ->
