@@ -366,7 +366,7 @@
     <string name="stop_signal_measurement_text">Voulez-vous terminer la mesure ?</string>
     <string name="no_gps_or_insufficient_precision">Pas de signal GPS ou la qualité GPS est insuffisante. Veuillez vous déplacer à l\'extérieur.</string>
     <string name="noSignal">Pas de signal</string>
-    <string name="coverage_result">Résultat de la mesure de signal</string>
+    <string name="coverage_result">Résultat</string>
     <string name="number_of_fences_is">Le nombre de points est</string>
     <string name="title_coverage_loop_mode">Série de mesures de signal</string>
     <string name="title_filters_loading_error">Échec du chargement des filtres</string>

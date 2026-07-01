@@ -379,7 +379,7 @@
     <string name="stop_signal_measurement_text">Vuoi terminare la misurazione?</string>
     <string name="no_gps_or_insufficient_precision">Nessun segnale GPS o qualità GPS insufficiente. Si prega di spostarsi all\'esterno.</string>
     <string name="noSignal">Nessun segnale</string>
-    <string name="coverage_result">Risultato misurazione segnale</string>
+    <string name="coverage_result">Risultato</string>
     <string name="number_of_fences_is">Il numero di punti è</string>
     <string name="title_coverage_loop_mode">Serie di misurazioni del segnale</string>
     <string name="title_filters_loading_error">Caricamento filtri non riuscito</string>
