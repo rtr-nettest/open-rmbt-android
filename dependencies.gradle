@@ -7,8 +7,8 @@ buildscript {
                 applicationId    : "at.alladin.rmbt.android.prod",
                 minSdkVersion    : 26, // Android Version 8 as of year 2017 (supports 94% of all devices as of 2025)
                 targetSdkVersion : 37, // Android Version 17 as of year 2026
-                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 42103),
-                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.21.3')
+                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 42104),
+                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.21.4')
         ]
 
         // All project modules dependency versions should be in versions map.
