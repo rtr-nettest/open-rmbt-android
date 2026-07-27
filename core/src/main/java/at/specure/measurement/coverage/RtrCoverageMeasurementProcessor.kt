@@ -653,7 +653,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val ipv4 = ipChangeWatcher.lastIPv4Address.privateAddress
         val ipv6 = ipChangeWatcher.lastIPv6Address.privateAddress
 
-        val localIpAddress = ipv4 ?: ipv6
+        val localIpAddress = ipv6 ?: ipv4
 
         if (session == null || localIpAddress == null) return session
 
