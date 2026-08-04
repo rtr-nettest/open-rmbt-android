@@ -296,7 +296,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private fun getLatestSignalForCurrentFence(data: CoverageMeasurementData): MobileSignalTechnologyTimestamp? {
         Timber.d("CurrentFence minimal signals: ${data.technologyMinSignalMapForCurrentFence}")
-        val latestTechnology = data.technologyMinSignalMapForCurrentFence.values.maxBy { it?.timestamp ?: 0 }
+        val latestTechnology = data.technologyMinSignalMapForCurrentFence.values.maxByOrNull { it?.timestamp ?: 0 }
         return latestTechnology
     }
 
