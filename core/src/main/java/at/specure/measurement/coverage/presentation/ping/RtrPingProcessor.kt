@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
@@ -56,6 +58,16 @@ class RtrPingProcessor : PingProcessor {
     private var currentSessionId: String? = null
     private val debug = true
 
+    /**
+     * Serializes lifecycle mutations of [pingJob]/[pingClient]/[pingEvaluator]/[currentSessionId].
+     * [startPing] and [stopPing] now suspend at [kotlinx.coroutines.cancelAndJoin] points, so without
+     * this lock a concurrent stop/start (or two starts) could interleave and orphan a collecting job.
+     *
+     * Must NOT be acquired by the collecting coroutine's body (e.g. [getCurrentPingStats]); otherwise
+     * a [stopPing] holding the lock while awaiting [pingJob] completion would deadlock.
+     */
+    private val lifecycleMutex = Mutex()
+
     private val pingDataFlow = MutableSharedFlow<PingData>(replay = 0)
 
     @OptIn(FlowPreview::class)
@@ -80,45 +92,47 @@ class RtrPingProcessor : PingProcessor {
             errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
         )
 
-        val sessionChanged = coverageMeasurementSession.localMeasurementId != currentSessionId
+        lifecycleMutex.withLock {
+            val sessionChanged = coverageMeasurementSession.localMeasurementId != currentSessionId
 
-        if (sessionChanged || configuration != pingClient?.configuration || pingJob?.isActive != true) {
-            pingEvaluator?.cancel()
-            pingClient = UdpHmacPingFlow(configuration)
-            pingEvaluator = PingEvaluator(pingClient!!.pingFlow())
-            currentSessionId = coverageMeasurementSession.localMeasurementId
+            if (sessionChanged || configuration != pingClient?.configuration || pingJob?.isActive != true) {
+                pingEvaluator?.cancel()
+                pingClient = UdpHmacPingFlow(configuration)
+                pingEvaluator = PingEvaluator(pingClient!!.pingFlow())
+                currentSessionId = coverageMeasurementSession.localMeasurementId
 
-            pingJob?.cancelAndJoin()
-            // Start collecting and emitting to the hot flow
-            pingJob = CoroutineScope(Dispatchers.IO).launch {
-                var consecutiveServerErrors = 0
-                pingEvaluator?.start()
-                    ?.onEach {
-                        if (it is PingResult.ServerError) {
-                            consecutiveServerErrors++
-                            Timber.e(it.exception, "Server error in ping flow (consecutive: $consecutiveServerErrors)")
-                            pingDataFlow.emit(PingData(getCurrentPingStats(), it.exception))
-                            if (consecutiveServerErrors >= PING_CONSECUTIVE_ERROR_RESTART_THRESHOLD) {
+                pingJob?.cancelAndJoin()
+                // Start collecting and emitting to the hot flow
+                pingJob = CoroutineScope(Dispatchers.IO).launch {
+                    var consecutiveServerErrors = 0
+                    pingEvaluator?.start()
+                        ?.onEach {
+                            if (it is PingResult.ServerError) {
+                                consecutiveServerErrors++
+                                Timber.e(it.exception, "Server error in ping flow (consecutive: $consecutiveServerErrors)")
+                                pingDataFlow.emit(PingData(getCurrentPingStats(), it.exception))
+                                if (consecutiveServerErrors >= PING_CONSECUTIVE_ERROR_RESTART_THRESHOLD) {
+                                    consecutiveServerErrors = 0
+                                    throw PingConsecutiveServerErrorsException(PING_CONSECUTIVE_ERROR_RESTART_THRESHOLD)
+                                }
+                            } else {
                                 consecutiveServerErrors = 0
-                                throw PingConsecutiveServerErrorsException(PING_CONSECUTIVE_ERROR_RESTART_THRESHOLD)
                             }
-                        } else {
-                            consecutiveServerErrors = 0
                         }
-                    }
-                    ?.sample(1000.milliseconds)
-                    ?.retryWhen { cause, attempt ->
-                        Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
-                        delay(1000.milliseconds)
-                        true
-                    }
-                    ?.catch { e ->
-                        Timber.e(e, "Error in ping flow after retries")
-                        pingDataFlow.emit(PingData(null, e))
-                    }
-                    ?.collect {
-                        pingDataFlow.emit(PingData(getCurrentPingStats(), null))
-                    }
+                        ?.sample(1000.milliseconds)
+                        ?.retryWhen { cause, attempt ->
+                            Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
+                            delay(1000.milliseconds)
+                            true
+                        }
+                        ?.catch { e ->
+                            Timber.e(e, "Error in ping flow after retries")
+                            pingDataFlow.emit(PingData(null, e))
+                        }
+                        ?.collect {
+                            pingDataFlow.emit(PingData(getCurrentPingStats(), null))
+                        }
+                }
             }
         }
 
@@ -126,10 +140,10 @@ class RtrPingProcessor : PingProcessor {
     }
 
 
-    override suspend fun stopPing(): PingStats? {
+    override suspend fun stopPing(): PingStats? = lifecycleMutex.withLock {
         val results = pingEvaluator?.evaluateAndStop()
         pingJob?.cancelAndJoin()
-        return results
+        results
     }
 
     override suspend fun getCurrentPingStats(): PingStats? {
