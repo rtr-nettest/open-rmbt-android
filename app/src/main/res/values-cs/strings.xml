@@ -375,7 +375,7 @@
     <string name="coverage_measurement_error_unknown">Během měření signálu došlo k chybě. Zkuste to prosím znovu.</string>
     <string name="dismiss">Zavřít</string>
     <string name="wrong_network_message">Jste nyní na síti %1$s. Přepněte prosím na mobilní datové připojení.</string>
-    <string name="coverage_results_title">Výsledek měření signálu</string>
+    <string name="signal_result_title">Výsledek měření signálu</string>
     <string name="text_fence_radius">Faktor poloměru bodu:</string>
     <string name="text_meters">%1$dm</string>
     <string name="fence_radius_slider_content_description">Hodnota posuvníku poloměru bodu %1$d metrů</string>

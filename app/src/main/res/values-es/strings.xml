@@ -388,7 +388,7 @@
     <string name="coverage_measurement_error_unknown">Se produjo un error durante la medición de señal. Por favor, inténtalo de nuevo.</string>
     <string name="dismiss">Ignorar</string>
     <string name="wrong_network_message">Estás conectado a %1$s. Por favor, cambia a una conexión de datos móviles.</string>
-    <string name="coverage_results_title">Resultado de medición de señal</string>
+    <string name="signal_result_title">Resultado de medición de señal</string>
     <string name="text_fence_radius">Factor de radio de puntos:</string>
     <string name="text_meters">%1$dm</string>
     <string name="fence_radius_slider_content_description">Valor del control deslizante del radio de puntos: %1$d metros</string>
