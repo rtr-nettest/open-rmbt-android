@@ -61,6 +61,8 @@
     <string name="preferences_ipv6_only_sum">Keine Verwendung von IPv4</string>
     <string name="expert_mode_no_ipv4_connectivity">Keine IPv4-Verbindung</string>
     <string name="expert_mode_no_ipv6_connectivity">Keine IPv6-Verbindung</string>
+    <string name="expert_mode_ipv4_only_not_available">Experteneinstellung \"Nur IPv4\" ist aktiv, aber keine IPv4-Verbindung. Bitte ändern Sie die Konfiguration.</string>
+    <string name="expert_mode_ipv6_only_not_available">Experteneinstellung \"Nur IPv6\" ist aktiv, aber keine IPv6-Verbindung. Bitte ändern Sie die Konfiguration.</string>
     <string name="preferences_radio_info">Mobilfunkinformation</string>
     <string name="preferences_radio_info_sum">Details der Mobilfunkkonfiguration</string>
     <string name="preferences_contact">Kontakt</string>

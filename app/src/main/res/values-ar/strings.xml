@@ -44,6 +44,12 @@
     <string name="preferences_expert_mode_summary">عرض الإعدادات والمعلومات المتقدمة</string>
     <string name="preferences_ipv4_only">IPv4 فقط</string>
     <string name="preferences_ipv4_only_sum">عدم استخدام IPv6</string>
+    <string name="preferences_ipv6_only">IPv6 فقط</string>
+    <string name="preferences_ipv6_only_sum">عدم استخدام IPv4</string>
+    <string name="expert_mode_no_ipv4_connectivity">لا يوجد اتصال IPv4</string>
+    <string name="expert_mode_no_ipv6_connectivity">لا يوجد اتصال IPv6</string>
+    <string name="expert_mode_ipv4_only_not_available">إعداد الخبير \"IPv4 فقط\" مُفعّل، ولكن لا يوجد اتصال IPv4. يرجى تغيير الإعدادات.</string>
+    <string name="expert_mode_ipv6_only_not_available">إعداد الخبير \"IPv6 فقط\" مُفعّل، ولكن لا يوجد اتصال IPv6. يرجى تغيير الإعدادات.</string>
     <string name="preferences_radio_info">معلومات الراديو</string>
     <string name="preferences_radio_info_sum">تفاصيل حول تكوين الراديو</string>
     <string name="preferences_contact">التواصل</string>

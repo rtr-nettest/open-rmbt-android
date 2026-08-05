@@ -57,6 +57,12 @@
     <string name="preferences_expert_mode_summary">Mutassa a részletes beállításokat és adatokat.</string>
     <string name="preferences_ipv4_only">csak IPv4</string>
     <string name="preferences_ipv4_only_sum">Ne használjon IPv6-ot</string>
+    <string name="preferences_ipv6_only">csak IPv6</string>
+    <string name="preferences_ipv6_only_sum">Ne használjon IPv4-et</string>
+    <string name="expert_mode_no_ipv4_connectivity">Nincs IPv4 kapcsolat</string>
+    <string name="expert_mode_no_ipv6_connectivity">Nincs IPv6 kapcsolat</string>
+    <string name="expert_mode_ipv4_only_not_available">A \"csak IPv4\" szakértői beállítás aktív, de nincs IPv4 kapcsolat. Kérjük, módosítsa a konfigurációt.</string>
+    <string name="expert_mode_ipv6_only_not_available">A \"csak IPv6\" szakértői beállítás aktív, de nincs IPv6 kapcsolat. Kérjük, módosítsa a konfigurációt.</string>
     <string name="preferences_radio_info">Rádiós adatok</string>
     <string name="preferences_radio_info_sum">A rádiós beállítások részletei</string>
     <string name="preferences_contact">Kapcsolat</string>

@@ -214,7 +214,23 @@ class HomeFragment : BaseFragment() {
         binding.ivSignalLevel.setOnClickListener {
             if (homeViewModel.isConnected.value == true) {
                 if (!homeViewModel.clientUUID.value.isNullOrEmpty()) {
-                    if (homeViewModel.state.isLoopModeActive.get()) {
+                    val unavailableProtocol = homeViewModel.unavailableForcedIpProtocol()
+                    if (unavailableProtocol != null) {
+                        // IPv4-only / IPv6-only is active but the selected protocol has no connectivity
+                        // (e.g. after a network change); starting the test would only fail.
+                        activity?.supportFragmentManager?.let {
+                            MessageDialog.show(
+                                it,
+                                getString(
+                                    if (unavailableProtocol == IpProtocol.V4)
+                                        R.string.expert_mode_ipv4_only_not_available
+                                    else
+                                        R.string.expert_mode_ipv6_only_not_available
+                                ),
+                                "IpProtocolNotAvailable"
+                            )
+                        }
+                    } else if (homeViewModel.state.isLoopModeActive.get()) {
                         LoopConfigurationActivity.start(requireContext())
                     } else {
                         MeasurementService.startTests(requireContext())
@@ -390,6 +406,27 @@ class HomeFragment : BaseFragment() {
 
         if (!isOnlyOneSimActive) {
             if (showDialogs) showMoreSimsActiveDialog()
+            return false
+        }
+
+        val unavailableProtocol = homeViewModel.unavailableForcedIpProtocol()
+        if (unavailableProtocol != null) {
+            // IPv4-only / IPv6-only is active but the selected protocol has no connectivity
+            // (e.g. after a network change); starting the measurement would only fail.
+            if (showDialogs) {
+                activity?.supportFragmentManager?.let {
+                    MessageDialog.show(
+                        it,
+                        getString(
+                            if (unavailableProtocol == IpProtocol.V4)
+                                R.string.expert_mode_ipv4_only_not_available
+                            else
+                                R.string.expert_mode_ipv6_only_not_available
+                        ),
+                        "IpProtocolNotAvailable"
+                    )
+                }
+            }
             return false
         }
 
