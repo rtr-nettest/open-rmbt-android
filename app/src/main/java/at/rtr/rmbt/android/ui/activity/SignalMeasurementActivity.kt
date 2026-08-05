@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
@@ -96,6 +97,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         binding.isPaused = false
 
         setFullscreen()
+        updateMeasurementInfoCardMargin()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -214,6 +216,18 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         // so re-draw the stored results explicitly.
         if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
+        }
+        // Layout isn't re-inflated on orientation change (configChanges includes "orientation"),
+        // so the values-land dimension isn't picked up automatically - apply it manually.
+        updateMeasurementInfoCardMargin()
+    }
+
+    private fun updateMeasurementInfoCardMargin() {
+        val marginTop = resources.getDimensionPixelSize(R.dimen.coverage_result_margin_top)
+        val layoutParams = binding.measurementInfoCard.layoutParams as? ViewGroup.MarginLayoutParams
+        if (layoutParams != null && layoutParams.topMargin != marginTop) {
+            layoutParams.topMargin = marginTop
+            binding.measurementInfoCard.layoutParams = layoutParams
         }
     }
 
