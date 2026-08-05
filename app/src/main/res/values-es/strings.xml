@@ -57,6 +57,12 @@
     <string name="preferences_expert_mode_summary">Ajustes adicionales e información</string>
     <string name="preferences_ipv4_only">Sólo IPv4</string>
     <string name="preferences_ipv4_only_sum">No utilizar IPv6</string>
+    <string name="preferences_ipv6_only">Sólo IPv6</string>
+    <string name="preferences_ipv6_only_sum">No utilizar IPv4</string>
+    <string name="expert_mode_no_ipv4_connectivity">Sin conectividad IPv4</string>
+    <string name="expert_mode_no_ipv6_connectivity">Sin conectividad IPv6</string>
+    <string name="expert_mode_ipv4_only_not_available">El ajuste experto \"Sólo IPv4\" está activo, pero no hay conectividad IPv4. Por favor, cambie la configuración.</string>
+    <string name="expert_mode_ipv6_only_not_available">El ajuste experto \"Sólo IPv6\" está activo, pero no hay conectividad IPv6. Por favor, cambie la configuración.</string>
     <string name="preferences_radio_info">Información de conexión móvil</string>
     <string name="preferences_radio_info_sum">Detalles sobre la configuración de red móvil</string>
     <string name="preferences_contact">Contacto</string>

@@ -44,6 +44,12 @@
     <string name="preferences_expert_mode_summary">Zobrazit pokročilá nastavení a informace</string>
     <string name="preferences_ipv4_only">Pouze IPv4</string>
     <string name="preferences_ipv4_only_sum">Nepoužívat IPv6</string>
+    <string name="preferences_ipv6_only">Pouze IPv6</string>
+    <string name="preferences_ipv6_only_sum">Nepoužívat IPv4</string>
+    <string name="expert_mode_no_ipv4_connectivity">Žádné připojení IPv4</string>
+    <string name="expert_mode_no_ipv6_connectivity">Žádné připojení IPv6</string>
+    <string name="expert_mode_ipv4_only_not_available">Expertní nastavení \"Pouze IPv4\" je aktivní, ale není k dispozici připojení IPv4. Změňte prosím konfiguraci.</string>
+    <string name="expert_mode_ipv6_only_not_available">Expertní nastavení \"Pouze IPv6\" je aktivní, ale není k dispozici připojení IPv6. Změňte prosím konfiguraci.</string>
     <string name="preferences_radio_info">Informace o rádiu</string>
     <string name="preferences_radio_info_sum">Podrobnosti o konfiguraci rádia</string>
     <string name="preferences_contact">Kontakt</string>

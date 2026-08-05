@@ -44,6 +44,12 @@
     <string name="preferences_expert_mode_summary">Afficher les paramètres et informations avancés</string>
     <string name="preferences_ipv4_only">IPv4 uniquement</string>
     <string name="preferences_ipv4_only_sum">Ne pas utiliser IPv6</string>
+    <string name="preferences_ipv6_only">IPv6 uniquement</string>
+    <string name="preferences_ipv6_only_sum">Ne pas utiliser IPv4</string>
+    <string name="expert_mode_no_ipv4_connectivity">Pas de connectivité IPv4</string>
+    <string name="expert_mode_no_ipv6_connectivity">Pas de connectivité IPv6</string>
+    <string name="expert_mode_ipv4_only_not_available">Le réglage expert \"IPv4 uniquement\" est activé, mais aucune connectivité IPv4. Veuillez modifier la configuration.</string>
+    <string name="expert_mode_ipv6_only_not_available">Le réglage expert \"IPv6 uniquement\" est activé, mais aucune connectivité IPv6. Veuillez modifier la configuration.</string>
     <string name="preferences_radio_info">Infos radio</string>
     <string name="preferences_radio_info_sum">Détails sur la configuration radio</string>
     <string name="preferences_contact">Contact</string>

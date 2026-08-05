@@ -9,6 +9,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import at.rmbt.client.control.ControlServerModule
+import at.rmbt.client.control.IpProtocol
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
@@ -20,6 +21,7 @@ import at.specure.data.repository.SettingsRepository
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfoLiveData
+import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
@@ -283,5 +285,27 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * When IPv4-only or IPv6-only expert mode is active, returns the selected [IpProtocol] if that
+     * protocol currently has no connectivity (no public address in the latest /ip responses) - which
+     * would make the test fail, e.g. after switching to a network that lacks the forced protocol.
+     * Returns null when the selected protocol is available or no protocol restriction is active.
+     */
+    fun unavailableForcedIpProtocol(): IpProtocol? {
+        // only relevant in expert mode
+        if (!appConfig.expertModeEnabled) return null
+        // can't decide if no Internet at all
+        if (!hasConnectivity(ipV4ChangeLiveData.value) && !hasConnectivity(ipV6ChangeLiveData.value)) return null
+
+        return when {
+            appConfig.expertModeUseIpV4Only && !hasConnectivity(ipV4ChangeLiveData.value) -> IpProtocol.V4
+            appConfig.expertModeUseIpV6Only && !hasConnectivity(ipV6ChangeLiveData.value) -> IpProtocol.V6
+            else -> null
+        }
+    }
+
+    /** Connectivity for the protocol is assumed when a public address was reachable over it. */
+    private fun hasConnectivity(ipInfo: IpInfo?): Boolean = ipInfo?.publicAddress != null
 
 }
