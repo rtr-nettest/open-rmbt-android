@@ -79,41 +79,64 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/margin_medium">
 
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_column_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.33"/>
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_column_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.66"/>
+
                     <!-- Technology -->
                     <TextView
                         android:id="@+id/technology_label"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/network_label"
+                        android:gravity="start"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/guideline_column_1"
                         app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/technology_value"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="start"
                         tools:text="5G"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintStart_toStartOf="@id/technology_label"
+                        app:layout_constraintEnd_toEndOf="@id/technology_label"
                         app:layout_constraintTop_toBottomOf="@id/technology_label"/>
 
                     <!-- Ping -->
                     <TextView
                         android:id="@+id/ping_label"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/label_ping"
+                        android:gravity="center_horizontal"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.5"/>
+                        app:layout_constraintStart_toEndOf="@id/guideline_column_1"
+                        app:layout_constraintEnd_toStartOf="@id/guideline_column_2"/>
 
                     <TextView
                         android:id="@+id/ping_value"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="center_horizontal"
                         tools:text="10 ms"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintTop_toBottomOf="@id/ping_label"
@@ -123,20 +146,26 @@
                     <!-- Accuracy -->
                     <TextView
                         android:id="@+id/accuracy_label"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/location_dialog_label_accuracy"
+                        android:gravity="end"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/guideline_column_2"
                         app:layout_constraintEnd_toEndOf="parent"/>
 
                     <TextView
                         android:id="@+id/accuracy_value"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="end"
                         tools:text="19.6m"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintTop_toBottomOf="@id/accuracy_label"
+                        app:layout_constraintStart_toStartOf="@id/accuracy_label"
                         app:layout_constraintEnd_toEndOf="@id/accuracy_label"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
