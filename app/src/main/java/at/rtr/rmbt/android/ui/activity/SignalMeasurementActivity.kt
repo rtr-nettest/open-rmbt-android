@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +18,7 @@ import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.lifecycleScope
 import at.rtr.rmbt.android.R
@@ -51,9 +53,13 @@ import timber.log.Timber
 import kotlin.math.roundToInt
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
+import at.specure.data.NetworkTypeCompat
+import at.specure.info.cell.CellTechnology
 import at.specure.measurement.coverage.data.getFrequencyBand
+import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
+import at.specure.util.map.colorInt
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -64,6 +70,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
 const val GPS_CHECK_GRACE_PERIOD = 6000L
+const val MIN_WHITE_TEXT_CONTRAST_RATIO = 2.5
 
 class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     CoverageSettingsDialog.Callback {
@@ -398,13 +405,41 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         val networkType =
             coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
         val frequencyBand = coverageMeasurementData?.currentNetworkInfo?.getFrequencyBand()
-        val signal = coverageMeasurementData?.currentNetworkInfo?.getSignalStrengthValue()
-        val networkStringRaw = listOfNotNull(networkType, frequencyBand, signal).joinToString(" | ")
+        val networkStringRaw = listOfNotNull(networkType, frequencyBand).joinToString(" | ")
         val networkString = networkStringRaw.ifEmpty {
             ""
         }
         binding.technologyValue.text = networkString
         binding.technologyValuePip.text = networkString
+
+        updateTechnologyPill(coverageMeasurementData?.currentNetworkInfo)
+        updateSignalIndicator(coverageMeasurementData)
+    }
+
+    private fun updateTechnologyPill(networkInfo: NetworkInfo?) {
+        val techColor = networkInfo.getMobileNetworkType().colorInt()
+        (binding.technologyValue.background?.mutate() as? GradientDrawable)?.setColor(techColor)
+        binding.technologyValue.setTextColor(contrastTextColor(techColor))
+    }
+
+    private fun contrastTextColor(backgroundColor: Int): Int {
+        // Prefer white text, only fall back to black when white wouldn't be readable enough.
+        val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, backgroundColor)
+        return if (whiteContrast >= MIN_WHITE_TEXT_CONTRAST_RATIO) Color.WHITE else Color.BLACK
+    }
+
+    private fun updateSignalIndicator(coverageMeasurementData: CoverageMeasurementData?) {
+        val networkInfo = coverageMeasurementData?.currentNetworkInfo
+        val signal = networkInfo?.getSignalStrengthValue()
+        binding.signalValue.text = signal?.let { getString(R.string.home_signal_value, it) }
+            ?: getString(R.string.measurement_dash)
+
+        val mobileNetworkType = networkInfo.getMobileNetworkType()
+        val cellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
+        val technologyRange = NetworkTypeCompat.fromType(networkInfo?.type, cellTechnology)
+        binding.signalBarsIndicator.setRange(technologyRange.minSignalValue, technologyRange.maxSignalValue)
+        binding.signalBarsIndicator.maxColor = mobileNetworkType.colorInt()
+        binding.signalBarsIndicator.signalValue = signal
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
