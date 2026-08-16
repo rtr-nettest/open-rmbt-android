@@ -38,8 +38,8 @@ class RtrCoverageLoopManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var registrationJob: Job? = null
 
-    private val MAX_RETRY = 100
     private val RETRY_DELAY_MS = 2_000L
+    private val MAX_RETRY = 1_800 // 1_800 * 2s = 3600s = 1 hour
 
     /**
      * Starts the first measurement in loop or continue in the last one
@@ -149,6 +149,10 @@ class RtrCoverageLoopManager @Inject constructor(
         scope.launch {
             _sessionEvents.emit(CoverageMeasurementEvent.MeasurementCreated(session))
         }
+
+        // Cancel any still-running retry loop (e.g. from a session that got superseded by a network change)
+        registrationJob?.cancel()
+        registrationJob = null
 
         if (session.serverMeasurementId != null) {
             scope.launch {

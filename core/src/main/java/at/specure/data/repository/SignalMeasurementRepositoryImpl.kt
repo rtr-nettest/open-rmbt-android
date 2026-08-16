@@ -35,9 +35,12 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.network.ActiveNetworkWatcher
 import java.text.DecimalFormat
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -56,8 +59,17 @@ class SignalMeasurementRepositoryImpl(
     private val dao = db.signalMeasurementDao()
     private val testDao = db.testDao()
 
+    // Prevents sendFences() and retrySendFences() from submitting the same session concurrently
+    private val sendFencesMutexes = ConcurrentHashMap<String, Mutex>()
+    private fun sendFencesMutexFor(localMeasurementId: String) =
+        sendFencesMutexes.computeIfAbsent(localMeasurementId) { Mutex() }
+
     // TODO: we should perform a new request for session, we need to discuss if new coverage is needed
-    override fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldSession: CoverageMeasurementSession) = io {
+    override fun saveAndUpdateRegisteredRecord(
+        record: SignalMeasurementRecord,
+        newUuid: String,
+        oldSession: CoverageMeasurementSession
+    ) = io {
         dao.saveSignalMeasurementRecord(record)
         val newSession = oldSession.copy(
             localMeasurementId = record.id,
@@ -170,7 +182,10 @@ class SignalMeasurementRepositoryImpl(
         return dao.getFencesListForSessionLoop(localLoopSessionId)
     }
 
-    override fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord> {
+    override fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(
+        localLoopSessionId: String,
+        limit: Int?
+    ): List<CoverageMeasurementFenceRecord> {
         return dao.getLastFencesListForSessionLoop(localLoopSessionId, limit)
     }
 
@@ -238,7 +253,8 @@ class SignalMeasurementRepositoryImpl(
             if (localMeasurementId == null) {
                 null
             } else {
-                val loadedMeasurement = dao.getCoverageMeasurementSessionForMeasurementId(localMeasurementId)
+                val loadedMeasurement =
+                    dao.getCoverageMeasurementSessionForMeasurementId(localMeasurementId)
                 // todo: check if measurement is still in max times defined or we are gonna create a new one
                 loadedMeasurement
             } ?: CoverageMeasurementSession() // if not created yet, we create one for registration
@@ -258,11 +274,19 @@ class SignalMeasurementRepositoryImpl(
         postProcessing: ValidChunkPostProcessing,
         callback: SignalMeasurementChunkReadyCallback
     ) = io {
-        val valid = validateMeasurementChunk(db.cellInfoDao().get(null, chunk.id), db.signalDao().get(null, chunk.id), chunk)
+        val valid = validateMeasurementChunk(
+            db.cellInfoDao().get(null, chunk.id),
+            db.signalDao().get(null, chunk.id),
+            chunk
+        )
         callback.onSignalMeasurementChunkReadyCheckResult(valid, chunk, postProcessing)
     }
 
-    private fun validateMeasurementChunk(cellInfos: List<CellInfoRecord>, signals: List<SignalRecord>, chunk: SignalMeasurementChunk): Boolean {
+    private fun validateMeasurementChunk(
+        cellInfos: List<CellInfoRecord>,
+        signals: List<SignalRecord>,
+        chunk: SignalMeasurementChunk
+    ): Boolean {
         val radioInfo = createRadioInfoBody(cellInfos, signals, chunk)
         return (radioInfo != null) && radioInfo.signals?.isNotEmpty() ?: false
     }
@@ -278,9 +302,11 @@ class SignalMeasurementRepositoryImpl(
         val previousWasMobile = telephonyInfo != null
         val currentIsWifi = currentNetworkInfo is WifiNetworkInfo
         val currentIsMobile = currentNetworkInfo is CellNetworkInfo
-        val typeChanged = (previousWasWifi && currentIsMobile) || (previousWasMobile && currentIsWifi)
+        val typeChanged =
+            (previousWasWifi && currentIsMobile) || (previousWasMobile && currentIsWifi)
 
-        val currentPublicIp = ipChangeWatcher.lastIPv4Address?.publicAddress ?: ipChangeWatcher.lastIPv6Address?.publicAddress
+        val currentPublicIp = ipChangeWatcher.lastIPv4Address?.publicAddress
+            ?: ipChangeWatcher.lastIPv6Address?.publicAddress
         val previousIp = session.remoteIpAddress
         val ipChanged = previousIp != currentPublicIp
 
@@ -298,7 +324,10 @@ class SignalMeasurementRepositoryImpl(
         return session.retryCount + if (networkChanged) 1 else 0
     }
 
-    override fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callBack: SignalMeasurementChunkResultCallback) = io {
+    override fun sendMeasurementChunk(
+        chunk: SignalMeasurementChunk,
+        callBack: SignalMeasurementChunkResultCallback
+    ) = io {
         dao.saveSignalMeasurementChunk(chunk)
         val session = dao.getCoverageMeasurementSessionForMeasurementId(chunk.measurementId)
         sendMeasurementChunk(chunk.id, callBack)
@@ -323,53 +352,63 @@ class SignalMeasurementRepositoryImpl(
     }
 
 
-    override suspend fun sendFences(localMeasurementId: String, onSendCompleted: ((Boolean) -> Unit)?) = io {
-        val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
-        if (coverageSession.isRegistered()) {
-            val localMeasurementId = coverageSession.localMeasurementId
-            val fencesForSession = dao.getCoverageMeasurementFencesList(localMeasurementId)
-            val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
-            val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
-            val locations = db.geoLocationDao().get(localMeasurementId, null)
-            val cellInfoList = db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
-            val signalList = db.signalDao().get(localMeasurementId, null)
-            val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
-            val permissions = db.permissionStatusDao().get(localMeasurementId, null)
-            clientUUID.value?.let { clientUuid ->
-                fencesForSession.let { fences ->
-                    val cleanedFences = fences.removeUnfinishedFences()
-                    Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fences.size}")
-                    if (cleanedFences.isNotEmpty()) {
-                        val submissionRetryCount = calculateSubmissionRetryCount(coverageSession, telephonyRecord, wlanInfo)
-                        val requestBody = coverageSession.toCoverageResultRequest(
-                            clientUUID = clientUuid,
-                            deviceInfo = deviceInfo,
-                            config = config,
-                            fences = cleanedFences,
-                            telephonyInfo = telephonyRecord,
-                            locations = locations,
-                            cellInfoList = cellInfoList,
-                            signalList = signalList,
-                            permissions = permissions,
-                            cellLocationList = cellLocationList,
-                            submissionRetryCount = submissionRetryCount
-                        )
-                        val result = client.coverageResult(requestBody)
-                        if (result.ok) {
-                            dao.markSessionAsSynced(localMeasurementId)
-                            onSendCompleted?.invoke(true)
+    override suspend fun sendFences(
+        localMeasurementId: String,
+        onSendCompleted: ((Boolean) -> Unit)?
+    ) = io {
+        sendFencesMutexFor(localMeasurementId).withLock {
+            val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
+            if (coverageSession.isRegistered()) {
+                val localMeasurementId = coverageSession.localMeasurementId
+                val fencesForSession = dao.getCoverageMeasurementFencesList(localMeasurementId)
+                val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+                val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
+                val locations = db.geoLocationDao().get(localMeasurementId, null)
+                val cellInfoList =
+                    db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
+                val signalList = db.signalDao().get(localMeasurementId, null)
+                val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
+                val permissions = db.permissionStatusDao().get(localMeasurementId, null)
+                clientUUID.value?.let { clientUuid ->
+                    fencesForSession.let { fences ->
+                        val cleanedFences = fences.removeUnfinishedFences()
+                        Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fences.size}")
+                        if (cleanedFences.isNotEmpty()) {
+                            val submissionRetryCount = calculateSubmissionRetryCount(
+                                coverageSession,
+                                telephonyRecord,
+                                wlanInfo
+                            )
+                            val requestBody = coverageSession.toCoverageResultRequest(
+                                clientUUID = clientUuid,
+                                deviceInfo = deviceInfo,
+                                config = config,
+                                fences = cleanedFences,
+                                telephonyInfo = telephonyRecord,
+                                locations = locations,
+                                cellInfoList = cellInfoList,
+                                signalList = signalList,
+                                permissions = permissions,
+                                cellLocationList = cellLocationList,
+                                submissionRetryCount = submissionRetryCount
+                            )
+                            val result = client.coverageResult(requestBody)
+                            if (result.ok) {
+                                dao.markSessionAsSynced(localMeasurementId)
+                                onSendCompleted?.invoke(true)
+                            } else {
+                                dao.incrementRetryCountForSession(localMeasurementId)
+                                onSendCompleted?.invoke(false)
+                                coverageSettings.hasUnsyncedCoverage = true
+                            }
                         } else {
-                            dao.incrementRetryCountForSession(localMeasurementId)
-                            onSendCompleted?.invoke(false)
-                            coverageSettings.hasUnsyncedCoverage = true
+                            onSendCompleted?.invoke(true)
                         }
-                    } else {
-                        onSendCompleted?.invoke(true)
-                    }
-                } ?: onSendCompleted?.invoke(true)
-            } ?: onSendCompleted?.invoke(false)
-        } else {
-            onSendCompleted?.invoke(true)
+                    } ?: onSendCompleted?.invoke(true)
+                } ?: onSendCompleted?.invoke(false)
+            } else {
+                onSendCompleted?.invoke(true)
+            }
         }
     }
 
@@ -377,40 +416,48 @@ class SignalMeasurementRepositoryImpl(
         val measurements = dao.getCoverageMeasurementsForRetrySend()
         measurements.forEach { coverageSessionMeasurement ->
             val localMeasurementId = coverageSessionMeasurement.localMeasurementId
-            val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
-            val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
-            val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
-            val locations = db.geoLocationDao().get(localMeasurementId, null)
-            val cellInfoList = db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
-            val signalList = db.signalDao().get(localMeasurementId, null)
-            val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
-            val permissions = db.permissionStatusDao().get(localMeasurementId, null)
+            sendFencesMutexFor(localMeasurementId).withLock {
+                val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+                val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
+                val fencesForSession =
+                    dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
+                val locations = db.geoLocationDao().get(localMeasurementId, null)
+                val cellInfoList =
+                    db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
+                val signalList = db.signalDao().get(localMeasurementId, null)
+                val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
+                val permissions = db.permissionStatusDao().get(localMeasurementId, null)
 
-            clientUUID.value?.let { clientUuid ->
-                fencesForSession.let { fences ->
-                    if (fences.isNotEmpty()) {
-                        val submissionRetryCount = calculateSubmissionRetryCount(coverageSessionMeasurement, telephonyRecord, wlanInfo)
-                        val requestBody = coverageSessionMeasurement.toCoverageResultRequest(
-                            clientUUID = clientUuid,
-                            deviceInfo = deviceInfo,
-                            config = config,
-                            fences = fencesForSession,
-                            telephonyInfo = telephonyRecord,
-                            locations = locations,
-                            cellInfoList = cellInfoList,
-                            signalList = signalList,
-                            permissions = permissions,
-                            cellLocationList = cellLocationList,
-                            submissionRetryCount = submissionRetryCount
-                        )
-                        val result = client.coverageResult(requestBody)
-                        if (result.ok) {
-                            dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
-                        } else {
-                            dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
-                            coverageSettings.hasUnsyncedCoverage = true
-                            if (result.failure is NoConnectionException) {
-                                throw result.failure
+                clientUUID.value?.let { clientUuid ->
+                    fencesForSession.let { fences ->
+                        if (fences.isNotEmpty()) {
+                            val submissionRetryCount = calculateSubmissionRetryCount(
+                                coverageSessionMeasurement,
+                                telephonyRecord,
+                                wlanInfo
+                            )
+                            val requestBody = coverageSessionMeasurement.toCoverageResultRequest(
+                                clientUUID = clientUuid,
+                                deviceInfo = deviceInfo,
+                                config = config,
+                                fences = fencesForSession,
+                                telephonyInfo = telephonyRecord,
+                                locations = locations,
+                                cellInfoList = cellInfoList,
+                                signalList = signalList,
+                                permissions = permissions,
+                                cellLocationList = cellLocationList,
+                                submissionRetryCount = submissionRetryCount
+                            )
+                            val result = client.coverageResult(requestBody)
+                            if (result.ok) {
+                                dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
+                            } else {
+                                dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
+                                coverageSettings.hasUnsyncedCoverage = true
+                                if (result.failure is NoConnectionException) {
+                                    throw result.failure
+                                }
                             }
                         }
                     }
@@ -451,8 +498,12 @@ class SignalMeasurementRepositoryImpl(
     /**
      *  TODO: add scenario when measurement chunk response with other uuid than it is already in the session
      */
-    override fun sendMeasurementChunk(chunkId: String, callback: SignalMeasurementChunkResultCallback): Flow<String?> = flow {
-        var chunk = dao.getSignalMeasurementChunk(chunkId) ?: throw DataMissingException("SignalMeasurementChunk not found with id: $chunkId")
+    override fun sendMeasurementChunk(
+        chunkId: String,
+        callback: SignalMeasurementChunkResultCallback
+    ): Flow<String?> = flow {
+        var chunk = dao.getSignalMeasurementChunk(chunkId)
+            ?: throw DataMissingException("SignalMeasurementChunk not found with id: $chunkId")
         val record = dao.getSignalMeasurementRecord(chunk.measurementId)
             ?: throw DataMissingException("SignalMeasurementRecord not found with id: ${chunk.measurementId}")
 
