@@ -64,6 +64,13 @@ class SignalMeasurementRepositoryImpl(
     private fun sendFencesMutexFor(localMeasurementId: String) =
         sendFencesMutexes.computeIfAbsent(localMeasurementId) { Mutex() }
 
+    // Drop the per-session mutex once the session reaches a terminal state (synced or nothing left
+    // to send) so the map doesn't grow one entry per session for the lifetime of the process.
+    // Safe because the mutex only guards against concurrent submission and is recreated on demand.
+    private fun releaseSendFencesMutex(localMeasurementId: String) {
+        sendFencesMutexes.remove(localMeasurementId)
+    }
+
     // TODO: we should perform a new request for session, we need to discuss if new coverage is needed
     override fun saveAndUpdateRegisteredRecord(
         record: SignalMeasurementRecord,
@@ -356,6 +363,8 @@ class SignalMeasurementRepositoryImpl(
         localMeasurementId: String,
         onSendCompleted: ((Boolean) -> Unit)?
     ) = io {
+        // Prune the mutex afterwards unless the send failed and will be retried (set false below).
+        var pruneMutex = true
         sendFencesMutexFor(localMeasurementId).withLock {
             val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
             if (coverageSession.isRegistered()) {
@@ -400,6 +409,8 @@ class SignalMeasurementRepositoryImpl(
                                 dao.incrementRetryCountForSession(localMeasurementId)
                                 onSendCompleted?.invoke(false)
                                 coverageSettings.hasUnsyncedCoverage = true
+                                // Keep the mutex; this session will be retried later.
+                                pruneMutex = false
                             }
                         } else {
                             onSendCompleted?.invoke(true)
@@ -410,12 +421,14 @@ class SignalMeasurementRepositoryImpl(
                 onSendCompleted?.invoke(true)
             }
         }
+        if (pruneMutex) releaseSendFencesMutex(localMeasurementId)
     }
 
     override suspend fun retrySendFences() {
         val measurements = dao.getCoverageMeasurementsForRetrySend()
         measurements.forEach { coverageSessionMeasurement ->
             val localMeasurementId = coverageSessionMeasurement.localMeasurementId
+            var pruneMutex = false
             sendFencesMutexFor(localMeasurementId).withLock {
                 val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
                 val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
@@ -452,6 +465,7 @@ class SignalMeasurementRepositoryImpl(
                             val result = client.coverageResult(requestBody)
                             if (result.ok) {
                                 dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
+                                pruneMutex = true
                             } else {
                                 dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
                                 coverageSettings.hasUnsyncedCoverage = true
@@ -459,10 +473,14 @@ class SignalMeasurementRepositoryImpl(
                                     throw result.failure
                                 }
                             }
+                        } else {
+                            // Nothing to send for this session; stop tracking its mutex.
+                            pruneMutex = true
                         }
                     }
                 }
             }
+            if (pruneMutex) releaseSendFencesMutex(localMeasurementId)
         }
     }
 
