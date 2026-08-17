@@ -377,7 +377,14 @@ class SignalMeasurementRepositoryImpl(
                 Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fencesForSession.size}")
                 val clientUuid = clientUUID.value
                 when {
-                    cleanedFences.isEmpty() -> onSendCompleted?.invoke(true)
+                    cleanedFences.isEmpty() -> {
+                        // This is an end-of-measurement submit, so an empty session has nothing to
+                        // send and never will: retire it (mark synced) so it drops out of the retry
+                        // queue and is physically removed - together with its orphaned signal/
+                        // location/cell rows - by removeOldFencesAndSessions().
+                        dao.markSessionAsSynced(localMeasurementId)
+                        onSendCompleted?.invoke(true)
+                    }
                     clientUuid == null -> onSendCompleted?.invoke(false)
                     else -> {
                         val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
@@ -440,6 +447,18 @@ class SignalMeasurementRepositoryImpl(
                 when {
                     fencesForSession.isEmpty() -> {
                         // Nothing to send; skip the heavy loads and stop tracking the mutex.
+                        // Retire the session only if its measurement window has already ended, so we
+                        // never delete the still-active measurement (which starts with zero fences).
+                        // Retired sessions are marked synced and physically removed - with their
+                        // orphaned signal/location/cell rows - by removeOldFencesAndSessions(), which
+                        // the sync worker runs right after retrySendFences().
+                        val maxSeconds = coverageSessionMeasurement.maxCoverageMeasurementSeconds
+                        val windowEnded = maxSeconds != null &&
+                            coverageSessionMeasurement.startMeasurementResponseReceivedMillis +
+                            maxSeconds * 1000L < System.currentTimeMillis()
+                        if (windowEnded) {
+                            dao.markSessionAsSynced(localMeasurementId)
+                        }
                         pruneMutex = true
                     }
                     clientUuid == null -> {
