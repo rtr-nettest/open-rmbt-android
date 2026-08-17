@@ -369,54 +369,56 @@ class SignalMeasurementRepositoryImpl(
             val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
             if (coverageSession.isRegistered()) {
                 val localMeasurementId = coverageSession.localMeasurementId
+                // Load fences first: sessions without fences to submit (e.g. orphaned sessions that
+                // still hold thousands of signal rows) must not pull their signals/locations/cells
+                // into memory - that was a major source of memory pressure / OOM.
                 val fencesForSession = dao.getCoverageMeasurementFencesList(localMeasurementId)
-                val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
-                val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
-                val locations = db.geoLocationDao().get(localMeasurementId, null)
-                val cellInfoList =
-                    db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
-                val signalList = db.signalDao().get(localMeasurementId, null)
-                val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
-                val permissions = db.permissionStatusDao().get(localMeasurementId, null)
-                clientUUID.value?.let { clientUuid ->
-                    fencesForSession.let { fences ->
-                        val cleanedFences = fences.removeUnfinishedFences()
-                        Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fences.size}")
-                        if (cleanedFences.isNotEmpty()) {
-                            val submissionRetryCount = calculateSubmissionRetryCount(
-                                coverageSession,
-                                telephonyRecord,
-                                wlanInfo
-                            )
-                            val requestBody = coverageSession.toCoverageResultRequest(
-                                clientUUID = clientUuid,
-                                deviceInfo = deviceInfo,
-                                config = config,
-                                fences = cleanedFences,
-                                telephonyInfo = telephonyRecord,
-                                locations = locations,
-                                cellInfoList = cellInfoList,
-                                signalList = signalList,
-                                permissions = permissions,
-                                cellLocationList = cellLocationList,
-                                submissionRetryCount = submissionRetryCount
-                            )
-                            val result = client.coverageResult(requestBody)
-                            if (result.ok) {
-                                dao.markSessionAsSynced(localMeasurementId)
-                                onSendCompleted?.invoke(true)
-                            } else {
-                                dao.incrementRetryCountForSession(localMeasurementId)
-                                onSendCompleted?.invoke(false)
-                                coverageSettings.hasUnsyncedCoverage = true
-                                // Keep the mutex; this session will be retried later.
-                                pruneMutex = false
-                            }
-                        } else {
+                val cleanedFences = fencesForSession.removeUnfinishedFences()
+                Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fencesForSession.size}")
+                val clientUuid = clientUUID.value
+                when {
+                    cleanedFences.isEmpty() -> onSendCompleted?.invoke(true)
+                    clientUuid == null -> onSendCompleted?.invoke(false)
+                    else -> {
+                        val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+                        val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
+                        val locations = db.geoLocationDao().get(localMeasurementId, null)
+                        val cellInfoList =
+                            db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
+                        val signalList = db.signalDao().get(localMeasurementId, null)
+                        val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
+                        val permissions = db.permissionStatusDao().get(localMeasurementId, null)
+                        val submissionRetryCount = calculateSubmissionRetryCount(
+                            coverageSession,
+                            telephonyRecord,
+                            wlanInfo
+                        )
+                        val requestBody = coverageSession.toCoverageResultRequest(
+                            clientUUID = clientUuid,
+                            deviceInfo = deviceInfo,
+                            config = config,
+                            fences = cleanedFences,
+                            telephonyInfo = telephonyRecord,
+                            locations = locations,
+                            cellInfoList = cellInfoList,
+                            signalList = signalList,
+                            permissions = permissions,
+                            cellLocationList = cellLocationList,
+                            submissionRetryCount = submissionRetryCount
+                        )
+                        val result = client.coverageResult(requestBody)
+                        if (result.ok) {
+                            dao.markSessionAsSynced(localMeasurementId)
                             onSendCompleted?.invoke(true)
+                        } else {
+                            dao.incrementRetryCountForSession(localMeasurementId)
+                            onSendCompleted?.invoke(false)
+                            coverageSettings.hasUnsyncedCoverage = true
+                            // Keep the mutex; this session will be retried later.
+                            pruneMutex = false
                         }
-                    } ?: onSendCompleted?.invoke(true)
-                } ?: onSendCompleted?.invoke(false)
+                    }
+                }
             } else {
                 onSendCompleted?.invoke(true)
             }
@@ -430,52 +432,56 @@ class SignalMeasurementRepositoryImpl(
             val localMeasurementId = coverageSessionMeasurement.localMeasurementId
             var pruneMutex = false
             sendFencesMutexFor(localMeasurementId).withLock {
-                val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
-                val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
+                // Load fences first: an orphaned session with no fences must not pull its (possibly
+                // tens of thousands of) signal/location/cell rows into memory just to be skipped.
                 val fencesForSession =
-                    dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
-                val locations = db.geoLocationDao().get(localMeasurementId, null)
-                val cellInfoList =
-                    db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
-                val signalList = db.signalDao().get(localMeasurementId, null)
-                val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
-                val permissions = db.permissionStatusDao().get(localMeasurementId, null)
-
-                clientUUID.value?.let { clientUuid ->
-                    fencesForSession.let { fences ->
-                        if (fences.isNotEmpty()) {
-                            val submissionRetryCount = calculateSubmissionRetryCount(
-                                coverageSessionMeasurement,
-                                telephonyRecord,
-                                wlanInfo
-                            )
-                            val requestBody = coverageSessionMeasurement.toCoverageResultRequest(
-                                clientUUID = clientUuid,
-                                deviceInfo = deviceInfo,
-                                config = config,
-                                fences = fencesForSession,
-                                telephonyInfo = telephonyRecord,
-                                locations = locations,
-                                cellInfoList = cellInfoList,
-                                signalList = signalList,
-                                permissions = permissions,
-                                cellLocationList = cellLocationList,
-                                submissionRetryCount = submissionRetryCount
-                            )
-                            val result = client.coverageResult(requestBody)
-                            if (result.ok) {
-                                dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
-                                pruneMutex = true
-                            } else {
-                                dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
-                                coverageSettings.hasUnsyncedCoverage = true
-                                if (result.failure is NoConnectionException) {
-                                    throw result.failure
-                                }
-                            }
-                        } else {
-                            // Nothing to send for this session; stop tracking its mutex.
+                    dao.getCoverageMeasurementFencesList(localMeasurementId)
+                val clientUuid = clientUUID.value
+                when {
+                    fencesForSession.isEmpty() -> {
+                        // Nothing to send; skip the heavy loads and stop tracking the mutex.
+                        pruneMutex = true
+                    }
+                    clientUuid == null -> {
+                        // No client UUID yet; keep the session queued for a later retry.
+                    }
+                    else -> {
+                        val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+                        val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
+                        val locations = db.geoLocationDao().get(localMeasurementId, null)
+                        val cellInfoList =
+                            db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
+                        val signalList = db.signalDao().get(localMeasurementId, null)
+                        val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
+                        val permissions = db.permissionStatusDao().get(localMeasurementId, null)
+                        val submissionRetryCount = calculateSubmissionRetryCount(
+                            coverageSessionMeasurement,
+                            telephonyRecord,
+                            wlanInfo
+                        )
+                        val requestBody = coverageSessionMeasurement.toCoverageResultRequest(
+                            clientUUID = clientUuid,
+                            deviceInfo = deviceInfo,
+                            config = config,
+                            fences = fencesForSession,
+                            telephonyInfo = telephonyRecord,
+                            locations = locations,
+                            cellInfoList = cellInfoList,
+                            signalList = signalList,
+                            permissions = permissions,
+                            cellLocationList = cellLocationList,
+                            submissionRetryCount = submissionRetryCount
+                        )
+                        val result = client.coverageResult(requestBody)
+                        if (result.ok) {
+                            dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
                             pruneMutex = true
+                        } else {
+                            dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
+                            coverageSettings.hasUnsyncedCoverage = true
+                            if (result.failure is NoConnectionException) {
+                                throw result.failure
+                            }
                         }
                     }
                 }
