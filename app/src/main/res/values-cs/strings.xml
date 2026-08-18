@@ -368,6 +368,8 @@
     <string name="confirm">Potvrdit</string>
     <string name="wrong_network_type_active_dialog_title">Nejste na mobilní síti</string>
     <string name="wrong_network_type_active_dialog_text">Deaktivujte prosím Wi-Fi (nebo jiné nemobilní připojení)</string>
+    <string name="signal_measurement_not_possible_dialog_title">Měření signálu není možné</string>
+    <string name="signal_measurement_not_possible_dialog_text">Měření signálu vyžaduje vypnuté Wi-Fi a dobré pokrytí GPS. Zkuste to prosím znovu</string>
     <string name="stop_signal_measurement_title">Ukončit měření signálu</string>
     <string name="stop_signal_measurement_text">Chcete ukončit měření?</string>
     <string name="no_gps_or_insufficient_precision">Žádný GPS signál nebo kvalita GPS je nedostatečná. Přejděte prosím ven.</string>

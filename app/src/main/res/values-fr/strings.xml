@@ -368,6 +368,8 @@
     <string name="confirm">Confirmer</string>
     <string name="wrong_network_type_active_dialog_title">Pas sur mobile</string>
     <string name="wrong_network_type_active_dialog_text">Veuillez désactiver le Wi-Fi (ou toute autre connexion non mobile)</string>
+    <string name="signal_measurement_not_possible_dialog_title">Mesure du signal impossible</string>
+    <string name="signal_measurement_not_possible_dialog_text">La mesure du signal nécessite que le Wi-Fi soit désactivé et une bonne couverture GPS. Veuillez réessayer</string>
     <string name="stop_signal_measurement_title">Terminer la mesure de signal</string>
     <string name="stop_signal_measurement_text">Voulez-vous terminer la mesure ?</string>
     <string name="no_gps_or_insufficient_precision">Pas de signal GPS ou la qualité GPS est insuffisante. Veuillez vous déplacer à l\'extérieur.</string>

@@ -308,4 +308,17 @@ class HomeViewModel @Inject constructor(
     /** Connectivity for the protocol is assumed when a public address was reachable over it. */
     private fun hasConnectivity(ipInfo: IpInfo?): Boolean = ipInfo?.publicAddress != null
 
+    /**
+     * Returns true when the current GPS fix is good enough to START a signal (coverage) measurement.
+     * Uses exactly the same minimum quality that is required for a fix to be usable DURING the
+     * measurement: not older than [Config.maxAgeOfLocationInformationForSignalMeasurementMillis] and
+     * accuracy better than [Config.minLocationAccuracyMetersDuringSignalMeasurement].
+     */
+    fun isGpsQualitySufficientForSignalMeasurement(): Boolean {
+        val location = locationLiveData.value ?: return false
+        if (!location.hasAccuracy) return false
+        val ageMillis = location.ageNanos / 1_000_000L
+        return location.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement &&
+            ageMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
+    }
 }

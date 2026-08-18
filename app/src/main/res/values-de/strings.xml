@@ -381,6 +381,8 @@
     <string name="confirm">Bestätigen</string>
     <string name="wrong_network_type_active_dialog_title">Nicht im Mobilfunknetz</string>
     <string name="wrong_network_type_active_dialog_text">Bitte deaktiviere WLAN (oder eine andere Nicht-Mobilfunkverbindung)</string>
+    <string name="signal_measurement_not_possible_dialog_title">Signalmessung nicht möglich</string>
+    <string name="signal_measurement_not_possible_dialog_text">Die Signalmessung erfordert, dass WLAN ausgeschaltet ist und ein guter GPS-Empfang besteht. Bitte versuchen Sie es erneut.</string>
     <string name="stop_signal_measurement_title">Signal Messung beenden</string>
     <string name="stop_signal_measurement_text">Möchten Sie die Messung beenden?</string>
     <string name="no_gps_or_insufficient_precision">Kein GPS-Signal oder GPS-Qualität unzureichend. Bitte ins Freie gehen.</string>

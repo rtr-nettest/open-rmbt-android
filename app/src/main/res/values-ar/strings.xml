@@ -368,6 +368,8 @@
     <string name="confirm">تأكيد</string>
     <string name="wrong_network_type_active_dialog_title">لست على شبكة جوال</string>
     <string name="wrong_network_type_active_dialog_text">يرجى تعطيل Wi-Fi (أو أي اتصال غير جوال آخر)</string>
+    <string name="signal_measurement_not_possible_dialog_title">قياس الإشارة غير ممكن</string>
+    <string name="signal_measurement_not_possible_dialog_text">يتطلب قياس الإشارة إيقاف تشغيل شبكة Wi-Fi ووجود تغطية جيدة لنظام تحديد المواقع GPS. يرجى المحاولة مرة أخرى</string>
     <string name="stop_signal_measurement_title">إنهاء قياس الإشارة</string>
     <string name="stop_signal_measurement_text">هل تريد إنهاء القياس؟</string>
     <string name="no_gps_or_insufficient_precision">لا توجد إشارة GPS أو جودة GPS غير كافية. يرجى التوجه إلى الخارج.</string>
