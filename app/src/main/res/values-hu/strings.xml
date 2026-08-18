@@ -381,6 +381,8 @@
     <string name="confirm">Megerősítés</string>
     <string name="wrong_network_type_active_dialog_title">Nem mobilhálózaton</string>
     <string name="wrong_network_type_active_dialog_text">Kérjük, kapcsolja ki a WIFI-t (vagy más nem mobil kapcsolatot)</string>
+    <string name="signal_measurement_not_possible_dialog_title">A jelmérés nem lehetséges</string>
+    <string name="signal_measurement_not_possible_dialog_text">A jelméréshez ki kell kapcsolni a WIFI-t, és jó GPS-lefedettség szükséges. Kérjük, próbálja újra</string>
     <string name="stop_signal_measurement_title">Jelszintmérés befejezése</string>
     <string name="stop_signal_measurement_text">Valóban be kívánja fejezni a mérést?</string>
     <string name="no_gps_or_insufficient_precision">Nincs GPS jel, vagy a GPS minősége nem megfelelő. Kérjük, menjen a szabadba.</string>

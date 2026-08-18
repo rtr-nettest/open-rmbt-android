@@ -688,6 +688,21 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         })
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        // The activity is singleTask, so re-selecting "signal measurement" returns to this same
+        // (possibly finished) instance instead of creating a new one. If the previous measurement
+        // has already finished and is only being displayed, the user explicitly asked for a new
+        // measurement: discard the shown result so the following onStart() starts a fresh one
+        // (shouldRunCoverageMeasurement() only returns true once the finished state is cleared).
+        // A still-running measurement is left untouched, so re-selecting just returns to it.
+        if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            coverageViewModel.clearMeasurementData()
+            coverageViewModel.clearPerformanceImprovementLists(map)
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
