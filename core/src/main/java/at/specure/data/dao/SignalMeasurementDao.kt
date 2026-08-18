@@ -18,6 +18,10 @@ import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimes
 
 const val COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT = 3
 
+// Coverage sessions that cannot be submitted (no fences) or are older than this are purged so
+// unsendable historic data can never accumulate.
+const val COVERAGE_UNSENT_SESSION_MAX_AGE_MILLIS = 7L * 24 * 60 * 60 * 1000 // 7 days
+
 @Dao
 interface SignalMeasurementDao {
 
@@ -199,6 +203,27 @@ interface SignalMeasurementDao {
     """
     )
     suspend fun markSessionAsSynced(sessionId: String)
+
+    /**
+     * Retires (marks synced so [deleteSyncedOrFailedSessions] purges them) coverage sessions that can
+     * never be submitted: their measurement window has ended AND they either have no fences to send
+     * or are older than [staleBeforeMillis]. The window check guarantees the currently running
+     * measurement is never touched.
+     */
+    @Query(
+        """
+        UPDATE ${Tables.COVERAGE_MEASUREMENT_SESSION}
+        SET synced = 1
+        WHERE synced = 0
+          AND maxCoverageMeasurementSeconds IS NOT NULL
+          AND (startMeasurementResponseReceivedMillis + maxCoverageMeasurementSeconds * 1000) < :nowMillis
+          AND (
+                localMeasurementId NOT IN (SELECT DISTINCT sessionId FROM ${Tables.COVERAGE_MEASUREMENT_FENCE})
+                OR startMeasurementResponseReceivedMillis < :staleBeforeMillis
+              )
+    """
+    )
+    suspend fun retireUnsendableOrStaleCoverageSessions(nowMillis: Long, staleBeforeMillis: Long)
 
     @Transaction
     suspend fun deleteSyncedOrFailedSessions(maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT) {

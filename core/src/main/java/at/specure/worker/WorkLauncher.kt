@@ -17,6 +17,10 @@ import at.specure.worker.request.SignalMeasurementInfoWorker
 import java.util.concurrent.TimeUnit
 
 private const val WAITING_TIME_BETWEEN_REQUEST = 10L
+
+// Result submission retries are throttled to <= 3 per hour (one attempt per 20 min) so we do not
+// burn through the retry budget in an area with very bad coverage.
+private const val SUBMISSION_RETRY_BACKOFF_MINUTES = 20L
 private const val SETTINGS_REQUEST_WORK_NAME = "SETTINGS_REQUEST_WORK_NAME"
 private const val DELAYED_SUBMISSION_WORK_NAME = "DELAYED_SUBMISSION_WORK_NAME"
 private const val SERVER_MEASUREMENT_INFO = "SERVER_MEASUREMENT_INFO"
@@ -44,7 +48,7 @@ object WorkLauncher {
             .setInputData(inputData)
             .setConstraints(getWorkerConstraints())
             .addTag(DELAYED_SUBMISSION_WORK_NAME)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WAITING_TIME_BETWEEN_REQUEST, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.LINEAR, SUBMISSION_RETRY_BACKOFF_MINUTES, TimeUnit.MINUTES)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(DELAYED_SUBMISSION_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest)
     }

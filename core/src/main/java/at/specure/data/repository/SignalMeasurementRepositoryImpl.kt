@@ -34,15 +34,21 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.network.ActiveNetworkWatcher
+import at.specure.data.dao.COVERAGE_UNSENT_SESSION_MAX_AGE_MILLIS
 import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import kotlin.coroutines.cancellation.CancellationException
+
+// ~40 MB of free pages before we bother compacting the file (VACUUM rewrites the whole DB).
+private const val DATABASE_VACUUM_FREELIST_THRESHOLD_PAGES = 10_000L
 
 class SignalMeasurementRepositoryImpl(
     private val db: CoreDatabase,
@@ -509,7 +515,33 @@ class SignalMeasurementRepositoryImpl(
         }
     }
 
+    override suspend fun runDatabaseRetention() = withContext(Dispatchers.IO) {
+        // Regular tests: keep only recent-results summaries + payloads still awaiting submission.
+        runCatching { testDao.pruneTestData(System.currentTimeMillis()) }
+            .onFailure { Timber.e(it, "Test data retention failed") }
+        // Coverage: retire/purge synced, exhausted or unsendable sessions.
+        runCatching { removeOldFencesAndSessions() }
+            .onFailure { Timber.e(it, "Coverage retention failed") }
+        // Return freed pages to the OS once a meaningful amount has been deleted.
+        runCatching {
+            val supportDb = db.openHelper.writableDatabase
+            val freePages = supportDb.query("PRAGMA freelist_count").use { c ->
+                if (c.moveToFirst()) c.getLong(0) else 0L
+            }
+            if (freePages > DATABASE_VACUUM_FREELIST_THRESHOLD_PAGES) {
+                Timber.d("Compacting database (VACUUM); free pages=$freePages")
+                supportDb.execSQL("VACUUM")
+            }
+        }.onFailure { Timber.e(it, "Database VACUUM failed") }
+        Unit
+    }
+
     override suspend fun removeOldFencesAndSessions() {
+        val now = System.currentTimeMillis()
+        // Retire sessions that can never be submitted (window ended + no fences) or that are simply
+        // too old to keep, so unsendable coverage data can never accumulate; then purge everything
+        // that is synced or has exhausted its retries.
+        dao.retireUnsendableOrStaleCoverageSessions(now, now - COVERAGE_UNSENT_SESSION_MAX_AGE_MILLIS)
         dao.deleteSyncedOrFailedSessions()
     }
 

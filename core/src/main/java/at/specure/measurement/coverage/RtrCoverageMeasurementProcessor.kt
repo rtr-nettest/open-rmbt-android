@@ -115,6 +115,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         sessionCreationError: ((Exception) -> Unit)?,
         sessionStopped: (() -> Unit)?,
     ) {
+        // Reliable cleanup trigger: purge synced/unsendable/stale coverage sessions whenever a new
+        // measurement starts, so old data can't pile up even when the (rarely scheduled) sync worker
+        // never runs. Runs off the main flow and only touches sessions whose window already ended.
+        scope.launch(Dispatchers.IO) {
+            try {
+                signalMeasurementRepository.removeOldFencesAndSessions()
+            } catch (e: Exception) {
+                Timber.e(e, "Coverage cleanup at measurement start failed")
+            }
+        }
         processingLocationsJob?.cancel(kotlinx.coroutines.CancellationException("New measurement started"))
         processingLocationsJob =
             scope.launch(Dispatchers.IO + CoroutineName("LocationFlowProcessor")) {

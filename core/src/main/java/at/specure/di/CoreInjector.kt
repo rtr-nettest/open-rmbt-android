@@ -14,6 +14,7 @@
 
 package at.specure.di
 
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.coverage.data.workers.CoverageSyncWorker
 import at.specure.measurement.signal.SignalMeasurementService
@@ -28,6 +29,8 @@ object CoreInjector : CoreComponent {
     lateinit var component: CoreComponent
 
     override fun inject(settingsWorker: SettingsWorker) = component.inject(settingsWorker)
+
+    override fun signalMeasurementRepository(): SignalMeasurementRepository = component.signalMeasurementRepository()
 
     override fun inject(sendDataWorker: SendDataWorker) = component.inject(sendDataWorker)
 

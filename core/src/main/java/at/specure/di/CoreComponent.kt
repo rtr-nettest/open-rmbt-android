@@ -1,5 +1,6 @@
 package at.specure.di
 
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.coverage.data.workers.CoverageSyncWorker
 import at.specure.measurement.signal.SignalMeasurementService
@@ -15,6 +16,9 @@ import at.specure.worker.request.SignalMeasurementInfoWorker
 interface CoreComponent {
 
     fun inject(settingsWorker: SettingsWorker)
+
+    /** Provision for app-level database retention. */
+    fun signalMeasurementRepository(): SignalMeasurementRepository
 
     fun inject(sendDataWorker: SendDataWorker)
 
