@@ -11,7 +11,10 @@ interface CoverageLoopManager {
      */
     fun loopFlow(): Flow<CoverageMeasurementEvent>
 
-    fun createNewMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession)
+    fun createNewMeasurementInLoop(
+        lastCoverageMeasurementSession: CoverageMeasurementSession,
+        forceNewSession: Boolean = false
+    )
 
     fun startOrContinueInLoop()
 

@@ -40,6 +40,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,6 +61,10 @@ import kotlin.time.Duration.Companion.seconds
 
 // TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
 // TODO: make own signal listener because now we do not get null signals on signal loss from SignalMeasurementProcessor
+
+// The ping server (via an error-response) and the OS network API report the same network change a
+// few hundred ms apart; new-session requests within this window are coalesced into one.
+private const val NETWORK_CHANGE_DEBOUNCE_MILLIS = 500L
 
 const val MAXIMUM_FENCES_IN_SINGLE_MEASUREMENT = 400
 const val MAXIMUM_LOCATIONS_IN_SINGLE_MEASUREMENT = 700
@@ -152,8 +157,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 pauseCoverageSession()
             },
             onIpAddressChanged = {
-                Timber.d("🌐 IP address changed to $it → stopping measurement")
-//              handled by onNetworkChanged()
+                Timber.d("🌐 IP address changed to $it")
+                requestNewSessionOnNetworkChange("ip-changed")
             },
         )
         dataSimMonitorJob = scope.launch() {
@@ -340,8 +345,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         cancelPingJob()
         pingJob = scope.launch(CoroutineName("PingJobCoroutine")) {
             coveragePingProcessor.startPing(registeredAndStartedSession).collect { pingData ->
+                // A ping server error-response means our source IP is no longer valid: the ping server
+                // detected a network change before the OS reports it. Restart with a fresh session (and
+                // therefore a fresh ping token). Coalesced with the later API network-change report so a
+                // single network change starts only one new session.
                 if (pingData.error is PingServerException) {
-                    onNetworkChanged()
+                    requestNewSessionOnNetworkChange("ping-error-response")
                 } else {
                     stateManager.updatePingData(pingData)
                 }
@@ -753,6 +762,24 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
+    // Debounced entry point for network-change signals (ping error-response and the OS API report).
+    // Trailing-edge: each signal (re)schedules the restart, so a burst of rapid network changes starts
+    // a single new session only AFTER the last change has settled. Firing after the first of several
+    // rapid changes would register against an intermediate network and immediately be stale again.
+    private val networkChangeLock = Any()
+    private var networkChangeJob: Job? = null
+
+    private fun requestNewSessionOnNetworkChange(reason: String) {
+        synchronized(networkChangeLock) {
+            networkChangeJob?.cancel()
+            networkChangeJob = scope.launch {
+                delay(NETWORK_CHANGE_DEBOUNCE_MILLIS)
+                Timber.d("Coverage network change ($reason) settled -> restarting session with fresh registration")
+                onNetworkChanged()
+            }
+        }
+    }
+
     suspend fun onNetworkChanged() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
             updateLastFence(finish = true)
@@ -761,7 +788,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 CoverageMeasurementTerminationCause.EndedByNetworkChange()
             )
             Timber.d("Starting new measurement because of network change")
-            coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
+            // Force a new session so the stale ping token is replaced by a fresh registration - even
+            // when the previous session had no fences (e.g. the measurement started without GPS).
+            coverageLoopManager.createNewMeasurementInLoop(lastMeasurement, forceNewSession = true)
         }
     }
 
