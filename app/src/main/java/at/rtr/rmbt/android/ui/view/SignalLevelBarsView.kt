@@ -36,8 +36,12 @@ class SignalLevelBarsView @JvmOverloads constructor(
     }
     private val rect = RectF()
 
-    private var minSignal = -125
-    private var maxSignal = -85
+    // Default to the common mobile (LTE/NR) range so the full set of segments is already shown at
+    // startup, before the first network/signal sample arrives. setRange() keeps this default when it
+    // is handed an unknown range (e.g. NetworkTypeCompat.TYPE_UNKNOWN), so the number of segments
+    // does not visibly change once measurement begins.
+    private var minSignal = -130
+    private var maxSignal = -70
 
     var minColor: Int = OFFLINE_GRAY.toColorInt()
     var maxColor: Int = OFFLINE_GRAY.toColorInt()
@@ -49,6 +53,10 @@ class SignalLevelBarsView @JvmOverloads constructor(
         }
 
     fun setRange(min: Int, max: Int) {
+        // Ignore an unknown/degenerate range (e.g. before any network is available, when both bounds
+        // are Int.MIN_VALUE): keep the sensible default so the segment count stays stable instead of
+        // collapsing to the minimum of two bars.
+        if (max <= min) return
         minSignal = min
         maxSignal = max
         invalidate()
