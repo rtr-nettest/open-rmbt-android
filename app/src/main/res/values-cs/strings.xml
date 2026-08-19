@@ -392,6 +392,7 @@
     <string name="points">Body</string>
     <string name="text_loading_results_failed">Načítání výsledků se nezdařilo</string>
     <string name="text_connection_count">%1$d segmenty</string>
+    <string name="coverage_duration_label">Doba trvání: %1$s</string>
     <string name="text_fence_count">%1$d bodů</string>
     <string name="text_unknown">Žádný</string>
     <string name="ipv4_short">IPv4</string>

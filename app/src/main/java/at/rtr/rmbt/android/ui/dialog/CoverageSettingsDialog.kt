@@ -12,6 +12,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogCoverageSettingsBinding
 import at.rtr.rmbt.android.di.Injector
@@ -34,6 +39,8 @@ class CoverageSettingsDialog : FullscreenDialog() {
     lateinit var viewModel: CoverageSettingsViewModel
 
     private lateinit var binding: DialogCoverageSettingsBinding
+
+    private var durationTickerJob: Job? = null
 
     init {
         retainInstance = true
@@ -67,6 +74,36 @@ class CoverageSettingsDialog : FullscreenDialog() {
 
     private fun showConnectionCount(i: Int) {
         binding.labelConnectionCount.text = getString(R.string.text_connection_count, i)
+    }
+
+    private fun startDurationTicker() {
+        durationTickerJob?.cancel()
+        durationTickerJob = viewLifecycleOwner.lifecycleScope.launch {
+            while (isActive) {
+                showDuration()
+                delay(1000)
+            }
+        }
+    }
+
+    private fun showDuration() {
+        val startMillis = viewModel.coverageMeasurementDataLiveData.value
+            ?.coverageMeasurementSession?.startTimeLoopMillis
+        val elapsedMillis =
+            if (startMillis == null || startMillis <= 0L) 0L else System.currentTimeMillis() - startMillis
+        binding.labelDuration.text = getString(R.string.coverage_duration_label, formatDuration(elapsedMillis))
+    }
+
+    private fun formatDuration(elapsedMillis: Long): String {
+        val totalSeconds = (elapsedMillis / 1000L).coerceAtLeast(0L)
+        val hours = totalSeconds / 3600L
+        val minutes = (totalSeconds % 3600L) / 60L
+        val seconds = totalSeconds % 60L
+        return when {
+            hours > 0L -> "${hours}h ${minutes}min ${seconds}s"
+            minutes > 0L -> "${minutes}min ${seconds}s"
+            else -> "${seconds}s"
+        }
     }
 
     private fun showIpVersion(i: Int?) {
@@ -105,6 +142,8 @@ class CoverageSettingsDialog : FullscreenDialog() {
         super.onViewCreated(view, savedInstanceState)
 
         setAccuracyRadiusItem()
+
+        startDurationTicker()
 
         binding.iconClose.setOnClickListener { dismiss() }
     }

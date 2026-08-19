@@ -98,6 +98,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBaseline_toBaselineOf="@id/label_points_count" />
 
+        <TextView
+            android:id="@+id/label_duration"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:textColor="@color/navigation_gray"
+            tools:text="Duration: 23s"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_points_count" />
+
         <View
             android:id="@+id/expert_info_divider"
             android:layout_width="0dp"
@@ -109,7 +121,7 @@
             android:layout_marginEnd="@dimen/padding_large"
             android:layout_marginBottom="@dimen/padding_medium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/label_points_count" />
+            app:layout_constraintTop_toBottomOf="@id/label_duration" />
 
         <TextView
             android:id="@+id/label_accuracy_radius"

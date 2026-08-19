@@ -405,6 +405,7 @@
     <string name="points">Punkte</string>
     <string name="text_loading_results_failed">Laden der Ergebnisse fehlgeschlagen</string>
     <string name="text_connection_count">%1$d Segmente</string>
+    <string name="coverage_duration_label">Dauer: %1$s</string>
     <string name="text_fence_count">%1$d Punkte</string>
     <string name="text_unknown">Keine</string>
     <string name="ipv4_short">IPv4</string>
