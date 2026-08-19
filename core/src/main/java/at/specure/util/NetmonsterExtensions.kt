@@ -35,6 +35,8 @@ import at.specure.info.strength.SignalStrengthInfo.Companion.LTE_RSRP_SIGNAL_MAX
 import at.specure.info.strength.SignalStrengthInfo.Companion.LTE_RSRP_SIGNAL_MIN
 import at.specure.info.strength.SignalStrengthInfo.Companion.NR_RSRP_SIGNAL_MAX
 import at.specure.info.strength.SignalStrengthInfo.Companion.NR_RSRP_SIGNAL_MIN
+import at.specure.info.strength.SignalStrengthInfo.Companion.NR_RSRP_VALID_MAX
+import at.specure.info.strength.SignalStrengthInfo.Companion.NR_RSRP_VALID_MIN
 import at.specure.info.strength.SignalStrengthInfo.Companion.TDSCDMA_RSRP_SIGNAL_MAX
 import at.specure.info.strength.SignalStrengthInfo.Companion.TDSCDMA_RSRP_SIGNAL_MIN
 import at.specure.info.strength.SignalStrengthInfo.Companion.WCDMA_RSRP_SIGNAL_MAX
@@ -305,12 +307,16 @@ fun SignalLte.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
 }
 
 fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
-    return if (this.ssRsrp != null && this.ssRsrp!! < NR_RSRP_SIGNAL_MAX && this.ssRsrp!! >= NR_RSRP_SIGNAL_MIN) {
+    // Prefer SS-RSRP, but fall back to CSI-RSRP: some 5G SA modems report only CSI-RSRP for the
+    // serving cell. Validate against the full 3GPP measurement range (NR_RSRP_VALID_*), not the
+    // narrower display range, so strong signals (better than the display max of -70 dBm) are kept.
+    val rsrp = this.ssRsrp ?: this.csiRsrp
+    return if (rsrp != null && rsrp in NR_RSRP_VALID_MIN..NR_RSRP_VALID_MAX) {
         SignalStrengthInfoNr(
             transport = TransportType.CELLULAR,
-            value = this.ssRsrp,
+            value = rsrp,
             rsrq = null,
-            signalLevel = calculateNRSignalLevel(this.ssRsrp),
+            signalLevel = calculateNRSignalLevel(rsrp),
             min = NR_RSRP_SIGNAL_MIN,
             max = NR_RSRP_SIGNAL_MAX,
             timestampNanos = timestampNanos,

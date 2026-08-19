@@ -107,8 +107,14 @@ abstract class SignalStrengthInfo : Parcelable {
         const val TDSCDMA_RSRP_SIGNAL_MIN = -120
         const val TDSCDMA_RSRP_SIGNAL_MAX = -24
 
-        const val NR_RSRP_SIGNAL_MIN = -130 // dbm
-        const val NR_RSRP_SIGNAL_MAX = -70
+        const val NR_RSRP_SIGNAL_MIN = -130 // dbm - lower bound of the display/bar range
+        const val NR_RSRP_SIGNAL_MAX = -70 // upper bound of the display/bar range (NOT a valid-measurement limit)
+
+        // Valid SS-RSRP / CSI-RSRP measurement range per 3GPP TS 38.133. Used to sanity-check a
+        // reported value; must be wider than the display range above so that strong 5G signals
+        // (better than -70 dBm) are not discarded.
+        const val NR_RSRP_VALID_MIN = -156 // dbm
+        const val NR_RSRP_VALID_MAX = -31 // dbm
 
         const val NR_RSRQ_SIGNAL_MIN = -20 // dbm
         const val NR_RSRQ_SIGNAL_MAX = -3 // values taken from CellSignalStrengthNr
