@@ -120,20 +120,23 @@ class RtrConnectivityMonitor @Inject constructor(
 
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                trySend(checkIp())
+                emitIfChanged()
             }
 
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                trySend(checkIp())
+                emitIfChanged()
             }
 
-            private fun checkIp(): String? {
+            // Emit only when the IP actually changes. Previously a "no change" event emitted a
+            // null sentinel into the flow; together with the drop(1) below that let a spurious
+            // change slip through right after start (unknown -> first IP), triggering an unwanted
+            // new session and making the connection counter show 2 from the very beginning.
+            private fun emitIfChanged() {
                 val ip = getCurrentIpAddress()
                 if (ip != lastIp) {
                     lastIp = ip
-                    return ip
+                    trySend(ip)
                 }
-                return null
             }
         }
 
