@@ -404,7 +404,7 @@
     <string name="text_accuracy_radius">Pontosság:</string>
     <string name="points">Pontok</string>
     <string name="text_loading_results_failed">Eredmények betöltése sikertelen</string>
-    <string name="text_connection_count">%1$d kapcsolat</string>
+    <string name="text_connection_count">%1$d szegmens</string>
     <string name="text_fence_count">%1$d pont</string>
     <string name="text_unknown">Nincs</string>
     <string name="ipv4_short">IPv4</string>

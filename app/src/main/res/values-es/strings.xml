@@ -404,7 +404,7 @@
     <string name="text_accuracy_radius">Precisión:</string>
     <string name="points">Puntos</string>
     <string name="text_loading_results_failed">Error al cargar los resultados</string>
-    <string name="text_connection_count">%1$d conexiones</string>
+    <string name="text_connection_count">%1$d segmentos</string>
     <string name="text_fence_count">%1$d puntos</string>
     <string name="text_unknown">Ninguno</string>
     <string name="ipv4_short">IPv4</string>

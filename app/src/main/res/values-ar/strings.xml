@@ -391,7 +391,7 @@
     <string name="text_accuracy_radius">الدقة:</string>
     <string name="points">النقاط</string>
     <string name="text_loading_results_failed">فشل تحميل النتائج</string>
-    <string name="text_connection_count">%1$d اتصالات</string>
+    <string name="text_connection_count">%1$d مقاطع</string>
     <string name="text_fence_count">%1$d نقاط</string>
     <string name="text_unknown">لا شيء</string>
     <string name="ipv4_short">IPv4</string>

@@ -391,7 +391,7 @@
     <string name="text_accuracy_radius">Přesnost:</string>
     <string name="points">Body</string>
     <string name="text_loading_results_failed">Načítání výsledků se nezdařilo</string>
-    <string name="text_connection_count">%1$d připojení</string>
+    <string name="text_connection_count">%1$d segmenty</string>
     <string name="text_fence_count">%1$d bodů</string>
     <string name="text_unknown">Žádný</string>
     <string name="ipv4_short">IPv4</string>

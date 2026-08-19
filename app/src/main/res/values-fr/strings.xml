@@ -391,7 +391,7 @@
     <string name="text_accuracy_radius">Précision :</string>
     <string name="points">Points</string>
     <string name="text_loading_results_failed">Échec du chargement des résultats</string>
-    <string name="text_connection_count">%1$d connexions</string>
+    <string name="text_connection_count">%1$d segments</string>
     <string name="text_fence_count">%1$d points</string>
     <string name="text_unknown">Aucun</string>
     <string name="ipv4_short">IPv4</string>
