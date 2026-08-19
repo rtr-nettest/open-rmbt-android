@@ -128,12 +128,13 @@ class HomeFragment : BaseFragment() {
         homeViewModel.activeNetworkLiveData.listen(this) {
             if (it == null || it is CellNetworkInfo) {
                 Timber.d("Network changed to CellInfo or null")
-                hideWrongNetworkTypeDialog()
+                dismissSignalNotPossibleDialogIfConditionsMet()
             }
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.locationLiveData.listen(this) {
+            dismissSignalNotPossibleDialogIfConditionsMet()
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
@@ -399,15 +400,11 @@ class HomeFragment : BaseFragment() {
             return false
         }
 
-        if (!homeViewModel.isGpsQualitySufficientForSignalMeasurement()) {
-            // Good GPS coverage is a prerequisite to START a signal measurement (same minimum
-            // quality - age & accuracy - that is required for a fix during the measurement).
+        if (!homeViewModel.isGpsQualitySufficientForSignalMeasurement() || !isMobileNetworkActive) {
+            // A signal measurement requires both good GPS coverage (same minimum quality - age &
+            // accuracy - as during the measurement) and WiFi off / mobile network active. A single
+            // combined dialog explains both prerequisites.
             if (showDialogs) showSignalMeasurementNotPossibleDialog()
-            return false
-        }
-
-        if (!isMobileNetworkActive) {
-            if (showDialogs) showWrongNetworkTypeDialog()
             return false
         }
 
@@ -453,24 +450,6 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun showWrongNetworkTypeDialog() {
-        context?.let {
-            val title = ContextCompat.getString(it, R.string.wrong_network_type_active_dialog_title)
-            val text = ContextCompat.getString(it, R.string.wrong_network_type_active_dialog_text)
-            SimpleDialog.Builder()
-                .messageText(text)
-                .titleText(title)
-                .positiveText(R.string.confirm)
-                .cancelable(false)
-                .show(
-                    this.childFragmentManager,
-                    CODE_DIALOG_WRONG_NETWORK,
-                    TAG_CODE_DIALOG_WRONG_NETWORK
-                )
-        }
-
-    }
-
     private fun showSignalMeasurementNotPossibleDialog() {
         context?.let {
             val title = ContextCompat.getString(it, R.string.signal_measurement_not_possible_dialog_title)
@@ -488,10 +467,12 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun hideWrongNetworkTypeDialog() {
-        val dialog =
-            this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_WRONG_NETWORK) as SimpleDialog?
-        dialog?.dismissAllowingStateLoss()
+    private fun dismissSignalNotPossibleDialogIfConditionsMet() {
+        if (homeViewModel.isGpsQualitySufficientForSignalMeasurement() && homeViewModel.isMobileNetworkActive()) {
+            val dialog =
+                this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE) as SimpleDialog?
+            dialog?.dismissAllowingStateLoss()
+        }
     }
 
     private fun checkInformationAvailability() {
@@ -653,10 +634,8 @@ class HomeFragment : BaseFragment() {
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_DIALOG_NEWS = 14
         private const val CODE_DIALOG_MORE_SIMS = 15
-        private const val CODE_DIALOG_WRONG_NETWORK = 16
         private const val CODE_DIALOG_SIGNAL_NOT_POSSIBLE = 17
 
-        private const val TAG_CODE_DIALOG_WRONG_NETWORK = "TAG_CODE_DIALOG_WRONG_NETWORK"
         private const val TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE = "TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE"
     }
 }
