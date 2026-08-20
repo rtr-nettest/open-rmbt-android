@@ -100,14 +100,14 @@ private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
     val lines = mutableListOf<String>()
     when (primary) {
         is CellNr -> lines += listOfNotNull(
-            infoLine("EARFCN", primary.getEuBand()?.channelNumber),
+            infoLine("Ch", primary.getEuBand()?.channelNumber),
             infoLine("NCI", primary.nci),
             infoLine("TAC", primary.tac),
             infoLine("PCI", primary.pci)
         )
         is CellLte -> {
             lines += listOfNotNull(
-                infoLine("EARFCN", primary.band?.channelNumber),
+                infoLine("Ch", primary.band?.channelNumber),
                 infoLine("CI", primary.eci),
                 infoLine("eNB", primary.enb),
                 infoLine("CID", primary.cid),
@@ -121,7 +121,7 @@ private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
                 val nrLines = listOfNotNull(
                     infoLine("TAC", nr.tac),
                     infoLine("PCI", nr.pci),
-                    infoLine("EARFCN", nr.getEuBand()?.channelNumber)
+                    infoLine("Ch", nr.getEuBand()?.channelNumber)
                 )
                 if (nrLines.isNotEmpty()) {
                     lines += "5G NR"
