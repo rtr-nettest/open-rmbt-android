@@ -58,6 +58,12 @@ class WaveView @JvmOverloads constructor(
         get() = height > width
 
     init {
+        // The wave is composed of double-width sprites anchored to the start edge and animated
+        // along the X axis. In RTL the FrameLayout would anchor them to the right edge, leaving
+        // half of the view empty and breaking the effect. The wave is visually symmetric, so we
+        // always lay it out left-to-right regardless of the app's layout direction.
+        layoutDirection = LAYOUT_DIRECTION_LTR
+
         val waveSprite1 = WaveSpriteView(context).apply {
             waveColor = ContextCompat.getColor(context, R.color.wave_primary)
             tag = TAG_WAVE

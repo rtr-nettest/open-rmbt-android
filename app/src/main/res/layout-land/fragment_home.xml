@@ -323,6 +323,22 @@
             app:layout_constraintTop_toBottomOf="@+id/tvNetworkName"
             app:visibleOrGone="@{!state.isConnected}" />
 
+        <!-- Expert-mode overlay: identifiers of the primary cell (or Wi-Fi band/channel), shown on
+             the left. Hidden when not in expert mode / no data. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPrimaryCellInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginBottom="@dimen/padding_large"
+            android:gravity="start"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:primaryCellInfo="@{state.activeNetworkInfo}"
+            app:primaryCellInfoExpert="@{state.expertModeIsEnabled}" />
+
         <View
             android:id="@+id/vBottomDivider"
             android:layout_width="0dp"

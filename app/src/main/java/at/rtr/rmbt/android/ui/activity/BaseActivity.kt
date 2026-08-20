@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.app.PictureInPictureParams
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
@@ -16,6 +17,7 @@ import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.LocaleHelper
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
 import timber.log.Timber
 import kotlin.math.max
@@ -26,6 +28,10 @@ private const val DIALOG_DEFAULT_OK = -1
 abstract class BaseActivity : AppCompatActivity() {
 
     private val viewModels = mutableListOf<BaseViewModel>()
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)

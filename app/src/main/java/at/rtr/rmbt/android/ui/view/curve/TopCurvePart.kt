@@ -64,7 +64,9 @@ class TopCurvePart(context: Context) : CurvePart() {
     override fun getCenterY() = viewSize.toFloat() / 3
 
     override fun getTopOffset() = viewHeight.toFloat() - viewSize
-    override fun getLeftOffset() = (viewWidth - viewSize) + viewSize.toFloat() / 3
+    // Center the curve horizontally (use half the excess width) instead of pushing it fully to the
+    // right. In portrait the excess is ~0, so this has no effect there.
+    override fun getLeftOffset() = (viewWidth - viewSize) / 2f + viewSize.toFloat() / 3
 
     override fun drawSections(canvas: Canvas) {
         dividerPaint.strokeWidth = 5f

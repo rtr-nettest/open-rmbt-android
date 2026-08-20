@@ -17,6 +17,7 @@ import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.MeasurementClient
@@ -55,6 +56,9 @@ class MeasurementViewModel @Inject constructor(
 
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
+
+    val locationLiveData: LiveData<LocationInfo?>
+        get() = locationWatcher.liveData
 
     val loopUuidLiveData: LiveData<String?>
         get() = _loopUUIDLiveData
@@ -102,7 +106,9 @@ class MeasurementViewModel @Inject constructor(
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
             val loopLocalUuid = producer?.loopLocalUUID
-            testUUID = producer?.testUUID
+            // Keep a previously known testUUID if the (possibly recreated) service no longer has one:
+            // the test controller clears its testUUID once the test reaches its final state.
+            testUUID = producer?.testUUID ?: testUUID
 
             initializeLoopData(loopLocalUuid)
             Timber.d("Passed local loop UUID: $loopLocalUuid")
