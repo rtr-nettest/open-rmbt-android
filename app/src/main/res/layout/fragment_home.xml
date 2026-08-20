@@ -288,6 +288,23 @@
             app:waveEnabled="@{state.isConnected()}"
             tools:background="@color/text_black_transparency_60" />
 
+        <!-- Expert-mode overlay: identifiers of the primary cell (or Wi-Fi band/channel), shown at
+             the bottom-left of the S curve (the wave). Hidden when not in expert mode / no data. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPrimaryCellInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginBottom="@dimen/padding_small"
+            android:gravity="start"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toTopOf="@+id/waveView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:primaryCellInfo="@{state.activeNetworkInfo}"
+            app:primaryCellInfoExpert="@{state.expertModeIsEnabled}"
+            tools:text="EARFCN: 1850\nCI: 12345\neNB: 48\nCID: 57\nTAC: 12345\nPCI: 305\nBW: 20 MHz" />
+
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"

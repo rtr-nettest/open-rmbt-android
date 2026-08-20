@@ -20,4 +20,7 @@
     <!-- Coverage -->
     <dimen name="coverage_result_margin_top">0dp</dimen>
 
+    <!-- Landscape has no info columns row, so keep the gauge near the top. -->
+    <dimen name="signal_bar_top_margin">8dp</dimen>
+
 </resources>

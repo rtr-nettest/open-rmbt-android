@@ -40,7 +40,8 @@
     <dimen name="chart_label_text_size">11sp</dimen>
     <dimen name="speed_chart_height">128dp</dimen>
     <dimen name="signal_bar_start_margin">16dp</dimen>
-    <dimen name="signal_bar_top_margin">8dp</dimen>
+    <!-- Pushed down so the gauge sits below the Signal/Frequency/Speed info columns row. -->
+    <dimen name="signal_bar_top_margin">56dp</dimen>
     <dimen name="signal_bar_scale_value">10sp</dimen>
     <dimen name="signal_bar_value">16sp</dimen>
     <dimen name="signal_bar_label">12sp</dimen>

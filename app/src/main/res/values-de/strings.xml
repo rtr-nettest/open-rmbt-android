@@ -24,6 +24,7 @@
     <string name="tc_tobottom">Nach unten scrollen</string>
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequenz</string>
+    <string name="home_speed">Bewegung</string>
     <string name="home_no_internet_connection">Keine Internetverbindung!</string>
     <string name="home_no_internet_connection_details">Es ist kein Test möglich.</string>
     <string name="home_signal_value">%1$d dBm</string>
