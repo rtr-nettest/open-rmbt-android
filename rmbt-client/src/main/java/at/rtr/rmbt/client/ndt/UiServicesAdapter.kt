@@ -1,133 +1,110 @@
 /*******************************************************************************
  * Copyright 2013-2014 alladin-IT GmbH
  * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client.ndt;
+ */
+package at.rtr.rmbt.client.ndt
 
-import net.measurementlab.ndt.UiServices;
+import net.measurementlab.ndt.UiServices
 
-public class UiServicesAdapter implements UiServices
-{
-    public Double s2cspd;
-    public Double c2sspd;
-    public Double avgrtt;
-    public final StringBuffer sbMain = new StringBuffer();
-    public final StringBuffer sbStat = new StringBuffer();
-    public final StringBuffer sbDiag = new StringBuffer();
-    
-    private long startTimeNs;
-    private long stopTimeNs;
-    
-    public boolean arePrimaryResultsSet()
-    {
-        return s2cspd != null && c2sspd != null;
+class UiServicesAdapter : UiServices {
+    var s2cspd: Double? = null
+
+    var c2sspd: Double? = null
+
+    var avgrtt: Double? = null
+
+    val sbMain = StringBuffer()
+
+    val sbStat = StringBuffer()
+
+    val sbDiag = StringBuffer()
+
+    var startTimeNs: Long = 0
+        private set
+
+    var stopTimeNs: Long = 0
+        private set
+
+    fun arePrimaryResultsSet(): Boolean {
+        return s2cspd != null && c2sspd != null
     }
-    
-    public void appendString(final String str, final int viewId)
-    {
-        if (str == null)
-            return;
-        switch (viewId)
-        {
-        case MAIN_VIEW:
-            sbMain.append(str);
-            break;
-        case STAT_VIEW:
-            sbStat.append(str);
-            break;
-        case DIAG_VIEW:
-            sbDiag.append(str);
-            break;
+
+    override fun appendString(str: String?, viewId: Int) {
+        if (str == null) {
+            return
+        }
+        when (viewId) {
+            UiServices.MAIN_VIEW -> sbMain.append(str)
+            UiServices.STAT_VIEW -> sbStat.append(str)
+            UiServices.DIAG_VIEW -> sbDiag.append(str)
         }
     }
-    
-    public void incrementProgress()
-    {
+
+    override fun incrementProgress() {
     }
-    
-    public void onBeginTest()
-    {
-    	this.startTimeNs = System.nanoTime();
-    	System.out.println("NDT START:" + this.startTimeNs);
+
+    override fun onBeginTest() {
+        this.startTimeNs = System.nanoTime()
+        println("NDT START:" + this.startTimeNs)
     }
-    
-    public void onEndTest()
-    {
-    	this.stopTimeNs = System.nanoTime();
-    	System.out.println("NDT END:" + this.stopTimeNs);
+
+    override fun onEndTest() {
+        this.stopTimeNs = System.nanoTime()
+        println("NDT END:" + this.stopTimeNs)
     }
-    
-    public void onFailure(final String errorMessage)
-    {
+
+    override fun onFailure(errorMessage: String?) {
     }
-    
-    public void onPacketQueuingDetected()
-    {
+
+    override fun onPacketQueuingDetected() {
     }
-    
-    public void onLoginSent()
-    {
+
+    override fun onLoginSent() {
     }
-    
-    public void logError(final String str)
-    {
+
+    override fun logError(str: String?) {
     }
-    
-    public void updateStatus(final String status)
-    {
+
+    override fun updateStatus(status: String?) {
     }
-    
-    public void updateStatusPanel(final String status)
-    {
+
+    override fun updateStatusPanel(status: String?) {
     }
-    
-    public boolean wantToStop()
-    {
-        return false;
+
+    override fun wantToStop(): Boolean {
+        return false
     }
-    
-    public String getClientApp()
-    {
-        return "RTR-NetTest";
+
+    override fun getClientApp(): String {
+        return "RTR-NetTest"
     }
-    
-    public void setVariable(final String name, final int value)
-    {
+
+    override fun setVariable(name: String?, value: Int) {
     }
-    
-    public void setVariable(final String name, final double value)
-    {
-        if (name == null)
-            return;
-        if ("pub_avgrtt".equals(name))
-            avgrtt = value;
-        else if ("pub_c2sspd".equals(name))
-            c2sspd = value;
-        else if ("pub_s2cspd".equals(name))
-            s2cspd = value;
+
+    override fun setVariable(name: String?, value: Double) {
+        if (name == null) {
+            return
+        }
+        when {
+            "pub_avgrtt" == name -> avgrtt = value
+            "pub_c2sspd" == name -> c2sspd = value
+            "pub_s2cspd" == name -> s2cspd = value
+        }
     }
-    
-    public void setVariable(final String name, final Object value)
-    {
-    }
-    
-    public long getStartTimeNs() {
-    	return startTimeNs;
-    }
-    
-    public long getStopTimeNs() {
-    	return stopTimeNs;
+
+    override fun setVariable(name: String?, value: Any?) {
     }
 }

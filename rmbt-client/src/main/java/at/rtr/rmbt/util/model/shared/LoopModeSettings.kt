@@ -13,114 +13,51 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.model.shared;
+ */
+package at.rtr.rmbt.util.model.shared
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class LoopModeSettings {
+class LoopModeSettings() {
 
-	protected Long uid;
-	
-	@SerializedName("test_uuid")
-	protected String testUuid;
-	
-	@SerializedName("client_uuid")
-	protected String clientUuid;
-	
-	@SerializedName("max_delay")
-	protected int maxDelay;
-	
-	@SerializedName("max_movement")
-	protected int maxMovement;
-	
-	@SerializedName("max_tests")
-	protected int maxTests;
-	
-	@SerializedName("test_counter")
-	protected int testCounter;
+    var uid: Long? = null
 
-	@SerializedName("loop_uuid")
-	private String loopUuid;
+    @SerializedName("test_uuid")
+    var testUuid: String? = null
 
-	public LoopModeSettings() { }
-	
-	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final String loopUuid) {
-		setMaxDelay(maxDelay);
-		setMaxMovement(maxMovement);
-		setMaxTests(maxTests);
-		setTestCounter(testCounter);
-		setLoopUuid(loopUuid);
-	}
-	
-	public int getMaxDelay() {
-		return maxDelay;
-	}
+    @SerializedName("client_uuid")
+    var clientUuid: String? = null
 
-	public void setMaxDelay(int maxDelay) {
-		this.maxDelay = maxDelay;
-	}
+    @SerializedName("max_delay")
+    var maxDelay: Int = 0
 
-	public int getMaxMovement() {
-		return maxMovement;
-	}
+    @SerializedName("max_movement")
+    var maxMovement: Int = 0
 
-	public void setMaxMovement(int maxMovement) {
-		this.maxMovement = maxMovement;
-	}
+    @SerializedName("max_tests")
+    var maxTests: Int = 0
 
-	public int getMaxTests() {
-		return maxTests;
-	}
+    @SerializedName("test_counter")
+    var testCounter: Int = 0
 
-	public void setMaxTests(int maxTests) {
-		this.maxTests = maxTests;
-	}
+    @SerializedName("loop_uuid")
+    var loopUuid: String? = null
 
-	public int getTestCounter() {
-		return testCounter;
-	}
+    constructor(
+        maxDelay: Int,
+        maxMovement: Int,
+        maxTests: Int,
+        testCounter: Int,
+        loopUuid: String?
+    ) : this() {
+        this.maxDelay = maxDelay
+        this.maxMovement = maxMovement
+        this.maxTests = maxTests
+        this.testCounter = testCounter
+        this.loopUuid = loopUuid
+    }
 
-	public void setTestCounter(int testCounter) {
-		this.testCounter = testCounter;
-	}
-
-	public String getTestUuid() {
-		return testUuid;
-	}
-
-	public void setTestUuid(String testUuid) {
-		this.testUuid = testUuid;
-	}
-
-	public String getClientUuid() {
-		return clientUuid;
-	}
-
-	public void setClientUuid(String clientUuid) {
-		this.clientUuid = clientUuid;
-	}
-
-	public Long getUid() {
-		return uid;
-	}
-
-	public void setUid(Long uid) {
-		this.uid = uid;
-	}
-
-	public String getLoopUuid() {
-		return loopUuid;
-	}
-
-	public void setLoopUuid(String loopUuid) {
-		this.loopUuid = loopUuid;
-	}
-
-	@Override
-	public String toString() {
-		return "LoopModeSettings [uid=" + uid + ", testUuid=" + testUuid + ", clientUuid=" + clientUuid + ", maxDelay="
-				+ maxDelay + ", maxMovement=" + maxMovement + ", maxTests=" + maxTests + ", testCounter=" + testCounter
-				+ "]";
-	}
+    override fun toString(): String =
+        "LoopModeSettings [uid=$uid, testUuid=$testUuid, clientUuid=$clientUuid, maxDelay=$maxDelay, " +
+            "maxMovement=$maxMovement, maxTests=$maxTests, testCounter=$testCounter]"
 }

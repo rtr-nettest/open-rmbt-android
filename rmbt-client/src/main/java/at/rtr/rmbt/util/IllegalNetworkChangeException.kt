@@ -1,9 +1,3 @@
-package at.rtr.rmbt.util;
+package at.rtr.rmbt.util
 
-public class IllegalNetworkChangeException extends Exception {
-
-    public IllegalNetworkChangeException(String message) {
-        super(message);
-    }
-
-}
+class IllegalNetworkChangeException(message: String) : Exception(message)

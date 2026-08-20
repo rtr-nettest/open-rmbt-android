@@ -13,404 +13,332 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client;
+ */
+package at.rtr.rmbt.client
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import at.rtr.rmbt.client.helper.Config;
-import at.rtr.rmbt.client.v2.task.AbstractQoSTask;
-import at.rtr.rmbt.client.v2.task.DnsTask;
-import at.rtr.rmbt.client.v2.task.HttpProxyTask;
-import at.rtr.rmbt.client.v2.task.NonTransparentProxyTask;
-import at.rtr.rmbt.client.v2.task.QoSControlConnection;
-import at.rtr.rmbt.client.v2.task.QoSTestEnum;
-import at.rtr.rmbt.client.v2.task.QoSTestErrorEnum;
-import at.rtr.rmbt.client.v2.task.TaskDesc;
-import at.rtr.rmbt.client.v2.task.TcpTask;
-import at.rtr.rmbt.client.v2.task.TracerouteTask;
-import at.rtr.rmbt.client.v2.task.UdpTask;
-import at.rtr.rmbt.client.v2.task.VoipTask;
-import at.rtr.rmbt.client.v2.task.WebsiteTask;
-import at.rtr.rmbt.client.v2.task.result.QoSResultCollector;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
-import at.rtr.rmbt.client.v2.task.service.TestProgressListener.TestProgressEvent;
-import at.rtr.rmbt.client.v2.task.service.TestSettings;
-import at.rtr.rmbt.client.v2.task.service.TrafficService;
+import at.rtr.rmbt.client.helper.Config
+import at.rtr.rmbt.client.v2.task.AbstractQoSTask
+import at.rtr.rmbt.client.v2.task.DnsTask
+import at.rtr.rmbt.client.v2.task.HttpProxyTask
+import at.rtr.rmbt.client.v2.task.NonTransparentProxyTask
+import at.rtr.rmbt.client.v2.task.QoSControlConnection
+import at.rtr.rmbt.client.v2.task.QoSTestEnum
+import at.rtr.rmbt.client.v2.task.QoSTestErrorEnum
+import at.rtr.rmbt.client.v2.task.TaskDesc
+import at.rtr.rmbt.client.v2.task.TcpTask
+import at.rtr.rmbt.client.v2.task.TracerouteTask
+import at.rtr.rmbt.client.v2.task.UdpTask
+import at.rtr.rmbt.client.v2.task.VoipTask
+import at.rtr.rmbt.client.v2.task.WebsiteTask
+import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
+import at.rtr.rmbt.client.v2.task.result.QoSTestResult
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.rtr.rmbt.client.v2.task.service.TestProgressListener.TestProgressEvent
+import at.rtr.rmbt.client.v2.task.service.TestSettings
+import at.rtr.rmbt.client.v2.task.service.TrafficService
+import java.util.TreeMap
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorCompletionService
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author lb
  */
-public class QualityOfServiceTest implements Callable<QoSResultCollector> {
+open class QualityOfServiceTest : Callable<QoSResultCollector> {
 
-    private final RMBTClient client;
+    protected val client: RMBTClient
 
-    private final AtomicInteger progress = new AtomicInteger();
-    private final AtomicInteger testCount = new AtomicInteger();
-    private final AtomicInteger concurrentGroupCount = new AtomicInteger();
-    private final AtomicReference<QoSTestEnum> status = new AtomicReference<QoSTestEnum>();
-    private final AtomicReference<QoSTestErrorEnum> errorStatus = new AtomicReference<QoSTestErrorEnum>(QoSTestErrorEnum.NONE);
+    protected val progressCounter = AtomicInteger()
+    protected val testCountValue = AtomicInteger()
+    protected val concurrentGroupCounter = AtomicInteger()
+    protected val statusRef = AtomicReference<QoSTestEnum>()
+    protected val errorStatusRef = AtomicReference(QoSTestErrorEnum.NONE)
 
-    private final ExecutorService executor;
-    private final ExecutorCompletionService<QoSTestResult> executorService;
+    protected var executor: ExecutorService? = null
+    protected var executorService: ExecutorCompletionService<QoSTestResult>? = null
 
-    private final TestSettings qoSTestSettings;
+    protected val qoSTestSettings: TestSettings?
 
-    final TreeMap<Integer, List<AbstractQoSTask>> concurrentTasks = new TreeMap<Integer, List<AbstractQoSTask>>();
-    final TreeMap<QoSTestResultEnum, List<AbstractQoSTask>> testMap = new TreeMap<QoSTestResultEnum, List<AbstractQoSTask>>();
-    final TreeMap<String, QoSControlConnection> controlConnectionMap = new TreeMap<String, QoSControlConnection>();
-    private boolean onlyVoipTest = false;
+    protected val concurrentTasks = TreeMap<Int, MutableList<AbstractQoSTask>>()
+    protected val testMapBacking = TreeMap<QoSTestResultEnum, MutableList<AbstractQoSTask>>()
+    protected val controlConnectionMap = TreeMap<String, QoSControlConnection>()
+    private var onlyVoipTest = false
 
-    private TreeMap<QoSTestResultEnum, Counter> testGroupCounterMap = new TreeMap<QoSTestResultEnum, Counter>();
+    protected val testGroupCounterMapBacking = TreeMap<QoSTestResultEnum, Counter>()
+
+    // Kotlin-property views over the backing fields (Java sees getProgress()/getStatus()/… etc.)
+    val progress: Int
+        get() = progressCounter.get()
+
+    val testSize: Int
+        get() = testCountValue.get()
+
+    var status: QoSTestEnum?
+        get() = statusRef.get()
+        set(value) {
+            statusRef.set(value)
+        }
+
+    val testMap: TreeMap<QoSTestResultEnum, MutableList<AbstractQoSTask>>
+        get() = testMapBacking
+
+    val testGroupCounterMap: Map<QoSTestResultEnum, Counter>
+        get() = testGroupCounterMapBacking
 
     /**
      * Only for purposes of inheritance
      */
-    protected QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings, boolean onlyVoipTest) {
-        this.client = client;
-        this.onlyVoipTest = onlyVoipTest;
-        this.qoSTestSettings = nnTestSettings;
-        this.executor = null;
-        this.executorService = null;
+    protected constructor(client: RMBTClient, nnTestSettings: TestSettings?, onlyVoipTest: Boolean) {
+        this.client = client
+        this.onlyVoipTest = onlyVoipTest
+        this.qoSTestSettings = nnTestSettings
     }
 
-    public QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings) {
-        System.out.println("\n\n---- Initializing QoS Tests ----\n");
-        this.client = client;
-        executor = Executors.newFixedThreadPool(client.getTaskDescList().size());
-        executorService = new ExecutorCompletionService<QoSTestResult>(executor);
-        status.set(QoSTestEnum.START);
-        testCount.set(client.getTaskDescList().size());
-        this.qoSTestSettings = nnTestSettings;
+    constructor(client: RMBTClient, nnTestSettings: TestSettings?) {
+        println("\n\n---- Initializing QoS Tests ----\n")
+        this.client = client
+        val exec = Executors.newFixedThreadPool(client.taskDescList!!.size)
+        executor = exec
+        executorService = ExecutorCompletionService(exec)
+        statusRef.set(QoSTestEnum.START)
+        testCountValue.set(client.taskDescList!!.size)
+        this.qoSTestSettings = nnTestSettings
 
-        int threadCounter = 0;
+        var threadCounter = 0
 
-        for (TaskDesc taskDesc : client.getTaskDescList()) {
-            String taskId = (String) taskDesc.getParams().get(TaskDesc.QOS_TEST_IDENTIFIER_KEY);
-            AbstractQoSTask test = null;
+        for (taskDesc in client.taskDescList!!) {
+            val taskId = taskDesc.getParams()[TaskDesc.QOS_TEST_IDENTIFIER_KEY] as String?
+            var test: AbstractQoSTask? = null
 
-            if (RMBTClient.TASK_HTTP.equals(taskId)) {
-                test = new HttpProxyTask(this, taskDesc, threadCounter++);
-            } else if (RMBTClient.TASK_NON_TRANSPARENT_PROXY.equals(taskId)) {
-                test = new NonTransparentProxyTask(this, taskDesc, threadCounter++);
-            } else if (RMBTClient.TASK_DNS.equals(taskId)) {
-                //Android O - if dns servers are set and default dns servers should be used - use these
-                if (taskDesc.getParams().get(DnsTask.PARAM_DNS_RESOLVER) == null && nnTestSettings.getDefaultDnsResolvers().size() > 0) {
-                    taskDesc.getParams().put(DnsTask.PARAM_DNS_RESOLVER, nnTestSettings.getDefaultDnsResolvers().get(0).getHostAddress());
+            if (RMBTClient.TASK_HTTP == taskId) {
+                test = HttpProxyTask(this, taskDesc, threadCounter++)
+            } else if (RMBTClient.TASK_NON_TRANSPARENT_PROXY == taskId) {
+                test = NonTransparentProxyTask(this, taskDesc, threadCounter++)
+            } else if (RMBTClient.TASK_DNS == taskId) {
+                // Android O - if dns servers are set and default dns servers should be used - use these
+                if (taskDesc.getParams()[DnsTask.PARAM_DNS_RESOLVER] == null && (nnTestSettings?.defaultDnsResolvers?.size ?: 0) > 0) {
+                    taskDesc.getParams()[DnsTask.PARAM_DNS_RESOLVER] = nnTestSettings!!.defaultDnsResolvers!![0].hostAddress
                 }
-                test = new DnsTask(this, taskDesc, threadCounter++);
-            } else if (RMBTClient.TASK_TCP.equals(taskId)) {
-                test = new TcpTask(this, taskDesc, threadCounter++);
-            } else if (RMBTClient.TASK_UDP.equals(taskId)) {
-                test = new UdpTask(this, taskDesc, threadCounter++);
-            } else if (RMBTClient.TASK_VOIP.equals(taskId)) {
-                test = new VoipTask(this, taskDesc, threadCounter++, null, false);
-            } else if (RMBTClient.TASK_TRACEROUTE.equals(taskId)) {
-                if (nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
-                    test = new TracerouteTask(this, taskDesc, threadCounter++, false);
+                test = DnsTask(this, taskDesc, threadCounter++)
+            } else if (RMBTClient.TASK_TCP == taskId) {
+                test = TcpTask(this, taskDesc, threadCounter++)
+            } else if (RMBTClient.TASK_UDP == taskId) {
+                test = UdpTask(this, taskDesc, threadCounter++)
+            } else if (RMBTClient.TASK_VOIP == taskId) {
+                test = VoipTask(this, taskDesc, threadCounter++, null, false)
+            } else if (RMBTClient.TASK_TRACEROUTE == taskId) {
+                if (nnTestSettings != null && nnTestSettings.tracerouteServiceClazz != null) {
+                    test = TracerouteTask(this, taskDesc, threadCounter++, false)
                 } else {
-                    System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
+                    println("No TracerouteService implementation: Skipping TracerouteTask: $taskDesc")
                 }
-            } else if (RMBTClient.TASK_TRACEROUTE_MASKED.equals(taskId)) {
-                final boolean TraceRouteMaskedAvailable = true; // enable service
-                if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
-                    test = new TracerouteTask(this, taskDesc, threadCounter++, true);
+            } else if (RMBTClient.TASK_TRACEROUTE_MASKED == taskId) {
+                val traceRouteMaskedAvailable = true // enable service
+                if (traceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.tracerouteServiceClazz != null) {
+                    test = TracerouteTask(this, taskDesc, threadCounter++, true)
                 } else {
-                    System.out.println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: " + taskDesc);
+                    println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: $taskDesc")
                 }
-            } else if (RMBTClient.TASK_WEBSITE.equals(taskId)) {
-                if (nnTestSettings != null && nnTestSettings.getWebsiteTestService() != null) {
-                    test = new WebsiteTask(this, taskDesc, threadCounter++);
+            } else if (RMBTClient.TASK_WEBSITE == taskId) {
+                if (nnTestSettings != null && nnTestSettings.websiteTestService != null) {
+                    test = WebsiteTask(this, taskDesc, threadCounter++)
                 } else {
-                    System.out.println("No WebsiteTestService implementation: Skipping WebsiteTask: " + taskDesc);
+                    println("No WebsiteTestService implementation: Skipping WebsiteTask: $taskDesc")
                 }
             }
 
             if (test != null) {
-                //manage taskMap:
-                List<AbstractQoSTask> testList = null;
-                testList = testMap.get(test.getTestType());
+                // manage taskMap:
+                var testList = testMapBacking[test.getTestType()]
                 if (testList == null) {
-                    testList = new ArrayList<AbstractQoSTask>();
-                    testMap.put(test.getTestType(), testList);
+                    testList = ArrayList()
+                    testMapBacking[test.getTestType()] = testList
                 }
-                testList.add(test);
+                testList.add(test)
 
-                Counter testTypeCounter;
-
-                if (testGroupCounterMap.containsKey(test.getTestType())) {
-                    testTypeCounter = testGroupCounterMap.get(test.getTestType());
-                    testTypeCounter.increaseCounter(test.getConcurrencyGroup());
+                val testTypeCounter: Counter
+                if (testGroupCounterMapBacking.containsKey(test.getTestType())) {
+                    testTypeCounter = testGroupCounterMapBacking[test.getTestType()]!!
+                    testTypeCounter.increaseCounter(test.getConcurrencyGroup())
                 } else {
-                    testTypeCounter = new Counter(test.getTestType(), 1, test.getConcurrencyGroup());
-                    testGroupCounterMap.put(test.getTestType(), testTypeCounter);
+                    testTypeCounter = Counter(test.getTestType(), 1, test.getConcurrencyGroup())
+                    testGroupCounterMapBacking[test.getTestType()] = testTypeCounter
                 }
 
-                //manage concurrent test groups
-                List<AbstractQoSTask> tasks = null;
+                // manage concurrent test groups
+                var tasks = concurrentTasks[test.getConcurrencyGroup()]
+                if (tasks == null) {
+                    tasks = ArrayList()
+                    concurrentTasks[test.getConcurrencyGroup()] = tasks
+                }
+                tasks.add(test)
 
-                if (concurrentTasks.containsKey(test.getConcurrencyGroup())) {
-                    tasks = concurrentTasks.get(test.getConcurrencyGroup());
-                } else {
-                    tasks = new ArrayList<AbstractQoSTask>();
-                    concurrentTasks.put(test.getConcurrencyGroup(), tasks);
+                val serverAddr = test.getTestServerAddr()!!
+                if (!controlConnectionMap.containsKey(serverAddr)) {
+                    val params = RMBTTestParameter(
+                        serverAddr, test.getTestServerPort(),
+                        nnTestSettings!!.isUseSsl, test.getTaskDesc().token,
+                        test.getTaskDesc().duration, test.getTaskDesc().numThreads,
+                        test.getTaskDesc().numPings, test.getTaskDesc().startTime, Config.SERVER_TYPE_QOS
+                    )
+                    controlConnectionMap[serverAddr] = QoSControlConnection(getRMBTClient(), params)
                 }
 
-                if (tasks != null) {
-                    tasks.add(test);
-                }
-
-                if (!controlConnectionMap.containsKey(test.getTestServerAddr())) {
-                    RMBTTestParameter params = new RMBTTestParameter(test.getTestServerAddr(), test.getTestServerPort(),
-                            nnTestSettings.isUseSsl(), test.getTaskDesc().getToken(),
-                            test.getTaskDesc().getDuration(), test.getTaskDesc().getNumThreads(),
-                            test.getTaskDesc().getNumPings(), test.getTaskDesc().getStartTime(), Config.SERVER_TYPE_QOS);
-                    controlConnectionMap.put(test.getTestServerAddr(), new QoSControlConnection(getRMBTClient(), params));
-                }
-
-                //check if qos test need test server
+                // check if qos test need test server
                 if (test.needsQoSControlConnection()) {
-                    test.setControlConnection(controlConnectionMap.get(test.getTestServerAddr()));
-                    controlConnectionMap.get(test.getTestServerAddr()).getConcurrencyGroupSet().add(test.getConcurrencyGroup());
+                    test.setControlConnection(controlConnectionMap[serverAddr])
+                    controlConnectionMap[serverAddr]!!.concurrencyGroupSet.add(test.getConcurrencyGroup())
                 }
             }
         }
 
-        if (qoSTestSettings != null) {
-            qoSTestSettings.dispatchTestProgressEvent(TestProgressEvent.ON_CREATED, null, this);
-        }
+        qoSTestSettings?.dispatchTestProgressEvent(TestProgressEvent.ON_CREATED, null, this)
     }
 
-    /**
-     *
-     */
-    public QoSResultCollector call() throws Exception {
-        status.set(QoSTestEnum.QOS_RUNNING);
-        QoSResultCollector result = new QoSResultCollector();
+    override fun call(): QoSResultCollector {
+        statusRef.set(QoSTestEnum.QOS_RUNNING)
+        val result = QoSResultCollector()
 
-        final int testSize = testCount.get();
+        val testSize = testCountValue.get()
 
-        int trafficServiceStatus = TrafficService.SERVICE_NOT_SUPPORTED;
+        var trafficServiceStatus = TrafficService.SERVICE_NOT_SUPPORTED
 
-        if (qoSTestSettings != null && qoSTestSettings.getTrafficService() != null) {
-            trafficServiceStatus = qoSTestSettings.getTrafficService().start();
+        if (qoSTestSettings?.trafficService != null) {
+            trafficServiceStatus = qoSTestSettings.trafficService!!.start()
         }
 
-        Iterator<Integer> groupIterator = concurrentTasks.keySet().iterator();
-        while (groupIterator.hasNext() && !status.get().equals(QoSTestEnum.ERROR)) {
-            final int groupId = groupIterator.next();
-            concurrentGroupCount.set(groupId);
+        val groupIterator = concurrentTasks.keys.iterator()
+        while (groupIterator.hasNext() && statusRef.get() != QoSTestEnum.ERROR) {
+            val groupId = groupIterator.next()
+            concurrentGroupCounter.set(groupId)
 
-            //check if a qos control server connection needs to be initialized:
-            openControlConnections(groupId);
+            // check if a qos control server connection needs to be initialized:
+            openControlConnections(groupId)
 
-            if (status.get().equals(QoSTestEnum.ERROR)) {
-                break;
+            if (statusRef.get() == QoSTestEnum.ERROR) {
+                break
             }
 
-            List<AbstractQoSTask> tasks = concurrentTasks.get(groupId);
-            for (AbstractQoSTask task : tasks) {
-                executorService.submit(task);
+            val tasks = concurrentTasks[groupId]!!
+            for (task in tasks) {
+                executorService!!.submit(task)
             }
 
-            for (int i = 0; i < tasks.size(); i++) {
+            for (i in tasks.indices) {
                 try {
-                    Future<QoSTestResult> testResult = executorService.take();
+                    val testResult = executorService!!.take()
                     if (testResult != null) {
-                        QoSTestResult curResult = testResult.get();
+                        val curResult = testResult.get()
 
-                        if (curResult.isFatalError()) {
-                            throw new InterruptedException("interrupted due to test fatal error: " + curResult.toString());
+                        if (curResult.isFatalError) {
+                            throw InterruptedException("interrupted due to test fatal error: $curResult")
                         }
 
-                        if (!curResult.getQosTask().hasConnectionError()) {
-                            result.getResults().add(curResult);
+                        if (!curResult.qosTask.hasConnectionError()) {
+                            result.results.add(curResult)
                         } else {
-                            System.out.println("test: " + curResult.getTestType().name() + " failed. Could not connect to QoSControlServer.");
+                            println("test: " + curResult.testType.name + " failed. Could not connect to QoSControlServer.")
                         }
-                        System.out.println("test " + curResult.getTestType().name() + " finished (" + (progress.get() + 1) + " out of " +
-                                testSize + ", CONCURRENCY GROUP=" + groupId + ")");
-                        Counter testTypeCounter = testGroupCounterMap.get(curResult.getTestType());
+                        println(
+                            "test " + curResult.testType.name + " finished (" + (progressCounter.get() + 1) + " out of " +
+                                testSize + ", CONCURRENCY GROUP=" + groupId + ")"
+                        )
+                        val testTypeCounter = testGroupCounterMapBacking[curResult.testType]
                         if (testTypeCounter != null) {
-                            testTypeCounter.value++;
+                            testTypeCounter.value++
                         }
                     }
-
-                } catch (InterruptedException e) {
-                    executor.shutdownNow();
-                    e.printStackTrace();
-                    status.set(QoSTestEnum.ERROR);
-                    break;
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (e: InterruptedException) {
+                    executor!!.shutdownNow()
+                    e.printStackTrace()
+                    statusRef.set(QoSTestEnum.ERROR)
+                    break
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 } finally {
-                    progress.incrementAndGet();
+                    progressCounter.incrementAndGet()
                 }
             }
 
-            closeControlConnections(groupId);
+            closeControlConnections(groupId)
         }
 
-        if (status.get().equals(QoSTestEnum.ERROR)) {
-            progress.set(testCount.get());
+        if (statusRef.get() == QoSTestEnum.ERROR) {
+            progressCounter.set(testCountValue.get())
         }
 
         if (trafficServiceStatus != TrafficService.SERVICE_NOT_SUPPORTED) {
-            qoSTestSettings.getTrafficService().stop();
-            System.out.println("TRAFFIC SERVICE: Tx Bytes = " + qoSTestSettings.getTrafficService().getTxBytes()
-                    + ", Rx Bytes = " + qoSTestSettings.getTrafficService().getRxBytes());
+            qoSTestSettings!!.trafficService!!.stop()
+            println(
+                "TRAFFIC SERVICE: Tx Bytes = " + qoSTestSettings.trafficService!!.getTxBytes() +
+                    ", Rx Bytes = " + qoSTestSettings.trafficService!!.getRxBytes()
+            )
         }
 
-        if (status.get() != QoSTestEnum.ERROR) {
-            status.set(QoSTestEnum.QOS_FINISHED);
+        if (statusRef.get() != QoSTestEnum.ERROR) {
+            statusRef.set(QoSTestEnum.QOS_FINISHED)
         }
 
-        if (executor != null)
-            executor.shutdownNow();
+        executor?.shutdownNow()
 
-        return result;
+        return result
     }
 
-    /**
-     * @return
-     */
-    public int getProgress() {
-        final int progress = this.progress.get();
-        return progress;
+    fun getErrorStatus(): QoSTestErrorEnum = errorStatusRef.get()
+
+    fun setErrorStatus(newStatus: QoSTestErrorEnum) {
+        errorStatusRef.set(newStatus)
     }
 
-    /**
-     * @return
-     */
-    public int getTestSize() {
-        final int testSize = this.testCount.get();
-        return testSize;
+    fun getCurrentConcurrentGroup(): Int = concurrentGroupCounter.get()
+
+    fun getTestSettings(): TestSettings? = qoSTestSettings
+
+    open fun getRMBTClient(): RMBTClient = client
+
+    @Synchronized
+    open fun interrupt() {
+        executor?.shutdownNow()
+        // Tear down any open QoS control connections so their blocking reader threads/sockets don't
+        // leak when the QoS phase is abandoned (e.g. skipped because the server is unresponsive).
+        controlConnectionMap.values.forEach { runCatching { it.interrupt() } }
     }
 
-    /**
-     * @return
-     */
-    public QoSTestEnum getStatus() {
-        final QoSTestEnum status = this.status.get();
-        return status;
+    protected open fun finalize() {
+        executor?.shutdownNow()
     }
 
-    /**
-     * @param newStatus
-     */
-    public void setStatus(QoSTestEnum newStatus) {
-        this.status.set(newStatus);
+    protected fun openControlConnections(concurrencyGroup: Int) {
+        manageControlConnections(concurrencyGroup, true)
     }
 
-    /**
-     * @return
-     */
-    public QoSTestErrorEnum getErrorStatus() {
-        final QoSTestErrorEnum status = this.errorStatus.get();
-        return status;
+    protected fun closeControlConnections(concurrencyGroup: Int) {
+        manageControlConnections(concurrencyGroup, false)
     }
 
-    /**
-     * @param newStatus
-     */
-    public void setErrorStatus(QoSTestErrorEnum newStatus) {
-        this.errorStatus.set(newStatus);
-    }
-
-    /**
-     * @return
-     */
-    public int getCurrentConcurrentGroup() {
-        final int currentGroupCount = this.concurrentGroupCount.get();
-        return currentGroupCount;
-    }
-
-    /**
-     * @return
-     */
-    public Map<QoSTestResultEnum, Counter> getTestGroupCounterMap() {
-        return testGroupCounterMap;
-    }
-
-    /**
-     * @return
-     */
-    public TestSettings getTestSettings() {
-        return qoSTestSettings;
-    }
-
-    /**
-     * @return
-     */
-    public RMBTClient getRMBTClient() {
-        return client;
-    }
-
-    /**
-     * @return
-     */
-    public TreeMap<QoSTestResultEnum, List<AbstractQoSTask>> getTestMap() {
-        return testMap;
-    }
-
-    /**
-     * @return
-     */
-    public synchronized void interrupt() {
-        if (executor != null)
-            executor.shutdownNow();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        if (executor != null)
-            executor.shutdownNow();
-    }
-
-    private void openControlConnections(int concurrencyGroup) {
-        manageControlConnections(concurrencyGroup, true);
-    }
-
-    private void closeControlConnections(int concurrencyGroup) {
-        manageControlConnections(concurrencyGroup, false);
-    }
-
-    private void manageControlConnections(int concurrencyGroup, boolean openAll) {
-        Iterator<QoSControlConnection> iterator = controlConnectionMap.values().iterator();
+    private fun manageControlConnections(concurrencyGroup: Int, openAll: Boolean) {
+        val iterator = controlConnectionMap.values.iterator()
         while (iterator.hasNext()) {
-            final QoSControlConnection controlConnection = iterator.next();
+            val controlConnection = iterator.next()
 
             try {
-                if (controlConnection.getConcurrencyGroupSet().size() > 0) {
+                if (controlConnection.concurrencyGroupSet.size > 0) {
                     if (openAll) {
-                        if (controlConnection.getConcurrencyGroupSet().first() == concurrencyGroup) {
-                            controlConnection.connect();
-                            RMBTClient.getCommonThreadPool().execute(controlConnection);
+                        if (controlConnection.concurrencyGroupSet.first() == concurrencyGroup) {
+                            controlConnection.connect()
+                            RMBTClient.getCommonThreadPool().execute(controlConnection)
                         }
                     } else {
-                        if (controlConnection.getConcurrencyGroupSet().last() == concurrencyGroup) {
-                            controlConnection.close();
+                        if (controlConnection.concurrencyGroupSet.last() == concurrencyGroup) {
+                            controlConnection.close()
                         }
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-//    			executor.shutdownNow();
-//				status.set(QoSTestEnum.ERROR);
-//				break;
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -418,32 +346,22 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
     /**
      * @author lb
      */
-    public final class Counter {
-        public QoSTestResultEnum testType;
-        public int value;
-        public int target;
-        public int firstTest;
-        public int lastTest;
+    class Counter(var testType: QoSTestResultEnum, target: Int, concurrencyGroup: Int) {
+        var value: Int = 0
 
-        public Counter(QoSTestResultEnum testType, int target, int concurrencyGroup) {
-            this.testType = testType;
-            this.value = 0;
-            this.target = target;
-            this.firstTest = concurrencyGroup;
-            this.lastTest = concurrencyGroup;
+        var target: Int = target
+
+        var firstTest: Int = concurrencyGroup
+
+        var lastTest: Int = concurrencyGroup
+
+        fun increaseCounter(concurrencyGroup: Int) {
+            this.target++
+            lastTest = if (concurrencyGroup > lastTest) concurrencyGroup else lastTest
+            firstTest = if (concurrencyGroup < firstTest) concurrencyGroup else firstTest
         }
 
-        public void increaseCounter(int concurrencyGroup) {
-            this.target++;
-            lastTest = concurrencyGroup > lastTest ? concurrencyGroup : lastTest;
-            firstTest = concurrencyGroup < firstTest ? concurrencyGroup : firstTest;
-        }
-
-        @Override
-        public String toString() {
-            return "Counter [testType=" + testType + ", value=" + value
-                    + ", target=" + target + ", firstTest=" + firstTest
-                    + ", lastTest=" + lastTest + "]";
-        }
+        override fun toString(): String =
+            "Counter [testType=$testType, value=$value, target=$target, firstTest=$firstTest, lastTest=$lastTest]"
     }
 }

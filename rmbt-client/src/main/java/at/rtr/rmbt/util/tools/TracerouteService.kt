@@ -13,44 +13,34 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.tools;
+ */
+package at.rtr.rmbt.util.tools
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Callable;
+import org.json.JSONObject
+import java.io.IOException
+import java.util.concurrent.Callable
 
-import org.json.JSONObject;
+interface TracerouteService : Callable<List<TracerouteService.HopDetail>> {
 
-import at.rtr.rmbt.util.tools.TracerouteService.HopDetail;
+    class PingException(msg: String) : IOException(msg) {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 
-public interface TracerouteService extends Callable<List<HopDetail>> {
+    interface HopDetail {
+        fun toJson(masked: Boolean?): JSONObject?
+    }
 
-	public static final class PingException extends IOException {
-		
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
+    fun getHost(): String?
 
-		public PingException(String msg) {
-			super(msg);
-		}
-	}
-	
-	public interface HopDetail {
-		public JSONObject toJson(Boolean masked);
-	}
-	
-	public String getHost();
+    fun setHost(host: String?)
 
-	public void setHost(String host);
-	
-	public void setResultListObject(List<HopDetail> resultList);
+    fun setResultListObject(resultList: List<HopDetail>?)
 
-	public int getMaxHops();
+    fun getMaxHops(): Int
 
-	public void setMaxHops(int maxHops);
-	
-	public boolean hasMaxHopsExceeded();
+    fun setMaxHops(maxHops: Int)
+
+    fun hasMaxHopsExceeded(): Boolean
 }

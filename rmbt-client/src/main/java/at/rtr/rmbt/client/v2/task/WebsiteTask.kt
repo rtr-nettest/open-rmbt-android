@@ -1,177 +1,139 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client.v2.task;
+ */
+package at.rtr.rmbt.client.v2.task
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import at.rtr.rmbt.client.QualityOfServiceTest;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
-import at.rtr.rmbt.client.v2.task.service.WebsiteTestService;
-import at.rtr.rmbt.client.v2.task.service.WebsiteTestService.RenderingListener;
+import at.rtr.rmbt.client.QualityOfServiceTest
+import at.rtr.rmbt.client.v2.task.result.QoSTestResult
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.rtr.rmbt.client.v2.task.service.WebsiteTestService
+import at.rtr.rmbt.client.v2.task.service.WebsiteTestService.RenderingListener
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
- * 
  * @author lb
- *
  */
-public class WebsiteTask extends AbstractQoSTask {
+class WebsiteTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
+    AbstractQoSTask(nnTest, taskDesc, threadId, threadId) {
 
-	private final WebsiteTestService testImpl;
-	
-	private final String url;
-	
-	private final long timeout;
-	
-	private final static long DEFAULT_TIMEOUT = 10000000000L;
-	
-	public final static String PARAM_URL = "url";
-	
-	public final static String PARAM_TIMEOUT = "timeout";
-	
-	public final static String RESULT_URL = "website_objective_url";
-	
-	public final static String RESULT_TIMEOUT = "website_objective_timeout";
-	
-	public final static String RESULT_DURATION = "website_result_duration";
-	
-	public final static String RESULT_STATUS = "website_result_status";
-	
-	public final static String RESULT_INFO = "website_result_info";
-	
-	public final static String RESULT_RX_BYTES = "website_result_rx_bytes";
-	
-	public final static String RESULT_TX_BYTES = "website_result_tx_bytes";
+    private val testImpl: WebsiteTestService
+    private val url: String?
+    private val timeout: Long
 
-	
-	/**
-	 * 
-	 * @param client
-	 * @param taskDesc
-	 * @param threadId
-	 */
-	public WebsiteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId, threadId);
-		this.testImpl = nnTest.getTestSettings().getWebsiteTestService().getInstance();
+    init {
+        this.testImpl = nnTest.getTestSettings()!!.websiteTestService!!.getInstance()
 
-		String value = (String) taskDesc.getParams().get(PARAM_URL);
-		this.url = value != null ? value : null;
+        var value = taskDesc.getParams()[PARAM_URL] as String?
+        this.url = value
 
-		value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
-	}
+        value = taskDesc.getParams()[PARAM_TIMEOUT] as String?
+        this.timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.util.concurrent.Callable#call()
-	 */
-	public QoSTestResult call() throws Exception {
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.WEBSITE);
-		try {
-			onStart(result);
-			
-			result.getResultMap().put(RESULT_URL, url);
-			result.getResultMap().put(RESULT_TIMEOUT, String.valueOf(timeout));
+    override fun call(): QoSTestResult {
+        val result = initQoSTestResult(QoSTestResultEnum.WEBSITE)
+        try {
+            onStart(result)
 
-			final CountDownLatch latch = new CountDownLatch(1);
-			
-			testImpl.setOnRenderingFinishedListener(new RenderingListener() {
-					
-				public boolean onTimeoutReached(WebsiteTestService test) {
-					System.out.println("WEBSITETEST timeout");
-					result.getResultMap().put(RESULT_STATUS, test.getStatusCode());
-					result.getResultMap().put(RESULT_INFO, "TIMEOUT");
-					//result.getResultMap().put(RESULT_DURATION, (test.getDownloadDuration() / 1000000));
-					result.getResultMap().put(RESULT_DURATION, test.getDownloadDuration());
-					result.getResultMap().put(RESULT_RX_BYTES, test.getRxBytes());
-					result.getResultMap().put(RESULT_TX_BYTES, test.getTxBytes());
-					latch.countDown();
-					return true;
-				}
-					
-				public void onRenderFinished(WebsiteTestService test) {
-					System.out.println("WEBSITETEST finished");
-					result.getResultMap().put(RESULT_STATUS, test.getStatusCode());
-					result.getResultMap().put(RESULT_INFO, "OK");
-					//result.getResultMap().put(RESULT_DURATION, (test.getDownloadDuration() / 1000000));
-					result.getResultMap().put(RESULT_DURATION, test.getDownloadDuration());
-					result.getResultMap().put(RESULT_RX_BYTES, test.getRxBytes());
-					result.getResultMap().put(RESULT_TX_BYTES, test.getTxBytes());
-					latch.countDown();
-				}
-					
-				public void onDownloadStarted(WebsiteTestService test) {
-					//nothing to do?
-				}
+            result.resultMap[RESULT_URL] = url
+            result.resultMap[RESULT_TIMEOUT] = timeout.toString()
 
-				public boolean onError(WebsiteTestService test) {
-					System.out.println("WEBSITETEST Error");
-					result.getResultMap().put(RESULT_STATUS, test.getStatusCode());
-					result.getResultMap().put(RESULT_INFO, "ERROR");
-					//result.getResultMap().put(RESULT_DURATION, (test.getDownloadDuration() / 1000000));
-					result.getResultMap().put(RESULT_DURATION, test.getDownloadDuration());
-					result.getResultMap().put(RESULT_RX_BYTES, test.getRxBytes());
-					result.getResultMap().put(RESULT_TX_BYTES, test.getTxBytes());
-					latch.countDown();
-					return true;
-				}
-			});
-			
-			System.out.println("Starting WEBSITETASK");
-				
-			testImpl.run(url, (int)(timeout/1000000));			
-			latch.await(timeout, TimeUnit.NANOSECONDS);
-			
-			System.out.println("Stopping WEBSITETASK");
-			
-			return result;
-		}
-		catch (Exception e) {
-			throw e;
-		}
-		finally {
-			onEnd(result);
-		}
-	}
+            val latch = CountDownLatch(1)
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.AbstractQoSTask#initTask()
-	 */
-	@Override
-	public void initTask() {
-		// TODO Auto-generated method stub
-		
-	}
+            testImpl.setOnRenderingFinishedListener(object : RenderingListener {
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
-	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.WEBSITE;
-	}
+                override fun onTimeoutReached(test: WebsiteTestService): Boolean {
+                    println("WEBSITETEST timeout")
+                    result.resultMap[RESULT_STATUS] = test.getStatusCode()
+                    result.resultMap[RESULT_INFO] = "TIMEOUT"
+                    result.resultMap[RESULT_DURATION] = test.getDownloadDuration()
+                    result.resultMap[RESULT_RX_BYTES] = test.getRxBytes()
+                    result.resultMap[RESULT_TX_BYTES] = test.getTxBytes()
+                    latch.countDown()
+                    return true
+                }
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
-	 */
-	public boolean needsQoSControlConnection() {
-		return false;
-	}
+                override fun onRenderFinished(test: WebsiteTestService) {
+                    println("WEBSITETEST finished")
+                    result.resultMap[RESULT_STATUS] = test.getStatusCode()
+                    result.resultMap[RESULT_INFO] = "OK"
+                    result.resultMap[RESULT_DURATION] = test.getDownloadDuration()
+                    result.resultMap[RESULT_RX_BYTES] = test.getRxBytes()
+                    result.resultMap[RESULT_TX_BYTES] = test.getTxBytes()
+                    latch.countDown()
+                }
+
+                override fun onDownloadStarted(test: WebsiteTestService) {
+                    // nothing to do?
+                }
+
+                override fun onError(test: WebsiteTestService): Boolean {
+                    println("WEBSITETEST Error")
+                    result.resultMap[RESULT_STATUS] = test.getStatusCode()
+                    result.resultMap[RESULT_INFO] = "ERROR"
+                    result.resultMap[RESULT_DURATION] = test.getDownloadDuration()
+                    result.resultMap[RESULT_RX_BYTES] = test.getRxBytes()
+                    result.resultMap[RESULT_TX_BYTES] = test.getTxBytes()
+                    latch.countDown()
+                    return true
+                }
+            })
+
+            println("Starting WEBSITETASK")
+
+            testImpl.run(url, (timeout / 1000000).toInt().toLong())
+            latch.await(timeout, TimeUnit.NANOSECONDS)
+
+            println("Stopping WEBSITETASK")
+
+            return result
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            onEnd(result)
+        }
+    }
+
+    override fun initTask() {
+    }
+
+    override fun getTestType(): QoSTestResultEnum = QoSTestResultEnum.WEBSITE
+
+    override fun needsQoSControlConnection(): Boolean = false
+
+    companion object {
+        private const val DEFAULT_TIMEOUT = 10000000000L
+
+        const val PARAM_URL = "url"
+
+        const val PARAM_TIMEOUT = "timeout"
+
+        const val RESULT_URL = "website_objective_url"
+
+        const val RESULT_TIMEOUT = "website_objective_timeout"
+
+        const val RESULT_DURATION = "website_result_duration"
+
+        const val RESULT_STATUS = "website_result_status"
+
+        const val RESULT_INFO = "website_result_info"
+
+        const val RESULT_RX_BYTES = "website_result_rx_bytes"
+
+        const val RESULT_TX_BYTES = "website_result_tx_bytes"
+    }
 }

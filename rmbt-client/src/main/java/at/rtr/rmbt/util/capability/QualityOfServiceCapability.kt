@@ -13,32 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.capability;
+ */
+package at.rtr.rmbt.util.capability
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class QualityOfServiceCapability {
-	
-	public static boolean DEFAULT_QOS_SUPPORTS_INFO = false;
+class QualityOfServiceCapability {
 
-	@SerializedName("supports_info")
-	public boolean supportsInfo = DEFAULT_QOS_SUPPORTS_INFO;
+    /**
+     * if true the third state (=INFO) is supported
+     */
+    @SerializedName("supports_info")
+    var isSupportsInfo = DEFAULT_QOS_SUPPORTS_INFO
 
-	/**
-	 * if true the third state (=INFO) is supported
-	 * @return
-	 */
-	public boolean isSupportsInfo() {
-		return supportsInfo;
-	}
+    override fun toString(): String = "QualityOfServiceCapability [supportsInfo=$isSupportsInfo]"
 
-	public void setSupportsInfo(boolean supportsInfo) {
-		this.supportsInfo = supportsInfo;
-	}
-
-	@Override
-	public String toString() {
-		return "QualityOfServiceCapability [supportsInfo=" + supportsInfo + "]";
-	}
+    companion object {
+        var DEFAULT_QOS_SUPPORTS_INFO = false
+    }
 }

@@ -13,163 +13,116 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.client.v2.task;
+ */
+package at.rtr.rmbt.client.v2.task
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import at.rtr.rmbt.client.AbstractRMBTTest;
-import at.rtr.rmbt.client.RMBTClient;
-import at.rtr.rmbt.client.RMBTTestParameter;
+import at.rtr.rmbt.client.AbstractRMBTTest
+import at.rtr.rmbt.client.RMBTClient
+import at.rtr.rmbt.client.RMBTTestParameter
+import java.io.IOException
+import java.net.InetAddress
+import java.net.Socket
+import java.util.TreeSet
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.regex.Pattern
 
 /**
- * 
  * @author lb
- *
  */
-public class QoSControlConnection extends AbstractRMBTTest implements Runnable {
-	
-	public final static Pattern ID_REGEX_PATTERN = Pattern.compile("\\+ID([\\d]*)");
-	
-	public final AtomicBoolean isRunning = new AtomicBoolean(true);
-	
-	public final AtomicBoolean couldNotConnect = new AtomicBoolean(false);
-	
-	private final ConcurrentHashMap<Integer, ControlConnectionResponseCallbackHolder> requestMap = 
-			new ConcurrentHashMap<Integer, ControlConnectionResponseCallbackHolder>();
+class QoSControlConnection(client: RMBTClient, params: RMBTTestParameter) :
+    AbstractRMBTTest(client, params, 1), Runnable {
 
-	private final TreeSet<Integer> concurrencyGroupSet = new TreeSet<Integer>();
-	
-	protected Socket controlSocket;
-	
-	/**
-	 * 
-	 * @param client
-	 * @param params
-	 * @param threadId
-	 */
-	public QoSControlConnection(RMBTClient client, RMBTTestParameter params) {
-		super(client, params, 1);
-	}
-	
-	/**
-	 * 
-	 * @param qosTask
-	 * @param command
-	 * @param callback
-	 * @throws IOException
-	 */
-	public void sendTaskCommand(AbstractQoSTask qosTask, String command, ControlConnectionResponseCallback callback) throws IOException {
-		if (callback != null) {
-			requestMap.put(qosTask.getId(), new ControlConnectionResponseCallbackHolder(command, callback));
-		}
-		sendMessage(command + " +ID" + qosTask.getId() + "\n");
-	}
+    val isRunning = AtomicBoolean(true)
 
-	public void run() {
-		try {
-			while (isRunning.get()) {
-				final String response = reader.readLine();
-				if (response != null) {
-					final Matcher m = ID_REGEX_PATTERN.matcher(response);
-					if (m.find()) {
-						Integer id = Integer.valueOf(m.group(1));
-						final ControlConnectionResponseCallbackHolder holder = requestMap.remove(id);
-						if (holder != null && holder.getCallback() != null) {
-							Runnable responseRunnable = new Runnable() {
-								
-								public void run() {
-									holder.getCallback().onResponse(response, holder.getReqeust());
-								}
-							};
-							
-							RMBTClient.getCommonThreadPool().execute(responseRunnable);
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally {
-			isRunning.set(false);
-			if (controlSocket != null && !controlSocket.isClosed()) {
-				try {
-					controlSocket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}				
-			}
-		}
-	}
+    val couldNotConnect = AtomicBoolean(false)
 
-	/**
-	 * @throws Exception 
-	 * 
-	 */
-	public void connect() throws Exception {
-		isRunning.set(true);
-		try {
-			controlSocket = connect(null, InetAddress.getByName(params.getHost()), params.getPort(), 
-				AbstractQoSTask.QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", params.isEncryption(), AbstractQoSTask.CONTROL_CONNECTION_TIMEOUT);
-		}
-		catch (Exception e) {
-			isRunning.set(false);
-			couldNotConnect.set(true);
-			throw e;
-		}
-	}
-	
-	/**
-	 * @throws IOException 
-	 * 
-	 */
-	public void close() throws IOException {
-		sendMessage("QUIT\n");
-		isRunning.set(false);
-		controlSocket.close();
-	}
+    private val requestMap = ConcurrentHashMap<Int, ControlConnectionResponseCallbackHolder>()
 
-	/**
-	 * 
-	 * @return
-	 */
-	public TreeSet<Integer> getConcurrencyGroupSet() {
-		return concurrencyGroupSet;
-	}
-	
-	/**
-	 * 
-	 * @author lb
-	 *
-	 */
-	protected final class ControlConnectionResponseCallbackHolder {
-		ControlConnectionResponseCallback callback;
-		String reqeust;
-		
-		public ControlConnectionResponseCallbackHolder(String request, ControlConnectionResponseCallback callback) {
-			this.reqeust = request;
-			this.callback = callback;
-		}
-		
-		public ControlConnectionResponseCallback getCallback() {
-			return callback;
-		}
-		public void setCallback(ControlConnectionResponseCallback callback) {
-			this.callback = callback;
-		}
-		public String getReqeust() {
-			return reqeust;
-		}
-		public void setReqeust(String reqeust) {
-			this.reqeust = reqeust;
-		}
-	}
+    val concurrencyGroupSet = TreeSet<Int>()
+
+    private var controlSocket: Socket? = null
+
+    fun sendTaskCommand(qosTask: AbstractQoSTask, command: String, callback: ControlConnectionResponseCallback?) {
+        if (callback != null) {
+            requestMap[qosTask.getId()] = ControlConnectionResponseCallbackHolder(command, callback)
+        }
+        sendMessage(command + " +ID" + qosTask.getId() + "\n")
+    }
+
+    override fun run() {
+        try {
+            while (isRunning.get()) {
+                val response = reader!!.readLine()
+                if (response != null) {
+                    val m = ID_REGEX_PATTERN.matcher(response)
+                    if (m.find()) {
+                        val id = m.group(1).toInt()
+                        val holder = requestMap.remove(id)
+                        if (holder?.callback != null) {
+                            val responseRunnable = Runnable {
+                                holder.callback?.onResponse(response, holder.reqeust)
+                            }
+
+                            RMBTClient.getCommonThreadPool().execute(responseRunnable)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            isRunning.set(false)
+            val socket = controlSocket
+            if (socket != null && !socket.isClosed) {
+                try {
+                    socket.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun connect() {
+        isRunning.set(true)
+        try {
+            controlSocket = connect(
+                null, InetAddress.getByName(params.host), params.port,
+                AbstractQoSTask.QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", params.isEncryption, AbstractQoSTask.CONTROL_CONNECTION_TIMEOUT
+            )
+        } catch (e: Exception) {
+            isRunning.set(false)
+            couldNotConnect.set(true)
+            throw e
+        }
+    }
+
+    fun close() {
+        sendMessage("QUIT\n")
+        isRunning.set(false)
+        controlSocket!!.close()
+    }
+
+    /**
+     * Abandon the connection without the graceful QUIT handshake: stop the reader loop and close the
+     * socket so a blocking [reader] read returns immediately. Safe to call on an unresponsive or
+     * never-fully-established connection (used when the QoS phase is skipped).
+     */
+    fun interrupt() {
+        isRunning.set(false)
+        runCatching { controlSocket?.close() }
+    }
+
+    /**
+     * @author lb
+     */
+    class ControlConnectionResponseCallbackHolder(request: String?, callback: ControlConnectionResponseCallback?) {
+        var callback: ControlConnectionResponseCallback? = callback
+        var reqeust: String? = request
+    }
+
+    companion object {
+        val ID_REGEX_PATTERN: Pattern = Pattern.compile("\\+ID([\\d]*)")
+    }
 }

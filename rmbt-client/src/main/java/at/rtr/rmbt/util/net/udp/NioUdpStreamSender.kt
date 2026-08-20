@@ -13,199 +13,177 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.net.udp;
+ */
+package at.rtr.rmbt.util.net.udp
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.InetSocketAddress
+import java.net.SocketAddress
+import java.nio.ByteBuffer
+import java.nio.channels.DatagramChannel
+import java.nio.channels.SelectionKey
+import java.nio.channels.Selector
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * udp stream sender used by the udp and voip qos test
  * @author lb
- *
  */
-public class NioUdpStreamSender implements StreamSender<DatagramChannel> {
+class NioUdpStreamSender(
+    private val settings: UdpStreamSenderSettings<DatagramChannel>,
+    private val callback: UdpStreamCallback?
+) : StreamSender<DatagramChannel> {
 
-	UdpStreamSenderSettings<DatagramChannel> settings;
-	
-	UdpStreamCallback callback;
-	
-	final AtomicBoolean isRunning = new AtomicBoolean(false);
-	
-	public NioUdpStreamSender(UdpStreamSenderSettings<DatagramChannel> settings, UdpStreamCallback udpStreamCallback) {
-		this.settings = settings;
-		this.callback = udpStreamCallback;		
-	}
-		
-	public void stop() {
-		isRunning.set(false);
-	}
+    private val isRunning = AtomicBoolean(false)
 
+    fun stop() {
+        isRunning.set(false)
+    }
 
-	/**
-	 * send a stream of udp packets
-	 * @return the {@link DatagramChannel} used for this stream or null if an exception occurred
-	 * @throws InterruptedException
-	 * @throws IOException 
-	 * @throws TimeoutException 
-	 */
-	public DatagramChannel send() throws InterruptedException, TimeoutException {		
-	    isRunning.set(true);
-	    
-		int packetsSent = 0;
-		int packetsRcv = 0;
-	    final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	    final DataOutputStream dataOut = new DataOutputStream(byteOut);
-	    final ByteBuffer buffer = ByteBuffer.allocate(1024);
-	    final SocketAddress targetAddress = new InetSocketAddress(settings.targetHost, settings.getTargetPort()); 
+    /**
+     * send a stream of udp packets
+     * @return the [DatagramChannel] used for this stream or null if an exception occurred
+     */
+    override fun send(): DatagramChannel? {
+        isRunning.set(true)
 
-	    final long delayMs = TimeUnit.MILLISECONDS.convert(settings.delay, settings.timeUnit);
-	    long lastSendTimestamp = 0;
-	    
-	    final long startTimeMs = System.currentTimeMillis();
-	    final long timeoutMs = TimeUnit.MILLISECONDS.convert(settings.timeout, settings.timeUnit);
-	    final long stopTimeMs = timeoutMs > 0 ? timeoutMs + startTimeMs : 0;
+        var packetsSent = 0
+        var packetsRcv = 0
+        val byteOut = ByteArrayOutputStream()
+        val dataOut = DataOutputStream(byteOut)
+        val buffer = ByteBuffer.allocate(1024)
+        val targetAddress: SocketAddress = InetSocketAddress(settings.targetHost, settings.targetPort)
 
-	    DatagramChannel channel = null;
-	    Selector selector = null;
-	    
-	    try {
-	    	if (settings.socket == null) {
-	    		channel = DatagramChannel.open();
-	    		channel.configureBlocking(false);
-	    		if (settings.incomingPort != null) {
-	    			channel.socket().bind(new InetSocketAddress(settings.incomingPort));
-	    			if (callback != null) {
-	    				callback.onBind(channel.socket().getLocalPort());
-	    			}
-	    		}
-	    		else {
-		    		channel.socket().bind(null);
-	    		}
-	    		
-    			if (callback != null) {
-    				callback.onBind(channel.socket().getLocalPort());
-    			}
-	    	}
-	    	else {
-	    		channel = settings.socket;
-	    	}
-	    	
-		    selector = Selector.open();
-		    
-		    if (settings.writeOnly) {
-		    	channel.register(selector, SelectionKey.OP_WRITE);
-		    }
-		    else {
-		    	channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-		    }
-	
-		    while(isRunning.get()) {
-		    	if (Thread.interrupted()) {
-		    		isRunning.set(false);
-		            throw new InterruptedException();	
-	            }
-		    	
-		    	if (stopTimeMs > 0 && stopTimeMs < System.currentTimeMillis()) {
-		    		isRunning.set(false);
-		            throw new TimeoutException("Exceeded timeout of " + timeoutMs + "ms");
-		    	}
-	
-		    	//calculate correct packet delay
-		    	long currentDelay = System.currentTimeMillis() - lastSendTimestamp;
-		    	currentDelay = currentDelay > delayMs ? 0 : delayMs - currentDelay;
-		    	if (currentDelay > 0) {
-		    		Thread.sleep(currentDelay);
-		    	}
-		    	
-		    	selector.select(1000);
-		    	Set<SelectionKey> readyKeys = selector.selectedKeys();
-		    	if (!readyKeys.isEmpty()) {
-			    	Iterator<SelectionKey> iterator = readyKeys.iterator();
-			    	while (iterator.hasNext()) {
-			    		SelectionKey key = (SelectionKey) iterator.next();
-						iterator.remove();
-						if (key.isReadable() && (packetsRcv < settings.packets) && key.isValid()) {
-							buffer.clear();
-							channel.receive(buffer);
-							buffer.flip();
-							final DatagramPacket dp = new DatagramPacket(buffer.array(), buffer.array().length);
-							if (callback != null) {
-								callback.onReceive(dp);
-							}
-							packetsRcv++;
-						}
-						if (key.isWritable() && (packetsSent < settings.packets) && key.isValid()) {
-							byteOut.reset();
-							buffer.clear();
-					    	try {
-					    		if (callback != null) {
-					    			if (callback.onSend(dataOut, packetsSent)) {
-								    	final byte[] data = byteOut.toByteArray();
-								    	buffer.put(data);
-								    	buffer.flip();
-								    	channel.send(buffer, targetAddress);
-										packetsSent++;
-								    	lastSendTimestamp = System.currentTimeMillis();
-					    			}
-					    		}
-					    	} catch (IOException e) {
-					    		e.printStackTrace();
-					    		return null;
-					    	}
-						}
-			    	}
-		    	}
-		    	
-		    	if (!settings.writeOnly) {
-		    		if ((packetsSent >= settings.packets) && (packetsRcv >= settings.packets)) {
-		    			isRunning.set(false);
-		    		}		    		
-		    	}
-		    	else {
-		    		if ((packetsSent >= settings.packets)) {
-		    			isRunning.set(false);
-		    		}
-		    	}
-		    }
-		    
-		    return channel;
-	    }
-	    catch (IOException e) {
-	    	e.printStackTrace();
-	    }
-	    finally {
-	    	if (selector != null && selector.isOpen()) {
-	    		try {
-					selector.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-	    	}
-	    	
-	    	if (channel != null && channel.socket() != null && !channel.socket().isClosed() && settings.closeOnFinish) {
-	    		try {
-					channel.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-	    	}
-	    }
-	    
-	    return null;
+        val delayMs = TimeUnit.MILLISECONDS.convert(settings.delay, settings.timeUnit)
+        var lastSendTimestamp: Long = 0
 
-	}
+        val startTimeMs = System.currentTimeMillis()
+        val timeoutMs = TimeUnit.MILLISECONDS.convert(settings.timeout, settings.timeUnit)
+        val stopTimeMs = if (timeoutMs > 0) timeoutMs + startTimeMs else 0
+
+        var channel: DatagramChannel? = null
+        var selector: Selector? = null
+
+        try {
+            if (settings.socket == null) {
+                channel = DatagramChannel.open()
+                channel.configureBlocking(false)
+                if (settings.incomingPort != null) {
+                    channel.socket().bind(InetSocketAddress(settings.incomingPort!!))
+                    callback?.onBind(channel.socket().localPort)
+                } else {
+                    channel.socket().bind(null)
+                }
+
+                callback?.onBind(channel.socket().localPort)
+            } else {
+                channel = settings.socket
+            }
+
+            val ch = channel!!
+
+            selector = Selector.open()
+
+            if (settings.writeOnly) {
+                ch.register(selector, SelectionKey.OP_WRITE)
+            } else {
+                ch.register(selector, SelectionKey.OP_READ or SelectionKey.OP_WRITE)
+            }
+
+            while (isRunning.get()) {
+                if (Thread.interrupted()) {
+                    isRunning.set(false)
+                    throw InterruptedException()
+                }
+
+                if (stopTimeMs > 0 && stopTimeMs < System.currentTimeMillis()) {
+                    isRunning.set(false)
+                    throw TimeoutException("Exceeded timeout of " + timeoutMs + "ms")
+                }
+
+                // calculate correct packet delay
+                var currentDelay = System.currentTimeMillis() - lastSendTimestamp
+                currentDelay = if (currentDelay > delayMs) 0 else delayMs - currentDelay
+                if (currentDelay > 0) {
+                    Thread.sleep(currentDelay)
+                }
+
+                selector.select(1000)
+                val readyKeys = selector.selectedKeys()
+                if (!readyKeys.isEmpty()) {
+                    val iterator = readyKeys.iterator()
+                    while (iterator.hasNext()) {
+                        val key = iterator.next()
+                        iterator.remove()
+                        if (key.isReadable && packetsRcv < settings.packets && key.isValid) {
+                            buffer.clear()
+                            ch.receive(buffer)
+                            buffer.flip()
+                            val dp = DatagramPacket(buffer.array(), buffer.array().size)
+                            callback?.onReceive(dp)
+                            packetsRcv++
+                        }
+                        if (key.isWritable && packetsSent < settings.packets && key.isValid) {
+                            byteOut.reset()
+                            buffer.clear()
+                            try {
+                                if (callback != null) {
+                                    if (callback.onSend(dataOut, packetsSent)) {
+                                        val data = byteOut.toByteArray()
+                                        buffer.put(data)
+                                        buffer.flip()
+                                        ch.send(buffer, targetAddress)
+                                        packetsSent++
+                                        lastSendTimestamp = System.currentTimeMillis()
+                                    }
+                                }
+                            } catch (e: IOException) {
+                                e.printStackTrace()
+                                return null
+                            }
+                        }
+                    }
+                }
+
+                if (!settings.writeOnly) {
+                    if (packetsSent >= settings.packets && packetsRcv >= settings.packets) {
+                        isRunning.set(false)
+                    }
+                } else {
+                    if (packetsSent >= settings.packets) {
+                        isRunning.set(false)
+                    }
+                }
+            }
+
+            return ch
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            if (selector != null && selector.isOpen) {
+                try {
+                    selector.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            if (channel != null && channel.socket() != null && !channel.socket().isClosed && settings.closeOnFinish) {
+                try {
+                    channel.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        return null
+    }
 }

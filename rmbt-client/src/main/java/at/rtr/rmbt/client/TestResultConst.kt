@@ -12,17 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-
-package at.rtr.rmbt.client;
+ */
+package at.rtr.rmbt.client
 
 /**
  * Created by michal.cadrik on 7/6/2017.
  */
-
-public class TestResultConst {
-
-    public static final String TEST_RESULT_OK = "OK";
-    public static final String TEST_RESULT_ERROR = "ERROR";
-    public static final String TEST_RESULT_TIMEOUT = "TIMEOUT";
+object TestResultConst {
+    const val TEST_RESULT_OK = "OK"
+    const val TEST_RESULT_ERROR = "ERROR"
+    const val TEST_RESULT_TIMEOUT = "TIMEOUT"
 }

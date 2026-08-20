@@ -13,327 +13,268 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.net.rtp;
+ */
+package at.rtr.rmbt.util.net.rtp
 
-import java.io.Closeable;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.nio.ByteOrder;
-import java.nio.channels.DatagramChannel;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import at.rtr.rmbt.util.ByteUtil;
-import at.rtr.rmbt.util.net.udp.NioUdpStreamSender;
-import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
-import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings;
-import at.rtr.rmbt.util.net.udp.UdpStreamSender;
+import at.rtr.rmbt.util.ByteUtil
+import at.rtr.rmbt.util.net.udp.NioUdpStreamSender
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings
+import at.rtr.rmbt.util.net.udp.UdpStreamSender
+import java.io.Closeable
+import java.io.DataOutputStream
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
+import java.nio.ByteOrder
+import java.nio.channels.DatagramChannel
+import java.util.Random
+import java.util.TreeSet
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 /**
- * 
  * @author lb
- *
  */
-public class RtpUtil {
+object RtpUtil {
 
-	
-	public static <T extends Closeable> T runVoipStream(T socket, final boolean closeOnFinish, InetAddress targetHost, int targetPort, int sampleRate, 
-			int bps, RealtimeTransportProtocol.PayloadType payloadType, long sequenceNumber, int ssrc, 
-			long callDuration, final long delay, final long timeout, final boolean useNio, final UdpStreamCallback receiveCallback) throws InterruptedException, TimeoutException, IOException {
-		return RtpUtil.runVoipStream(socket, closeOnFinish, targetHost, targetPort, null, sampleRate, bps, payloadType, sequenceNumber, ssrc, callDuration, delay, timeout, useNio, receiveCallback);
-	}
+    fun <T : Closeable> runVoipStream(
+        socket: T?,
+        closeOnFinish: Boolean,
+        targetHost: InetAddress,
+        targetPort: Int,
+        sampleRate: Int,
+        bps: Int,
+        payloadType: RealtimeTransportProtocol.PayloadType,
+        sequenceNumber: Long,
+        ssrc: Int,
+        callDuration: Long,
+        delay: Long,
+        timeout: Long,
+        useNio: Boolean,
+        receiveCallback: UdpStreamCallback?
+    ): T? {
+        return runVoipStream(
+            socket, closeOnFinish, targetHost, targetPort, null, sampleRate, bps, payloadType,
+            sequenceNumber, ssrc, callDuration, delay, timeout, useNio, receiveCallback
+        )
+    }
 
-		
-	
-	/**
-	 * runs an rtp/voip stream (incoming and outgoing)
-	 * @param socket
-	 * @param targetHost
-	 * @param targetPort
-	 * @param sampleRate
-	 * @param bps
-	 * @param payloadType
-	 * @param sequenceNumber
-	 * @param ssrc
-	 * @param callDuration
-	 * @param delay
-	 * @param timeout
-	 * @param useNio
-	 * @param receiveCallback
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws IOException 
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends Closeable> T runVoipStream(T socket, final boolean closeOnFinish, InetAddress targetHost, int targetPort, final Integer incomingPort, int sampleRate, 
-			int bps, RealtimeTransportProtocol.PayloadType payloadType, long sequenceNumber, int ssrc, 
-			long callDuration, final long delay, final long timeout, final boolean useNio, final UdpStreamCallback receiveCallback) throws InterruptedException, TimeoutException, IOException {
-		
-		final int payloadSize = (int) (sampleRate / (1000 / delay) * (bps / 8));
-		final Random r = new Random();
-		final int payloadTimestamp = (int) (sampleRate / (1000 / delay));
-		final RtpPacket initialRtpPacket = new RtpPacket(payloadType, 0, new long[] {}, (int) sequenceNumber, 0, ssrc);
-		final int numPackets = (int) (callDuration / delay);
-		final UdpStreamSenderSettings<T> settings = new UdpStreamSenderSettings<>(socket, closeOnFinish, targetHost, targetPort, numPackets, delay, timeout, TimeUnit.MILLISECONDS, false, 0);
-		settings.setIncomingPort(incomingPort);
-		
-		if (receiveCallback == null) {
-			settings.setWriteOnly(true);
-		}
+    /**
+     * runs an rtp/voip stream (incoming and outgoing)
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Closeable> runVoipStream(
+        socket: T?,
+        closeOnFinish: Boolean,
+        targetHost: InetAddress,
+        targetPort: Int,
+        incomingPort: Int?,
+        sampleRate: Int,
+        bps: Int,
+        payloadType: RealtimeTransportProtocol.PayloadType,
+        sequenceNumber: Long,
+        ssrc: Int,
+        callDuration: Long,
+        delay: Long,
+        timeout: Long,
+        useNio: Boolean,
+        receiveCallback: UdpStreamCallback?
+    ): T? {
 
-		final UdpStreamCallback callback = new UdpStreamCallback() {
-			
-			@Override
-			public boolean onSend(DataOutputStream dataOut, int packetNumber)
-					throws IOException {
-				if (packetNumber > 0) {
-					initialRtpPacket.increaseSequenceNumber(1);
-					initialRtpPacket.increaseTimestamp(payloadTimestamp);
-					initialRtpPacket.setHasMarker(false);
-				}
-				else {
-					initialRtpPacket.setHasMarker(true);
-				}
-				
-				final byte[] payload = new byte[payloadSize];
-				r.nextBytes(payload);
-				initialRtpPacket.setPayload(payload);
-				
-				final byte[] data = initialRtpPacket.getBytes();
-				dataOut.write(data);
-				return true;
-			}
-			
-			@Override
-			public void onReceive(DatagramPacket dp) throws IOException {
-				if (receiveCallback != null) {
-					receiveCallback.onReceive(dp);
-				}
-			}
+        val payloadSize = (sampleRate / (1000 / delay) * (bps / 8)).toInt()
+        val r = Random()
+        val payloadTimestamp = (sampleRate / (1000 / delay)).toInt()
+        val initialRtpPacket = RtpPacket(payloadType, 0, LongArray(0), sequenceNumber.toInt(), 0, ssrc.toLong())
+        val numPackets = (callDuration / delay).toInt()
+        val settings = UdpStreamSenderSettings<T>(
+            socket, closeOnFinish, targetHost, targetPort, numPackets, delay, timeout, TimeUnit.MILLISECONDS, false, 0
+        )
+        settings.incomingPort = incomingPort
 
-			@Override
-			public void onBind(Integer port) throws IOException {
-				receiveCallback.onBind(incomingPort);
-			}
-		};
-		
-		if (!useNio) {
-			final UdpStreamSender udpStreamSender = new UdpStreamSender((UdpStreamSenderSettings<DatagramSocket>) settings, callback);
-			return (T) udpStreamSender.send();
-		}
-		else {
-			final NioUdpStreamSender udpStreamSender = new NioUdpStreamSender((UdpStreamSenderSettings<DatagramChannel>) settings, callback);
-			return (T) udpStreamSender.send();			
-		}
-	}
+        if (receiveCallback == null) {
+            settings.writeOnly = true
+        }
 
-	/**
-	 * extract the rtp version from the first header byte 
-	 * @param firstHeaderByte
-	 * @return
-	 */
-	public static RealtimeTransportProtocol.RtpVersion getVersion(byte firstHeaderByte) {
-		return RealtimeTransportProtocol.RtpVersion.getByVersion((firstHeaderByte >> 6) & 0x03);	
-	}
-	
-	/**
-	 * get the synchronization source identifier
-	 * @param data
-	 * @return rtp packet ssrc or -1 if packet data is invalid 
-	 */
-	public static long getSsrc(byte[] data) {
-		if (data != null && data.length >= 11) {
-			return ByteUtil.getLong(data, 8, 11, ByteOrder.BIG_ENDIAN);	
-		}
-		else {
-			return -1;
-		}
-	}
+        val callback: UdpStreamCallback = object : UdpStreamCallback {
 
-	/**
-	 * 
-	 * @param rtpControlDataMap
-	 */
-	public static RtpQoSResult calculateQoS(Map<Integer, RtpControlData> rtpControlDataMap, long initialSequenceNumber, int sampleRate) {
-		TreeSet<Integer> sequenceNumberSet = new TreeSet<>(rtpControlDataMap.keySet());
-		
-		Map<Integer, Float> jitterMap = new HashMap<>();
-		TreeSet<RtpSequence> sequenceSet = new TreeSet<>();
-		
-		long maxJitter = 0;
-		long meanJitter = 0;
-		long skew = 0;
-		long maxDelta = 0;
-		long tsDiff = 0;
-		
-		int prevSeqNr = -1;
-		for (int x : sequenceNumberSet) {
-			RtpControlData i = rtpControlDataMap.get(prevSeqNr);
-			RtpControlData j = rtpControlDataMap.get(x);
-			if (prevSeqNr >= 0) {
-				tsDiff = j.receivedNs - i.receivedNs;
-				final float prevJitter = jitterMap.get(prevSeqNr);
-				final long delta = Math.abs(calculateDelta(i, j, sampleRate));
-				final float jitter = prevJitter + ((float)delta - prevJitter) / 16f;
-				jitterMap.put(x, jitter);
-				maxDelta = Math.max(delta, maxDelta);;
-				skew += TimeUnit.NANOSECONDS.convert((long) (((float)(j.rtpPacket.getTimestamp() - i.rtpPacket.getTimestamp()) / (float)sampleRate) * 1000f), TimeUnit.MILLISECONDS) - tsDiff;
-				maxJitter = Math.max((long)jitter, maxJitter);
-				meanJitter += jitter;
-			}
-			else {
-				jitterMap.put(x, 0f);
-			}
-			prevSeqNr = x;
-			sequenceSet.add(new RtpSequence(j.receivedNs, x));
-		}
+            override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
+                if (packetNumber > 0) {
+                    initialRtpPacket.increaseSequenceNumber(1)
+                    initialRtpPacket.increaseTimestamp(payloadTimestamp.toLong())
+                    initialRtpPacket.setHasMarker(false)
+                } else {
+                    initialRtpPacket.setHasMarker(true)
+                }
 
-		long nextSeq = initialSequenceNumber;
-		int packetsOutOfOrder = 0;
-		int maxSequential = 0;
-		int minSequential = 0;
-		int curSequential = 0;
-		for (RtpSequence i : sequenceSet) {
-			if (i.seq != nextSeq) {
-				packetsOutOfOrder++;
-				maxSequential = Math.max(curSequential, maxSequential);
-				if (curSequential > 1) {
-					minSequential = curSequential < minSequential ? curSequential : (minSequential == 0 ? curSequential : minSequential);
-				}
-				curSequential = 0;
-			}
-			else {
-				curSequential++;
-			}
-			
-			nextSeq++;
-		}
-		
-		maxSequential = Math.max(curSequential, maxSequential);
-		if (curSequential > 1) {
-			minSequential = curSequential < minSequential ? curSequential : (minSequential == 0 ? curSequential : minSequential);
-		}
-		
-		if (minSequential == 0 && maxSequential > 0) {
-			minSequential = maxSequential;
-		}
-		
-		return new RtpQoSResult(maxJitter, jitterMap.size() > 0 ? meanJitter / jitterMap.size() : 0, skew, maxDelta, packetsOutOfOrder, minSequential, maxSequential, jitterMap);
-	}
-	
-	private static long calculateDelta(RtpControlData i, RtpControlData j, int sampleRate) {
-		final long msDiff = j.receivedNs - i.receivedNs;
-		final long tsDiff = TimeUnit.NANOSECONDS.convert((long) (((float)(j.rtpPacket.getTimestamp() - i.rtpPacket.getTimestamp()) / (float)sampleRate) * 1000f), TimeUnit.MILLISECONDS);
-		return msDiff - tsDiff;
-	}
-	
-	/**
-	 * 
-	 * @author lb
-	 *
-	 */
-	public final static class RtpControlData {
-		RtpPacket rtpPacket;
-		long receivedNs;
-		
-		public RtpControlData(RtpPacket rtpPacket, long receivedNs) {
-			this.rtpPacket = rtpPacket;
-			this.receivedNs = receivedNs;
-		}
-	}
-	
-	private final static class RtpSequence implements Comparable<RtpSequence> {
-		long timestampNs;
-		int seq;
-		
-		public RtpSequence(long timestampNs, int seq) {
-			this.timestampNs = timestampNs;
-			this.seq = seq;
-		}
-		
-		@Override
-		public int compareTo(RtpSequence o) {
-			return Long.valueOf(timestampNs).compareTo(o.timestampNs); 
-		}
-		
-		
-	}
-	
-	public final static class RtpQoSResult {
-		final Map<Integer, Float> jitterMap;
-		final int receivedPackets;
-		final long maxJitter;
-		final long meanJitter;
-		final long skew;
-		final long maxDelta;
-		final int outOfOrder;
-		final int minSequential;
-		final int maxSequencial;
-		
-		public RtpQoSResult(long maxJitter, long meanJitter, long skew, long maxDelta, int outOfOrder, int minSequential, int maxSequential, Map<Integer, Float> jitterMap) {
-			this.jitterMap = jitterMap;
-			this.maxJitter = maxJitter;
-			this.meanJitter = meanJitter;
-			this.skew = skew;
-			this.maxDelta = maxDelta;
-			this.outOfOrder = outOfOrder;
-			this.receivedPackets = jitterMap.size();
-			this.minSequential = minSequential > receivedPackets ? receivedPackets : minSequential;
-			this.maxSequencial = maxSequential > receivedPackets ? receivedPackets : maxSequential;
-		}
+                val payload = ByteArray(payloadSize)
+                r.nextBytes(payload)
+                initialRtpPacket.payload = payload
 
-		public Map<Integer, Float> getJitterMap() {
-			return jitterMap;
-		}
+                val data = initialRtpPacket.getBytes()
+                dataOut.write(data)
+                return true
+            }
 
-		public int getReceivedPackets() {
-			return receivedPackets;
-		}
+            override fun onReceive(dp: DatagramPacket) {
+                receiveCallback?.onReceive(dp)
+            }
 
-		public long getMaxJitter() {
-			return maxJitter;
-		}
+            override fun onBind(port: Int?) {
+                // report the actually bound local port (was: incomingPort, which is null when the
+                // server provides no in_port objective → voip_objective_in_port serialized as null
+                // and the server-side QoS evaluation fails all VoIP conditions)
+                receiveCallback!!.onBind(if (incomingPort != null) incomingPort else port)
+            }
+        }
 
-		public long getMeanJitter() {
-			return meanJitter;
-		}
+        return if (!useNio) {
+            val udpStreamSender = UdpStreamSender(settings as UdpStreamSenderSettings<DatagramSocket>, callback)
+            udpStreamSender.send() as T?
+        } else {
+            val udpStreamSender = NioUdpStreamSender(settings as UdpStreamSenderSettings<DatagramChannel>, callback)
+            udpStreamSender.send() as T?
+        }
+    }
 
-		public long getSkew() {
-			return skew;
-		}
+    /**
+     * extract the rtp version from the first header byte
+     */
+    fun getVersion(firstHeaderByte: Byte): RealtimeTransportProtocol.RtpVersion {
+        return RealtimeTransportProtocol.RtpVersion.getByVersion((firstHeaderByte.toInt() shr 6) and 0x03)
+    }
 
-		public long getMaxDelta() {
-			return maxDelta;
-		}
-		
-		public int getOutOfOrder() {
-			return outOfOrder;
-		}
-		
-		public int getMinSequential() {
-			return minSequential;
-		}
+    /**
+     * get the synchronization source identifier
+     * @return rtp packet ssrc or -1 if packet data is invalid
+     */
+    fun getSsrc(data: ByteArray?): Long {
+        return if (data != null && data.size >= 11) {
+            ByteUtil.getLong(data, 8, 11, ByteOrder.BIG_ENDIAN)
+        } else {
+            -1
+        }
+    }
 
-		public int getMaxSequencial() {
-			return maxSequencial;
-		}
+    fun calculateQoS(rtpControlDataMap: Map<Int, RtpControlData>, initialSequenceNumber: Long, sampleRate: Int): RtpQoSResult {
+        val sequenceNumberSet = TreeSet(rtpControlDataMap.keys)
 
-		@Override
-		public String toString() {
-			return "RtpQoSResult [jitterMap=" + jitterMap
-					+ ", receivedPackets=" + receivedPackets 
-					+ ", outOfOrder=" + outOfOrder + ", minSequential=" + minSequential + ", maxSequencial=" + maxSequencial  
-					+ ", maxJitter=" + ((float)maxJitter / 1000000f) 
-					+ ", meanJitter=" + ((float) meanJitter / 1000000f) + ", skew="
-					+ ((float)skew / 1000000f) + ", maxDelta=" + ((float) maxDelta / 1000000) + "]";
-		}
-	}
+        val jitterMap = HashMap<Int, Float>()
+        val sequenceSet = TreeSet<RtpSequence>()
+
+        var maxJitter: Long = 0
+        var meanJitter: Long = 0
+        var skew: Long = 0
+        var maxDelta: Long = 0
+        var tsDiff: Long = 0
+
+        var prevSeqNr = -1
+        for (x in sequenceNumberSet) {
+            val i = rtpControlDataMap[prevSeqNr]
+            val j = rtpControlDataMap[x]
+            if (prevSeqNr >= 0) {
+                tsDiff = j!!.receivedNs - i!!.receivedNs
+                val prevJitter = jitterMap[prevSeqNr]!!
+                val delta = Math.abs(calculateDelta(i, j, sampleRate))
+                val jitter = prevJitter + (delta.toFloat() - prevJitter) / 16f
+                jitterMap[x] = jitter
+                maxDelta = Math.max(delta, maxDelta)
+                skew += TimeUnit.NANOSECONDS.convert(
+                    ((j.rtpPacket.getTimestamp() - i.rtpPacket.getTimestamp()).toFloat() / sampleRate.toFloat() * 1000f).toLong(),
+                    TimeUnit.MILLISECONDS
+                ) - tsDiff
+                maxJitter = Math.max(jitter.toLong(), maxJitter)
+                meanJitter = (meanJitter + jitter).toLong()
+            } else {
+                jitterMap[x] = 0f
+            }
+            prevSeqNr = x
+            sequenceSet.add(RtpSequence(j!!.receivedNs, x))
+        }
+
+        var nextSeq = initialSequenceNumber
+        var packetsOutOfOrder = 0
+        var maxSequential = 0
+        var minSequential = 0
+        var curSequential = 0
+        for (i in sequenceSet) {
+            if (i.seq.toLong() != nextSeq) {
+                packetsOutOfOrder++
+                maxSequential = Math.max(curSequential, maxSequential)
+                if (curSequential > 1) {
+                    minSequential = if (curSequential < minSequential) curSequential else if (minSequential == 0) curSequential else minSequential
+                }
+                curSequential = 0
+            } else {
+                curSequential++
+            }
+
+            nextSeq++
+        }
+
+        maxSequential = Math.max(curSequential, maxSequential)
+        if (curSequential > 1) {
+            minSequential = if (curSequential < minSequential) curSequential else if (minSequential == 0) curSequential else minSequential
+        }
+
+        if (minSequential == 0 && maxSequential > 0) {
+            minSequential = maxSequential
+        }
+
+        return RtpQoSResult(
+            maxJitter,
+            if (jitterMap.size > 0) meanJitter / jitterMap.size else 0L,
+            skew,
+            maxDelta,
+            packetsOutOfOrder,
+            minSequential,
+            maxSequential,
+            jitterMap
+        )
+    }
+
+    private fun calculateDelta(i: RtpControlData, j: RtpControlData, sampleRate: Int): Long {
+        val msDiff = j.receivedNs - i.receivedNs
+        val tsDiff = TimeUnit.NANOSECONDS.convert(
+            ((j.rtpPacket.getTimestamp() - i.rtpPacket.getTimestamp()).toFloat() / sampleRate.toFloat() * 1000f).toLong(),
+            TimeUnit.MILLISECONDS
+        )
+        return msDiff - tsDiff
+    }
+
+    /**
+     * @author lb
+     */
+    class RtpControlData(val rtpPacket: RtpPacket, val receivedNs: Long)
+
+    private class RtpSequence(val timestampNs: Long, val seq: Int) : Comparable<RtpSequence> {
+        override fun compareTo(o: RtpSequence): Int {
+            return timestampNs.compareTo(o.timestampNs)
+        }
+    }
+
+    class RtpQoSResult(
+        val maxJitter: Long,
+        val meanJitter: Long,
+        val skew: Long,
+        val maxDelta: Long,
+        val outOfOrder: Int,
+        minSequential: Int,
+        maxSequential: Int,
+        val jitterMap: Map<Int, Float>
+    ) {
+        val receivedPackets: Int = jitterMap.size
+        val minSequential: Int = if (minSequential > receivedPackets) receivedPackets else minSequential
+        val maxSequencial: Int = if (maxSequential > receivedPackets) receivedPackets else maxSequential
+
+        override fun toString(): String {
+            return "RtpQoSResult [jitterMap=" + jitterMap +
+                ", receivedPackets=" + receivedPackets +
+                ", outOfOrder=" + outOfOrder + ", minSequential=" + minSequential + ", maxSequencial=" + maxSequencial +
+                ", maxJitter=" + (maxJitter.toFloat() / 1000000f) +
+                ", meanJitter=" + (meanJitter.toFloat() / 1000000f) + ", skew=" +
+                (skew.toFloat() / 1000000f) + ", maxDelta=" + (maxDelta.toFloat() / 1000000) + "]"
+        }
+    }
 }

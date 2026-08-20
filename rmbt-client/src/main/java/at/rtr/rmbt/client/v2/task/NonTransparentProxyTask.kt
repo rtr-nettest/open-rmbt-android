@@ -1,191 +1,148 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client.v2.task;
+ */
+package at.rtr.rmbt.client.v2.task
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import at.rtr.rmbt.client.QualityOfServiceTest;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.rtr.rmbt.client.QualityOfServiceTest
+import at.rtr.rmbt.client.v2.task.result.QoSTestResult
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import java.io.IOException
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.net.SocketTimeoutException
+import java.util.Locale
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
- * 
  * @author lb
- *
  */
-public class NonTransparentProxyTask extends AbstractQoSTask {
+class NonTransparentProxyTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
+    AbstractQoSTask(nnTest, taskDesc, threadId, threadId) {
 
-	public final static long DEFAULT_TIMEOUT = 5000000000L;
-	
-	private final String testRequest;
-	
-	private final int port;
-	
-	private final long timeout;
-	
-	public final static String PARAM_PROXY_REQUEST = "request";
-	
-	public final static String PARAM_PROXY_PORT = "port";
-	
-	public final static String PARAM_PROXY_TIMEOUT = "timeout";
+    private val testRequest: String
+    private val port: Int
+    private val timeout: Long
 
-	public final static String RESULT_RESPONSE = "nontransproxy_result_response";
-	
-	public final static String RESULT_REQUEST = "nontransproxy_objective_request";
-	
-	public final static String RESULT_PORT = "nontransproxy_objective_port";
-	
-	public final static String RESULT_TIMEOUT = "nontransproxy_objective_timeout";
-	
-	public final static String RESULT_STATUS = "nontransproxy_result";
-	
-	
-	/**
-	 * 
-	 * @param taskDesc
-	 */
-	public NonTransparentProxyTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId, threadId);
-		
-		String requestString = (String)taskDesc.getParams().get(PARAM_PROXY_REQUEST);;
-		
-		if (!requestString.endsWith("\n")) {
-			requestString += "\n";
-		}
+    init {
+        var requestString = taskDesc.getParams()[PARAM_PROXY_REQUEST] as String?
 
-		this.testRequest = requestString;
-		this.port = Integer.valueOf((String)taskDesc.getParams().get(PARAM_PROXY_PORT));
-		
-		String value = (String) taskDesc.getParams().get(PARAM_PROXY_TIMEOUT);
-		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
-	}
+        if (!requestString!!.endsWith("\n")) {
+            requestString += "\n"
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.util.concurrent.Callable#call()
-	 */
-	public QoSTestResult call() throws Exception {
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.NON_TRANSPARENT_PROXY);
-		try {
-			onStart(result);
-			result.getResultMap().put(RESULT_PORT, port);
+        this.testRequest = requestString
+        this.port = (taskDesc.getParams()[PARAM_PROXY_PORT] as String?)!!.toInt()
 
-			final CountDownLatch latch = new CountDownLatch(1);
-			
-			final ControlConnectionResponseCallback callback = new ControlConnectionResponseCallback() {
-				
-				public void onResponse(final String controlResponse, final String controlRequest) {
-					try {
-						//wait for ok -> server has opened requested socket
-						if (controlResponse.startsWith("OK")) {
-							//reset response string:
-							//open test socket
-							InetSocketAddress socketAddr = new InetSocketAddress(InetAddress.getByName(getTestServerAddr()), port);
-							Socket testSocket = new Socket();
-							testSocket.connect(socketAddr, (int)(timeout/1000000));
-							testSocket.setSoTimeout((int)(timeout/1000000));
-							
-							//send request to echo service				
-							sendMessage(testSocket, testRequest);
-							
-							//read response from echo service
-							String testResponse = readLine(testSocket);
-							System.out.println("NON_TRANSPARENT_PROXY response: " + testResponse);
-							if (testResponse != null) {		
-								testResponse = String.format(Locale.US, "%s", testResponse);
-								result.getResultMap().put(RESULT_RESPONSE, (testResponse != null ? testResponse.trim() : ""));
-							}
-							else {
-								throw new IOException();
-							}
-							
-							result.getResultMap().put(RESULT_STATUS, "OK");
-						}
-						else {
-							result.getResultMap().put(RESULT_STATUS, "ERROR");
-						}
-					}
-					catch (SocketTimeoutException e) {
-						e.printStackTrace();
-						result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
-					}
-					catch (Exception e) {
-						e.printStackTrace();
-						result.getResultMap().put(RESULT_STATUS, "ERROR");
-					}
-					finally {
-						latch.countDown();
-					}
-				}
-			};
-			
-			sendCommand("NTPTEST " + port, callback);
-			if (!latch.await(timeout, TimeUnit.NANOSECONDS)) {
-				result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
-			}
-			
-			if (!result.getResultMap().containsKey(RESULT_RESPONSE)) {
-				result.getResultMap().put(RESULT_RESPONSE, "");
-			}
-			result.getResultMap().put(RESULT_REQUEST, (testRequest != null ? testRequest.trim() : ""));
-			result.getResultMap().put(RESULT_TIMEOUT, timeout);
-			
-			return result;			
-		}
-		catch (Exception e) {
-			throw e;
-		}
-		finally {
-			onEnd(result);
-		}
+        val value = taskDesc.getParams()[PARAM_PROXY_TIMEOUT] as String?
+        this.timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
+    }
 
-	}
+    override fun call(): QoSTestResult {
+        val result = initQoSTestResult(QoSTestResultEnum.NON_TRANSPARENT_PROXY)
+        try {
+            onStart(result)
+            result.resultMap[RESULT_PORT] = port
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.AbstractRmbtTask#initTask()
-	 */
-	@Override
-	public void initTask() {
-		// TODO Auto-generated method stub
-		
-	}
+            val latch = CountDownLatch(1)
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
-	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.NON_TRANSPARENT_PROXY;
-	}
+            val callback = object : ControlConnectionResponseCallback {
+                override fun onResponse(controlResponse: String?, controlRequest: String?) {
+                    try {
+                        // wait for ok -> server has opened requested socket
+                        if (controlResponse != null && controlResponse.startsWith("OK")) {
+                            // open test socket
+                            val socketAddr = InetSocketAddress(InetAddress.getByName(getTestServerAddr()), port)
+                            val testSocket = Socket()
+                            testSocket.connect(socketAddr, (timeout / 1000000).toInt())
+                            testSocket.soTimeout = (timeout / 1000000).toInt()
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
-	 */
-	public boolean needsQoSControlConnection() {
-		return true;
-	}
+                            // send request to echo service
+                            sendMessage(testSocket, testRequest)
 
+                            // read response from echo service
+                            var testResponse = readLine(testSocket)
+                            println("NON_TRANSPARENT_PROXY response: $testResponse")
+                            if (testResponse != null) {
+                                testResponse = String.format(Locale.US, "%s", testResponse)
+                                result.resultMap[RESULT_RESPONSE] = testResponse.trim()
+                            } else {
+                                throw IOException()
+                            }
+
+                            result.resultMap[RESULT_STATUS] = "OK"
+                        } else {
+                            result.resultMap[RESULT_STATUS] = "ERROR"
+                        }
+                    } catch (e: SocketTimeoutException) {
+                        e.printStackTrace()
+                        result.resultMap[RESULT_STATUS] = "TIMEOUT"
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        result.resultMap[RESULT_STATUS] = "ERROR"
+                    } finally {
+                        latch.countDown()
+                    }
+                }
+            }
+
+            sendCommand("NTPTEST $port", callback)
+            if (!latch.await(timeout, TimeUnit.NANOSECONDS)) {
+                result.resultMap[RESULT_STATUS] = "TIMEOUT"
+            }
+
+            if (!result.resultMap.containsKey(RESULT_RESPONSE)) {
+                result.resultMap[RESULT_RESPONSE] = ""
+            }
+            result.resultMap[RESULT_REQUEST] = testRequest.trim()
+            result.resultMap[RESULT_TIMEOUT] = timeout
+
+            return result
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            onEnd(result)
+        }
+    }
+
+    override fun initTask() {
+    }
+
+    override fun getTestType(): QoSTestResultEnum = QoSTestResultEnum.NON_TRANSPARENT_PROXY
+
+    override fun needsQoSControlConnection(): Boolean = true
+
+    companion object {
+        const val DEFAULT_TIMEOUT = 5000000000L
+
+        const val PARAM_PROXY_REQUEST = "request"
+
+        const val PARAM_PROXY_PORT = "port"
+
+        const val PARAM_PROXY_TIMEOUT = "timeout"
+
+        const val RESULT_RESPONSE = "nontransproxy_result_response"
+
+        const val RESULT_REQUEST = "nontransproxy_objective_request"
+
+        const val RESULT_PORT = "nontransproxy_objective_port"
+
+        const val RESULT_TIMEOUT = "nontransproxy_objective_timeout"
+
+        const val RESULT_STATUS = "nontransproxy_result"
+    }
 }

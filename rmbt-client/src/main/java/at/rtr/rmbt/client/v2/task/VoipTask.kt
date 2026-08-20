@@ -1,412 +1,352 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
  * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client.v2.task;
+ */
+package at.rtr.rmbt.client.v2.task
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import at.rtr.rmbt.client.QualityOfServiceTest;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
-import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.PayloadType;
-import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException;
-import at.rtr.rmbt.util.net.rtp.RtpPacket;
-import at.rtr.rmbt.util.net.rtp.RtpUtil;
-import at.rtr.rmbt.util.net.rtp.RtpUtil.RtpControlData;
-import at.rtr.rmbt.util.net.rtp.RtpUtil.RtpQoSResult;
-import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
+import at.rtr.rmbt.client.QualityOfServiceTest
+import at.rtr.rmbt.client.v2.task.result.QoSTestResult
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.PayloadType
+import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException
+import at.rtr.rmbt.util.net.rtp.RtpPacket
+import at.rtr.rmbt.util.net.rtp.RtpUtil
+import at.rtr.rmbt.util.net.rtp.RtpUtil.RtpControlData
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback
+import java.io.DataOutputStream
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
+import java.nio.channels.DatagramChannel
+import java.util.HashMap
+import java.util.Random
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.regex.Pattern
 
 /**
- * 
- * @author lb
- * 
- * 	As of RFC 3550 and RFC 3551 most RTP (VoIP) Codecs have a sampling rate of 8kHz.<br>
- * 	The delay between the packets is set to 20ms for most codecs.<br>
- * 	The sample size varies from 2 (G726-16) to 16 (L16) bits per sample. Some codecs have a variable sample size.<br>
- * 	<br>
+ * As of RFC 3550 and RFC 3551 most RTP (VoIP) Codecs have a sampling rate of 8kHz.
  *
- *	The default VoIP test will be:
- *	<ul>
- *		<li>sampling rate: 8000 Hz</li>
- *		<li>size: 8bit per sample</li>
- *		<li>time/packet: 20ms</li>
- *	</ul>
- *	This is similar to the G722 audio codec (ITU-T Recommendation G.722).<br> 
- *	The G722 codec's actual sampling rate is 16kHz but because it was erroneously assigned in RFC 1890 with 8kHz 
- *	it needs to have this sampling rate to assure backward compatibility. 
- * 
+ * @author lb
  */
-public class VoipTask extends AbstractQoSTask {
-	
-	private final static Pattern VOIP_RECEIVE_RESPONSE_PATTERN = Pattern.compile("VOIPRESULT (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*)");
-	
-	private final static Pattern VOIP_OK_PATTERN = Pattern.compile("OK ([\\d]*)");
-	
-	private final Integer outgoingPort;
-	
-	private final Integer incomingPort;
-	
-	private final long callDuration;
-	
-	private final long timeout;
-	
-	private final long delay;
-	
-	private final int sampleRate;
-	
-	private final int bitsPerSample;
-	
-	private final PayloadType payloadType;
-	
-	private final static long DEFAULT_TIMEOUT = 3000000000L; //3s
-	
-	private final static long DEFAULT_CALL_DURATION = 1000000000L; //1s
-	
-	private final static long DEFAULT_DELAY = 20000000L; //20ms
-	
-	private final static int DEFAULT_SAMPLE_RATE = 8000; //8kHz
-	
-	private final static int DEFAULT_BITS_PER_SAMPLE = 8; //8 bits per sample
-	
-	private final static PayloadType DEFAULT_PAYLOAD_TYPE = PayloadType.PCMA;
-	
-	public final static String PARAM_BITS_PER_SAMLE = "bits_per_sample";
-	
-	public final static String PARAM_SAMPLE_RATE = "sample_rate";
-	
-	public final static String PARAM_DURATION = "call_duration"; //call duration in ns
-	
-	public final static String PARAM_PORT = "in_port";
-	
-	public final static String PARAM_PORT_OUT = "out_port";
-		
-	public final static String PARAM_TIMEOUT = "timeout";
-	
-	public final static String PARAM_DELAY = "delay";
-	
-	public final static String PARAM_PAYLOAD = "payload";
-	
-	public final static String RESULT_PAYLOAD = "voip_objective_payload";
-	
-	public final static String RESULT_IN_PORT = "voip_objective_in_port";
-	
-	public final static String RESULT_OUT_PORT = "voip_objective_out_port";
-	
-	public final static String RESULT_CALL_DURATION = "voip_objective_call_duration";
-	
-	public final static String RESULT_BITS_PER_SAMPLE = "voip_objective_bits_per_sample";
-	
-	public final static String RESULT_SAMPLE_RATE = "voip_objective_sample_rate";
-	
-	public final static String RESULT_DELAY = "voip_objective_delay";
-	
-	public final static String RESULT_TIMEOUT = "voip_objective_timeout";
-	
-	public final static String RESULT_STATUS = "voip_result_status";
-	
-	public final static String RESULT_VOIP_PREFIX = "voip_result";
-	
-	public final static String RESULT_INCOMING_PREFIX = "_in_";
-	
-	public final static String RESULT_OUTGOING_PREFIX = "_out_";
-	
-	public final static String RESULT_SHORT_SEQUENTIAL = "short_seq";
-	
-	public final static String RESULT_LONG_SEQUENTIAL = "long_seq";
-	
-	public final static String RESULT_MAX_JITTER = "max_jitter";
+class VoipTask(
+    nnTest: QualityOfServiceTest,
+    taskDesc: TaskDesc,
+    threadId: Int,
+    customTimeout: Long?,
+    private val ignoreErrors: Boolean
+) : AbstractQoSTask(nnTest, taskDesc, threadId, threadId) {
 
-	public final static String RESULT_MEAN_JITTER = "mean_jitter";
+    private val outgoingPort: Int?
+    private val incomingPort: Int?
+    private val callDuration: Long
+    private val timeout: Long
+    private val delay: Long
+    private val sampleRate: Int
+    private val bitsPerSample: Int
+    private val payloadType: PayloadType
 
-	public final static String RESULT_MAX_DELTA = "max_delta";
+    init {
+        var value = taskDesc.getParams()[PARAM_DURATION] as String?
+        this.callDuration = if (value != null) value.toLong() else DEFAULT_CALL_DURATION
 
-	public final static String RESULT_SKEW = "skew";
+        value = taskDesc.getParams()[PARAM_PORT] as String?
+        this.incomingPort = value?.toInt()
 
-	public final static String RESULT_NUM_PACKETS = "num_packets";
+        value = taskDesc.getParams()[PARAM_PORT_OUT] as String?
+        this.outgoingPort = value?.toInt()
 
-	public final static String RESULT_SEQUENCE_ERRORS = "sequence_error";
+        if (customTimeout == null) {
+            value = taskDesc.getParams()[PARAM_TIMEOUT] as String?
+            this.timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
+        } else {
+            this.timeout = customTimeout
+        }
 
-	private final boolean ignoreErrors;
+        value = taskDesc.getParams()[PARAM_DELAY] as String?
+        this.delay = if (value != null) value.toLong() else DEFAULT_DELAY
 
-	/**
-	 * @param taskDesc
-	 */
-	public VoipTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, Long customTimeout, boolean ignoreErrors) {
-		super(nnTest, taskDesc, threadId, threadId);
+        value = taskDesc.getParams()[PARAM_BITS_PER_SAMLE] as String?
+        this.bitsPerSample = if (value != null) value.toInt() else DEFAULT_BITS_PER_SAMPLE
 
-		this.ignoreErrors = ignoreErrors;
+        value = taskDesc.getParams()[PARAM_SAMPLE_RATE] as String?
+        this.sampleRate = if (value != null) value.toInt() else DEFAULT_SAMPLE_RATE
 
-		String value = (String) taskDesc.getParams().get(PARAM_DURATION);
-		this.callDuration = value != null ? Long.valueOf(value) : DEFAULT_CALL_DURATION;
+        value = taskDesc.getParams()[PARAM_PAYLOAD] as String?
+        this.payloadType = if (value != null) PayloadType.getByCodecValue(value.toInt(), DEFAULT_PAYLOAD_TYPE) else DEFAULT_PAYLOAD_TYPE
+    }
 
-		value = (String) taskDesc.getParams().get(PARAM_PORT);
-		this.incomingPort = value != null ? Integer.valueOf(value) : null;
+    override fun call(): QoSTestResult {
+        val ssrc = AtomicInteger(-1)
+        val result = initQoSTestResult(QoSTestResultEnum.VOIP)
 
-		value = (String) taskDesc.getParams().get(PARAM_PORT_OUT);
-		this.outgoingPort = value != null ? Integer.valueOf(value) : null;
+        result.resultMap[RESULT_BITS_PER_SAMPLE] = bitsPerSample
+        result.resultMap[RESULT_CALL_DURATION] = callDuration
+        result.resultMap[RESULT_DELAY] = delay
+        result.resultMap[RESULT_IN_PORT] = incomingPort
+        result.resultMap[RESULT_OUT_PORT] = outgoingPort
+        result.resultMap[RESULT_SAMPLE_RATE] = sampleRate
+        result.resultMap[RESULT_PAYLOAD] = payloadType.value
+        result.resultMap[RESULT_STATUS] = "OK"
 
-		if (customTimeout == null) {
-			value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-			this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
-		} else {
-			this.timeout = customTimeout;
-		}
+        try {
+            onStart(result)
 
-		value = (String) taskDesc.getParams().get(PARAM_DELAY);
-		this.delay = value != null ? Long.valueOf(value) : DEFAULT_DELAY;
+            val r = Random()
+            val initialSequenceNumber = r.nextInt(10000)
+            val latch = CountDownLatch(1)
+            val rtpControlDataList: MutableMap<Int, RtpControlData> = HashMap()
 
-		value = (String) taskDesc.getParams().get(PARAM_BITS_PER_SAMLE);
-		this.bitsPerSample = value != null ? Integer.valueOf(value) : DEFAULT_BITS_PER_SAMPLE;
+            val callback = object : ControlConnectionResponseCallback {
+                override fun onResponse(response: String?, request: String?) {
+                    if (response != null && response.startsWith("OK")) {
+                        val m = VOIP_OK_PATTERN.matcher(response)
+                        if (m.find()) {
+                            var dgsock: DatagramSocket? = null
+                            try {
+                                ssrc.set(m.group(1).toInt())
+                                dgsock = DatagramSocket()
 
-		value = (String) taskDesc.getParams().get(PARAM_SAMPLE_RATE);
-		this.sampleRate = value != null ? Integer.valueOf(value) : DEFAULT_SAMPLE_RATE;
-		
-		value = (String) taskDesc.getParams().get(PARAM_PAYLOAD);
-		this.payloadType = value != null ? PayloadType.getByCodecValue(Integer.valueOf(value), DEFAULT_PAYLOAD_TYPE) : DEFAULT_PAYLOAD_TYPE;
-	}
+                                val receiveCallback = object : UdpStreamCallback {
+                                    override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
+                                        // nothing to do here
+                                        return true
+                                    }
 
-	/**
-	 * 
-	 */
-	public QoSTestResult call() throws Exception {
-		final AtomicInteger ssrc = new AtomicInteger(-1);
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.VOIP);
-		
-		result.getResultMap().put(RESULT_BITS_PER_SAMPLE, bitsPerSample);
-		result.getResultMap().put(RESULT_CALL_DURATION, callDuration);
-		result.getResultMap().put(RESULT_DELAY, delay);
-		result.getResultMap().put(RESULT_IN_PORT, incomingPort);
-		result.getResultMap().put(RESULT_OUT_PORT, outgoingPort);
-		result.getResultMap().put(RESULT_SAMPLE_RATE, sampleRate);
-		result.getResultMap().put(RESULT_PAYLOAD, payloadType.getValue());
-		result.getResultMap().put(RESULT_STATUS, "OK");
-		
-		try {
-			onStart(result);
+                                    @Synchronized
+                                    override fun onReceive(dp: DatagramPacket) {
+                                        val receivedNs = System.nanoTime()
+                                        val data = dp.data
+                                        try {
+                                            val rtp = RtpPacket(data)
+                                            rtpControlDataList[rtp.getSequnceNumber()] = RtpControlData(rtp, receivedNs)
+                                        } catch (e: RtpException) {
+                                            e.printStackTrace()
+                                        }
+                                    }
 
-			final Random r = new Random();
-			final int initialSequenceNumber = r.nextInt(10000);
-			final CountDownLatch latch = new CountDownLatch(1);			
-			final Map<Integer, RtpControlData> rtpControlDataList = new HashMap<Integer, RtpUtil.RtpControlData>();
-			
-			final ControlConnectionResponseCallback callback = new ControlConnectionResponseCallback() {
-				
-				public void onResponse(String response, String request) {
-					if (response != null && response.startsWith("OK")) {
-						final Matcher m = VOIP_OK_PATTERN.matcher(response);
-						if (m.find()) {
-							DatagramSocket dgsock = null;
-							try {
-								ssrc.set(Integer.parseInt(m.group(1)));
-								dgsock = new DatagramSocket();
-								
-								final UdpStreamCallback receiveCallback = new UdpStreamCallback() {
-									
-									public boolean onSend(DataOutputStream dataOut, int packetNumber)
-											throws IOException {
-										//nothing to do here
-										return true;
-									}
-									
-									public synchronized void onReceive(DatagramPacket dp) throws IOException {
-										final long receivedNs = System.nanoTime();
-										final byte[] data = dp.getData();
-										try {
-											final RtpPacket rtp = new RtpPacket(data);
-										    rtpControlDataList.put(rtp.getSequnceNumber(), new RtpControlData(rtp, receivedNs));
-										} catch (RtpException e) {
-											e.printStackTrace();
-										}
-									}
+                                    override fun onBind(port: Int?) {
+                                        result.resultMap[RESULT_IN_PORT] = port
+                                    }
+                                }
 
-									public void onBind(Integer port)
-											throws IOException {
-										result.getResultMap().put(RESULT_IN_PORT, port);
-									}
-								};
-								
-								RtpUtil.runVoipStream(null, true, InetAddress.getByName(getTestServerAddr()), outgoingPort, incomingPort, sampleRate, bitsPerSample, 
-										payloadType, initialSequenceNumber, ssrc.get(), 
-										TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS), 
-										TimeUnit.MILLISECONDS.convert(delay, TimeUnit.NANOSECONDS), 
-										TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS), true, receiveCallback);
-							} 
-							catch (InterruptedException e) {
-								if (!ignoreErrors) {
-									result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
-									e.printStackTrace();
-								}
-							} 
-							catch (TimeoutException e) {
-								if (!ignoreErrors) {
-									result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
-									e.printStackTrace();
-								}
-							} 
-							catch (Exception e) {
-								if (!ignoreErrors) {
-									result.getResultMap().put(RESULT_STATUS, "ERROR");
-									e.printStackTrace();
-								}
-							} 
-							finally {
-								if (dgsock != null && !dgsock.isClosed()) {
-									dgsock.close();
-								}
-							}
-						}
-					}
-					else {
-						if (!ignoreErrors) {
-							result.getResultMap().put(RESULT_STATUS, "ERROR");
-						}
-					}
-					
-					latch.countDown();
-				}
-			};
-			
-	    	/*
-	    	 * syntax: VOIPTEST 0 1 2 3 4 5 6 7 
-	    	 * 	0 = outgoing port (server port)
-	    	 * 	1 = incoming port (client port) 
-	    	 *  2 = sample rate (in Hz)
-	    	 * 	3 = bits per sample
-	    	 * 	4 = packet delay in ms 
-	    	 * 	5 = call duration (test duration) in ms 
-	    	 * 	6 = starting sequence number (see rfc3550, rtp header: sequence number)
-	    	 *  7 = payload type
-	    	 */			
-			sendCommand("VOIPTEST " + outgoingPort + " " + (incomingPort == null ? outgoingPort : incomingPort) + " " + sampleRate + " " + bitsPerSample + " " 
-					+ TimeUnit.MILLISECONDS.convert(delay, TimeUnit.NANOSECONDS) + " " 
-					+ TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS) + " " 
-					+ initialSequenceNumber + " " + payloadType.getValue(), callback);
-			
-			//wait for countdownlatch or timeout:
-			latch.await(timeout, TimeUnit.NANOSECONDS);
-			
-			//if rtpreceivestream did not finish cancel the task
-			/*
-			if (!rtpInTimeoutTask.isDone()) {
-				rtpInTimeoutTask.cancel(true);
-			}
-			*/
-			
-			final CountDownLatch resultLatch = new CountDownLatch(1);
-			
-			final ControlConnectionResponseCallback incomingResultRequestCallback = new ControlConnectionResponseCallback() {
-				
-				public void onResponse(final String response, final String request) {
-					if (response != null && response.startsWith("VOIPRESULT")) {
-						System.out.println(response);
-						Matcher m = VOIP_RECEIVE_RESPONSE_PATTERN.matcher(response);
-						if (m.find()) {
-							final String prefix = RESULT_VOIP_PREFIX + RESULT_OUTGOING_PREFIX;
-							result.getResultMap().put(prefix + RESULT_MAX_JITTER, Long.parseLong(m.group(1)));
-							result.getResultMap().put(prefix + RESULT_MEAN_JITTER, Long.parseLong(m.group(2)));
-							result.getResultMap().put(prefix + RESULT_MAX_DELTA, Long.parseLong(m.group(3)));
-							result.getResultMap().put(prefix + RESULT_SKEW, Long.parseLong(m.group(4)));
-							result.getResultMap().put(prefix + RESULT_NUM_PACKETS, Long.parseLong(m.group(5)));
-							result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, Long.parseLong(m.group(6)));
-							result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, Long.parseLong(m.group(7)));
-							result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, Long.parseLong(m.group(8)));
-						}
-						resultLatch.countDown();
-					}
-				}
-			};
-			
-			//wait a short amount of time until requesting results
-			Thread.sleep(100);
-			//request server results:
-			if (ssrc.get() >= 0) {
-				sendCommand("GET VOIPRESULT " + ssrc.get(), incomingResultRequestCallback);
-				resultLatch.await(CONTROL_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
-			}
+                                RtpUtil.runVoipStream<DatagramChannel>(
+                                    null, true, InetAddress.getByName(getTestServerAddr()), outgoingPort!!, incomingPort, sampleRate, bitsPerSample,
+                                    payloadType, initialSequenceNumber.toLong(), ssrc.get(),
+                                    TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS),
+                                    TimeUnit.MILLISECONDS.convert(delay, TimeUnit.NANOSECONDS),
+                                    TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS), true, receiveCallback
+                                )
+                            } catch (e: InterruptedException) {
+                                if (!ignoreErrors) {
+                                    result.resultMap[RESULT_STATUS] = "TIMEOUT"
+                                    e.printStackTrace()
+                                }
+                            } catch (e: TimeoutException) {
+                                if (!ignoreErrors) {
+                                    result.resultMap[RESULT_STATUS] = "TIMEOUT"
+                                    e.printStackTrace()
+                                }
+                            } catch (e: Exception) {
+                                if (!ignoreErrors) {
+                                    result.resultMap[RESULT_STATUS] = "ERROR"
+                                    e.printStackTrace()
+                                }
+                            } finally {
+                                if (dgsock != null && !dgsock.isClosed) {
+                                    dgsock.close()
+                                }
+                            }
+                        }
+                    } else {
+                        if (!ignoreErrors) {
+                            result.resultMap[RESULT_STATUS] = "ERROR"
+                        }
+                    }
 
-			final RtpQoSResult rtpResults = rtpControlDataList.size() > 0 ? RtpUtil.calculateQoS(rtpControlDataList, initialSequenceNumber, sampleRate) : null;
-			
-			final String prefix = RESULT_VOIP_PREFIX + RESULT_INCOMING_PREFIX;
-			if (rtpResults != null) {
-				result.getResultMap().put(prefix + RESULT_MAX_JITTER, rtpResults.getMaxJitter());
-				result.getResultMap().put(prefix + RESULT_MEAN_JITTER, rtpResults.getMeanJitter());
-				result.getResultMap().put(prefix + RESULT_MAX_DELTA, rtpResults.getMaxDelta());
-				result.getResultMap().put(prefix + RESULT_SKEW, rtpResults.getSkew());
-				result.getResultMap().put(prefix + RESULT_NUM_PACKETS, rtpResults.getReceivedPackets());
-				result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, rtpResults.getOutOfOrder());
-				result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, rtpResults.getMinSequential());
-				result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, rtpResults.getMaxSequencial());
-			}
-			else {
-				result.getResultMap().put(prefix + RESULT_MAX_JITTER, null);
-				result.getResultMap().put(prefix + RESULT_MEAN_JITTER, null);
-				result.getResultMap().put(prefix + RESULT_MAX_DELTA, null);
-				result.getResultMap().put(prefix + RESULT_SKEW, null);
-				result.getResultMap().put(prefix + RESULT_NUM_PACKETS, 0);
-				result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, null);
-				result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, null);
-				result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, null);
-			}
-			
-	        return result;			
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		finally {
-			onEnd(result);
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.AbstractRmbtTask#initTask()
-	 */
-	@Override
-	public void initTask() {
+                    latch.countDown()
+                }
+            }
 
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.QoSTask#getTestType()
-	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.VOIP;
-	}
+            /*
+             * syntax: VOIPTEST 0 1 2 3 4 5 6 7
+             *  0 = outgoing port (server port)
+             *  1 = incoming port (client port)
+             *  2 = sample rate (in Hz)
+             *  3 = bits per sample
+             *  4 = packet delay in ms
+             *  5 = call duration (test duration) in ms
+             *  6 = starting sequence number (see rfc3550, rtp header: sequence number)
+             *  7 = payload type
+             */
+            sendCommand(
+                "VOIPTEST " + outgoingPort + " " + (if (incomingPort == null) outgoingPort else incomingPort) + " " + sampleRate + " " + bitsPerSample + " " +
+                    TimeUnit.MILLISECONDS.convert(delay, TimeUnit.NANOSECONDS) + " " +
+                    TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS) + " " +
+                    initialSequenceNumber + " " + payloadType.value,
+                callback
+            )
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
-	 */
-	public boolean needsQoSControlConnection() {
-		return true;
-	}
+            // wait for countdownlatch or timeout:
+            latch.await(timeout, TimeUnit.NANOSECONDS)
+
+            val resultLatch = CountDownLatch(1)
+
+            val incomingResultRequestCallback = object : ControlConnectionResponseCallback {
+                override fun onResponse(response: String?, request: String?) {
+                    if (response != null && response.startsWith("VOIPRESULT")) {
+                        println(response)
+                        val m = VOIP_RECEIVE_RESPONSE_PATTERN.matcher(response)
+                        if (m.find()) {
+                            val prefix = RESULT_VOIP_PREFIX + RESULT_OUTGOING_PREFIX
+                            result.resultMap[prefix + RESULT_MAX_JITTER] = m.group(1).toLong()
+                            result.resultMap[prefix + RESULT_MEAN_JITTER] = m.group(2).toLong()
+                            result.resultMap[prefix + RESULT_MAX_DELTA] = m.group(3).toLong()
+                            result.resultMap[prefix + RESULT_SKEW] = m.group(4).toLong()
+                            result.resultMap[prefix + RESULT_NUM_PACKETS] = m.group(5).toLong()
+                            result.resultMap[prefix + RESULT_SEQUENCE_ERRORS] = m.group(6).toLong()
+                            result.resultMap[prefix + RESULT_SHORT_SEQUENTIAL] = m.group(7).toLong()
+                            result.resultMap[prefix + RESULT_LONG_SEQUENTIAL] = m.group(8).toLong()
+                        }
+                        resultLatch.countDown()
+                    }
+                }
+            }
+
+            // wait a short amount of time until requesting results
+            Thread.sleep(100)
+            // request server results:
+            if (ssrc.get() >= 0) {
+                sendCommand("GET VOIPRESULT " + ssrc.get(), incomingResultRequestCallback)
+                resultLatch.await(CONTROL_CONNECTION_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
+            }
+
+            val rtpResults = if (rtpControlDataList.size > 0) RtpUtil.calculateQoS(rtpControlDataList, initialSequenceNumber.toLong(), sampleRate) else null
+
+            val prefix = RESULT_VOIP_PREFIX + RESULT_INCOMING_PREFIX
+            if (rtpResults != null) {
+                result.resultMap[prefix + RESULT_MAX_JITTER] = rtpResults.maxJitter
+                result.resultMap[prefix + RESULT_MEAN_JITTER] = rtpResults.meanJitter
+                result.resultMap[prefix + RESULT_MAX_DELTA] = rtpResults.maxDelta
+                result.resultMap[prefix + RESULT_SKEW] = rtpResults.skew
+                result.resultMap[prefix + RESULT_NUM_PACKETS] = rtpResults.receivedPackets
+                result.resultMap[prefix + RESULT_SEQUENCE_ERRORS] = rtpResults.outOfOrder
+                result.resultMap[prefix + RESULT_SHORT_SEQUENTIAL] = rtpResults.minSequential
+                result.resultMap[prefix + RESULT_LONG_SEQUENTIAL] = rtpResults.maxSequencial
+            } else {
+                result.resultMap[prefix + RESULT_MAX_JITTER] = null
+                result.resultMap[prefix + RESULT_MEAN_JITTER] = null
+                result.resultMap[prefix + RESULT_MAX_DELTA] = null
+                result.resultMap[prefix + RESULT_SKEW] = null
+                result.resultMap[prefix + RESULT_NUM_PACKETS] = 0
+                result.resultMap[prefix + RESULT_SEQUENCE_ERRORS] = null
+                result.resultMap[prefix + RESULT_SHORT_SEQUENTIAL] = null
+                result.resultMap[prefix + RESULT_LONG_SEQUENTIAL] = null
+            }
+
+            return result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        } finally {
+            onEnd(result)
+        }
+    }
+
+    override fun initTask() {
+    }
+
+    override fun getTestType(): QoSTestResultEnum = QoSTestResultEnum.VOIP
+
+    override fun needsQoSControlConnection(): Boolean = true
+
+    companion object {
+        private val VOIP_RECEIVE_RESPONSE_PATTERN: Pattern =
+            Pattern.compile("VOIPRESULT (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*)")
+
+        private val VOIP_OK_PATTERN: Pattern = Pattern.compile("OK ([\\d]*)")
+
+        private const val DEFAULT_TIMEOUT = 3000000000L // 3s
+
+        private const val DEFAULT_CALL_DURATION = 1000000000L // 1s
+
+        private const val DEFAULT_DELAY = 20000000L // 20ms
+
+        private const val DEFAULT_SAMPLE_RATE = 8000 // 8kHz
+
+        private const val DEFAULT_BITS_PER_SAMPLE = 8 // 8 bits per sample
+
+        private val DEFAULT_PAYLOAD_TYPE = PayloadType.PCMA
+
+        const val PARAM_BITS_PER_SAMLE = "bits_per_sample"
+
+        const val PARAM_SAMPLE_RATE = "sample_rate"
+
+        const val PARAM_DURATION = "call_duration" // call duration in ns
+
+        const val PARAM_PORT = "in_port"
+
+        const val PARAM_PORT_OUT = "out_port"
+
+        const val PARAM_TIMEOUT = "timeout"
+
+        const val PARAM_DELAY = "delay"
+
+        const val PARAM_PAYLOAD = "payload"
+
+        const val RESULT_PAYLOAD = "voip_objective_payload"
+
+        const val RESULT_IN_PORT = "voip_objective_in_port"
+
+        const val RESULT_OUT_PORT = "voip_objective_out_port"
+
+        const val RESULT_CALL_DURATION = "voip_objective_call_duration"
+
+        const val RESULT_BITS_PER_SAMPLE = "voip_objective_bits_per_sample"
+
+        const val RESULT_SAMPLE_RATE = "voip_objective_sample_rate"
+
+        const val RESULT_DELAY = "voip_objective_delay"
+
+        const val RESULT_TIMEOUT = "voip_objective_timeout"
+
+        const val RESULT_STATUS = "voip_result_status"
+
+        const val RESULT_VOIP_PREFIX = "voip_result"
+
+        const val RESULT_INCOMING_PREFIX = "_in_"
+
+        const val RESULT_OUTGOING_PREFIX = "_out_"
+
+        const val RESULT_SHORT_SEQUENTIAL = "short_seq"
+
+        const val RESULT_LONG_SEQUENTIAL = "long_seq"
+
+        const val RESULT_MAX_JITTER = "max_jitter"
+
+        const val RESULT_MEAN_JITTER = "mean_jitter"
+
+        const val RESULT_MAX_DELTA = "max_delta"
+
+        const val RESULT_SKEW = "skew"
+
+        const val RESULT_NUM_PACKETS = "num_packets"
+
+        const val RESULT_SEQUENCE_ERRORS = "sequence_error"
+    }
 }

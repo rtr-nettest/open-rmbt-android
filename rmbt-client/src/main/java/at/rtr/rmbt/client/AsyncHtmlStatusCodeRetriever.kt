@@ -1,65 +1,47 @@
-package at.rtr.rmbt.client;
+package at.rtr.rmbt.client
 
-import android.os.AsyncTask;
+import android.os.AsyncTask
+import java.net.HttpURLConnection
+import java.net.URL
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+class AsyncHtmlStatusCodeRetriever : AsyncTask<String, Void, Int>() {
 
-public class AsyncHtmlStatusCodeRetriever extends AsyncTask<String, Void, Integer> {
-
-    private ContentRetrieverListener listener;
+    private var listener: ContentRetrieverListener? = null
 
     /**
-     *
      * @author lb
-     *
      */
-    public static interface ContentRetrieverListener {
-        public void onContentFinished(Integer statusCode);
+    interface ContentRetrieverListener {
+        fun onContentFinished(statusCode: Int?)
     }
 
-    /**
-     *
-     * @param listener
-     */
-    public void setContentRetrieverListener(ContentRetrieverListener listener) {
-        this.listener = listener;
+    fun setContentRetrieverListener(listener: ContentRetrieverListener) {
+        this.listener = listener
     }
 
-    @Override
-    protected Integer doInBackground(String... params) {
-        try
-        {
-            URL url = new URL(params[0]);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    override fun doInBackground(vararg params: String?): Int? {
+        return try {
+            val url = URL(params[0])
+            val connection = url.openConnection() as HttpURLConnection
             try {
-                connection.setConnectTimeout(3000);
-                connection.connect();
-                final int statusCode = connection.getResponseCode();
-                System.out.println("response code: " + statusCode);
-                return statusCode;
-
+                connection.connectTimeout = 3000
+                connection.connect()
+                val statusCode = connection.responseCode
+                println("response code: $statusCode")
+                statusCode
+            } catch (e: Exception) {
+                null
+            } finally {
+                connection.disconnect()
             }
-            catch (Exception e) {
-                return null;
-            }
-            finally {
-                connection.disconnect();
-            }
+        } catch (e: Exception) {
+            null
         }
-        catch (Exception e)
-        {
-            return null;
-        }
-
     }
 
-    @Override
-    protected void onPostExecute(Integer result) {
-        super.onPostExecute(result);
+    override fun onPostExecute(result: Int?) {
+        super.onPostExecute(result)
 
-        if (this.listener != null) {
-            listener.onContentFinished(result);
-        }
+        listener?.onContentFinished(result)
     }
 }

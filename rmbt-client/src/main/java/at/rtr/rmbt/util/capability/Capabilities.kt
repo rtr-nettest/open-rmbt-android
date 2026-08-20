@@ -13,62 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.capability;
-
-import com.google.gson.annotations.SerializedName;
-
-/**
- * 
- * @author lb
- *
  */
-public class Capabilities {
-	
-	@SerializedName("classification")
-	protected ClassificationCapability classification = new ClassificationCapability();
-	
-	@SerializedName("qos")
-	protected QualityOfServiceCapability qos = new QualityOfServiceCapability();
+package at.rtr.rmbt.util.capability
 
-	@SerializedName("RMBThttp")
-    private boolean rmbtHttp = true;
+import com.google.gson.annotations.SerializedName
 
-	/**
-	 * classification capability
-	 * @return
-	 */
-	public ClassificationCapability getClassificationCapability() {
-		return classification;
-	}
+class Capabilities {
 
-	public void setClassification(ClassificationCapability classification) {
-		this.classification = classification;
-	}
+    @SerializedName("classification")
+    var classification = ClassificationCapability()
 
-	/**
-	 * qos capabilities
-	 * @return
-	 */
-	public QualityOfServiceCapability getQosCapability() {
-		return qos;
-	}
+    @SerializedName("qos")
+    var qos = QualityOfServiceCapability()
 
-	public void setQos(QualityOfServiceCapability qos) {
-		this.qos = qos;
-	}
+    @SerializedName("RMBThttp")
+    var rmbtHttp = true
 
-	public boolean getRmbtHttp() {
-		return rmbtHttp;
-	}
-
-	public void setRmbtHttp(boolean rmbtHttp) {
-		this.rmbtHttp = rmbtHttp;
-	}
-
-	@Override
-	public String toString() {
-		return "Capabilities [classification=" + classification + ", qos="
-				+ qos + "]";
-	}
+    override fun toString(): String = "Capabilities [classification=$classification, qos=$qos]"
 }

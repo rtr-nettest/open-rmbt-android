@@ -12,409 +12,352 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ */
+package at.rtr.rmbt.client
 
-package at.rtr.rmbt.client;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-
-import androidx.annotation.NonNull;
-
-import java.util.HashMap;
+import android.content.Context
 
 /**
  * Created by michal.cadrik on 7/6/2017.
- * <p>
+ *
  * Class dedicated to save and load voip test result from shared preferences
  */
-
-@SuppressWarnings("UnnecessaryLocalVariable")
-public class VoipTestResultHandler {
-
-    private static final String VOIP_TEST_RESULT_SHARED_PREF_KEY = "VOIP_TEST_RESULT_SHARED_PREF";
+class VoipTestResultHandler {
 
     /**
      * Converts results hash map to object used to send as Json
-     *
-     * @param resultMap
-     * @return
      */
-    public VoipTestResult convertResultsToObject(HashMap<String, Object> resultMap) {
+    fun convertResultsToObject(resultMap: HashMap<String, Any?>): VoipTestResult {
+        val voipTestResult = VoipTestResult()
 
-        VoipTestResult voipTestResult = new VoipTestResult();
+        // IN
+        if (resultMap.containsKey("voip_result_in_num_packets")) {
+            voipTestResult.resultInNumPackets = resultMap["voip_result_in_num_packets"] as Int?
+        }
+        if (resultMap.containsKey("voip_result_in_long_seq")) {
+            voipTestResult.resultInLongestSeqPackets = resultMap["voip_result_in_long_seq"] as Int?
+        }
+        if (resultMap.containsKey("voip_result_in_short_seq")) {
+            voipTestResult.resultInShortestSeqPackets = resultMap["voip_result_in_short_seq"] as Int?
+        }
+        if (resultMap.containsKey("voip_result_in_mean_jitter")) {
+            voipTestResult.resultInMeanJitter = resultMap["voip_result_in_mean_jitter"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_in_max_jitter")) {
+            voipTestResult.resultInMaxJitter = resultMap["voip_result_in_max_jitter"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_in_sequence_error")) {
+            voipTestResult.resultInSeqError = resultMap["voip_result_in_sequence_error"] as Int?
+        }
+        if (resultMap.containsKey("voip_result_in_skew")) {
+            voipTestResult.resultInSkew = resultMap["voip_result_in_skew"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_in_max_delta")) {
+            voipTestResult.resultInMaxDelta = resultMap["voip_result_in_max_delta"] as Long?
+        }
 
-        //IN
-        if (resultMap.containsKey("voip_result_in_num_packets"))
-            voipTestResult.setResultInNumPackets((Integer) resultMap.get("voip_result_in_num_packets"));
+        // OUT
+        if (resultMap.containsKey("voip_result_out_skew")) {
+            voipTestResult.resultOutSkew = resultMap["voip_result_out_skew"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_max_delta")) {
+            voipTestResult.resultOutMaxDelta = resultMap["voip_result_out_max_delta"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_sequence_error")) {
+            voipTestResult.resultOutSeqError = resultMap["voip_result_out_sequence_error"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_long_seq")) {
+            voipTestResult.resultOutLongestSeqPackets = resultMap["voip_result_out_long_seq"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_short_seq")) {
+            voipTestResult.resultOutShortestSeqPackets = resultMap["voip_result_out_short_seq"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_mean_jitter")) {
+            voipTestResult.resultOutMeanJitter = resultMap["voip_result_out_mean_jitter"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_max_jitter")) {
+            voipTestResult.resultOutMaxJitter = resultMap["voip_result_out_max_jitter"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_out_num_packets")) {
+            voipTestResult.resultOutNumPackets = resultMap["voip_result_out_num_packets"] as Long?
+        }
 
-        if (resultMap.containsKey("voip_result_in_long_seq"))
-            voipTestResult.setResultInLongestSeqPackets((Integer) resultMap.get("voip_result_in_long_seq"));
+        // OBJECTIVES
+        if (resultMap.containsKey("voip_objective_bits_per_sample")) {
+            voipTestResult.objectiveBitsPerSample = resultMap["voip_objective_bits_per_sample"] as Int?
+        }
+        if (resultMap.containsKey("voip_objective_in_port")) {
+            voipTestResult.objectivePortIn = resultMap["voip_objective_in_port"] as Int?
+        }
+        if (resultMap.containsKey("voip_objective_out_port")) {
+            voipTestResult.objectivePortOut = resultMap["voip_objective_out_port"] as Int?
+        }
+        if (resultMap.containsKey("voip_objective_delay")) {
+            voipTestResult.objectiveDelay = resultMap["voip_objective_delay"] as Long?
+        }
+        if (resultMap.containsKey("voip_objective_timeout")) {
+            voipTestResult.objectiveTimeoutNS = resultMap["voip_objective_timeout"] as Long?
+        }
+        if (resultMap.containsKey("voip_objective_payload")) {
+            voipTestResult.objectivePayload = resultMap["voip_objective_payload"] as Int?
+        }
+        if (resultMap.containsKey("voip_objective_call_duration")) {
+            voipTestResult.objectiveCallDuration = resultMap["voip_objective_call_duration"] as Long?
+        }
+        if (resultMap.containsKey("voip_objective_sample_rate")) {
+            voipTestResult.objectiveBitsPerSample = resultMap["voip_objective_sample_rate"] as Int?
+        }
 
-        if (resultMap.containsKey("voip_result_in_short_seq"))
-            voipTestResult.setResultInShortestSeqPackets((Integer) resultMap.get("voip_result_in_short_seq"));
+        // GENERAL
+        if (resultMap.containsKey("duration_ns")) {
+            voipTestResult.testDurationInNS = resultMap["duration_ns"] as Long?
+        }
+        if (resultMap.containsKey("start_time_ns")) {
+            voipTestResult.startTimeInNS = resultMap["start_time_ns"] as Long?
+        }
+        if (resultMap.containsKey("voip_result_status")) {
+            voipTestResult.testResultStatus = resultMap["voip_result_status"] as String?
+        }
 
-        if (resultMap.containsKey("voip_result_in_mean_jitter"))
-            voipTestResult.setResultInMeanJitter((Long) resultMap.get("voip_result_in_mean_jitter"));
-
-        if (resultMap.containsKey("voip_result_in_max_jitter"))
-            voipTestResult.setResultInMaxJitter((Long) resultMap.get("voip_result_in_max_jitter"));
-
-        if (resultMap.containsKey("voip_result_in_sequence_error"))
-            voipTestResult.setResultInSeqError((Integer) resultMap.get("voip_result_in_sequence_error"));
-
-        if (resultMap.containsKey("voip_result_in_skew"))
-            voipTestResult.setResultInSkew((Long) resultMap.get("voip_result_in_skew"));
-
-        if (resultMap.containsKey("voip_result_in_max_delta"))
-            voipTestResult.setResultInMaxDelta((Long) resultMap.get("voip_result_in_max_delta"));
-
-
-        //OUT
-
-        if (resultMap.containsKey("voip_result_out_skew"))
-            voipTestResult.setResultOutSkew((Long) resultMap.get("voip_result_out_skew"));
-
-        if (resultMap.containsKey("voip_result_out_max_delta"))
-            voipTestResult.setResultOutMaxDelta((Long) resultMap.get("voip_result_out_max_delta"));
-
-        if (resultMap.containsKey("voip_result_out_sequence_error"))
-            voipTestResult.setResultOutSeqError((Long) resultMap.get("voip_result_out_sequence_error"));
-
-        if (resultMap.containsKey("voip_result_out_long_seq"))
-            voipTestResult.setResultOutLongestSeqPackets((Long) resultMap.get("voip_result_out_long_seq"));
-
-        if (resultMap.containsKey("voip_result_out_short_seq"))
-            voipTestResult.setResultOutShortestSeqPackets((Long) resultMap.get("voip_result_out_short_seq"));
-
-        if (resultMap.containsKey("voip_result_out_mean_jitter"))
-            voipTestResult.setResultOutMeanJitter((Long) resultMap.get("voip_result_out_mean_jitter"));
-
-        if (resultMap.containsKey("voip_result_out_max_jitter"))
-            voipTestResult.setResultOutMaxJitter((Long) resultMap.get("voip_result_out_max_jitter"));
-
-        if (resultMap.containsKey("voip_result_out_num_packets"))
-            voipTestResult.setResultOutNumPackets((Long) resultMap.get("voip_result_out_num_packets"));
-
-
-        //OBJECTIVES
-
-        if (resultMap.containsKey("voip_objective_bits_per_sample"))
-            voipTestResult.setObjectiveBitsPerSample((Integer) resultMap.get("voip_objective_bits_per_sample"));
-
-        if (resultMap.containsKey("voip_objective_in_port"))
-            voipTestResult.setObjectivePortIn((Integer) resultMap.get("voip_objective_in_port"));
-
-        if (resultMap.containsKey("voip_objective_out_port"))
-            voipTestResult.setObjectivePortOut((Integer) resultMap.get("voip_objective_out_port"));
-
-        if (resultMap.containsKey("voip_objective_delay"))
-            voipTestResult.setObjectiveDelay((Long) resultMap.get("voip_objective_delay"));
-
-        if (resultMap.containsKey("voip_objective_timeout"))
-            voipTestResult.setObjectiveTimeoutNS((Long) resultMap.get("voip_objective_timeout"));
-
-        if (resultMap.containsKey("voip_objective_payload"))
-            voipTestResult.setObjectivePayload((Integer) resultMap.get("voip_objective_payload"));
-
-        if (resultMap.containsKey("voip_objective_call_duration"))
-            voipTestResult.setObjectiveCallDuration((Long) resultMap.get("voip_objective_call_duration"));
-
-        if (resultMap.containsKey("voip_objective_sample_rate"))
-            voipTestResult.setObjectiveBitsPerSample((Integer) resultMap.get("voip_objective_sample_rate"));
-
-
-        //GENERAL
-
-        if (resultMap.containsKey("duration_ns"))
-            voipTestResult.setTestDurationInNS((Long) resultMap.get("duration_ns"));
-
-        if (resultMap.containsKey("start_time_ns"))
-            voipTestResult.setStartTimeInNS((Long) resultMap.get("start_time_ns"));
-
-        if (resultMap.containsKey("voip_result_status"))
-            voipTestResult.setTestResultStatus((String) resultMap.get("voip_result_status"));
-
-        return voipTestResult;
+        return voipTestResult
     }
 
     /**
      * Saves result hash map to shared preferences
-     *
-     * @param resultMap
-     * @param context
-     * @return
      */
-    public boolean save(HashMap<String, Object> resultMap, @NonNull Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(VOIP_TEST_RESULT_SHARED_PREF_KEY, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+    fun save(resultMap: HashMap<String, Any?>, context: Context): Boolean {
+        val sharedPreferences = context.getSharedPreferences(VOIP_TEST_RESULT_SHARED_PREF_KEY, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
 
-        //IN
-        if (resultMap.containsKey("voip_result_in_num_packets"))
-            editor.putInt("voip_result_in_num_packets", (Integer) resultMap.get("voip_result_in_num_packets"));
+        // IN
+        if (resultMap.containsKey("voip_result_in_num_packets")) {
+            editor.putInt("voip_result_in_num_packets", resultMap["voip_result_in_num_packets"] as Int)
+        }
+        if (resultMap.containsKey("voip_result_in_long_seq")) {
+            editor.putInt("voip_result_in_long_seq", resultMap["voip_result_in_long_seq"] as Int)
+        }
+        if (resultMap.containsKey("voip_result_in_short_seq")) {
+            editor.putInt("voip_result_in_short_seq", resultMap["voip_result_in_short_seq"] as Int)
+        }
+        if (resultMap.containsKey("voip_result_in_mean_jitter")) {
+            editor.putLong("voip_result_in_mean_jitter", resultMap["voip_result_in_mean_jitter"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_in_max_jitter")) {
+            editor.putLong("voip_result_in_max_jitter", resultMap["voip_result_in_max_jitter"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_in_sequence_error")) {
+            editor.putLong("voip_result_in_sequence_error", (resultMap["voip_result_in_sequence_error"] as Int).toLong())
+        }
+        if (resultMap.containsKey("voip_result_in_skew")) {
+            editor.putLong("voip_result_in_skew", resultMap["voip_result_in_skew"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_in_max_delta")) {
+            editor.putLong("voip_result_in_max_delta", resultMap["voip_result_in_max_delta"] as Long)
+        }
 
-        if (resultMap.containsKey("voip_result_in_long_seq"))
-            editor.putInt("voip_result_in_long_seq", (Integer) resultMap.get("voip_result_in_long_seq"));
+        // OUT
+        if (resultMap.containsKey("voip_result_out_skew")) {
+            editor.putLong("voip_result_out_skew", resultMap["voip_result_out_skew"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_max_delta")) {
+            editor.putLong("voip_result_out_max_delta", resultMap["voip_result_out_max_delta"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_sequence_error")) {
+            editor.putLong("voip_result_out_sequence_error", resultMap["voip_result_out_sequence_error"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_long_seq")) {
+            editor.putLong("voip_result_out_long_seq", resultMap["voip_result_out_long_seq"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_short_seq")) {
+            editor.putLong("voip_result_out_short_seq", resultMap["voip_result_out_short_seq"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_mean_jitter")) {
+            editor.putLong("voip_result_out_mean_jitter", resultMap["voip_result_out_mean_jitter"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_max_jitter")) {
+            editor.putLong("voip_result_out_max_jitter", resultMap["voip_result_out_max_jitter"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_out_num_packets")) {
+            editor.putLong("voip_result_out_num_packets", resultMap["voip_result_out_num_packets"] as Long)
+        }
 
-        if (resultMap.containsKey("voip_result_in_short_seq"))
-            editor.putInt("voip_result_in_short_seq", (Integer) resultMap.get("voip_result_in_short_seq"));
+        // OBJECTIVES
+        if (resultMap.containsKey("voip_objective_bits_per_sample")) {
+            editor.putInt("voip_objective_bits_per_sample", resultMap["voip_objective_bits_per_sample"] as Int)
+        }
+        if (resultMap.containsKey("voip_objective_in_port")) {
+            editor.putInt("voip_objective_in_port", resultMap["voip_objective_in_port"] as Int)
+        }
+        if (resultMap.containsKey("voip_objective_out_port")) {
+            editor.putInt("voip_objective_out_port", resultMap["voip_objective_out_port"] as Int)
+        }
+        if (resultMap.containsKey("voip_objective_delay")) {
+            editor.putLong("voip_objective_delay", resultMap["voip_objective_delay"] as Long)
+        }
+        if (resultMap.containsKey("voip_objective_timeout")) {
+            editor.putLong("voip_objective_timeout", resultMap["voip_objective_timeout"] as Long)
+        }
+        if (resultMap.containsKey("voip_objective_payload")) {
+            editor.putInt("voip_objective_payload", resultMap["voip_objective_payload"] as Int)
+        }
+        if (resultMap.containsKey("voip_objective_call_duration")) {
+            editor.putLong("voip_objective_call_duration", resultMap["voip_objective_call_duration"] as Long)
+        }
+        if (resultMap.containsKey("voip_objective_sample_rate")) {
+            editor.putInt("voip_objective_sample_rate", resultMap["voip_objective_sample_rate"] as Int)
+        }
 
-        if (resultMap.containsKey("voip_result_in_mean_jitter"))
-            editor.putLong("voip_result_in_mean_jitter", (Long) resultMap.get("voip_result_in_mean_jitter"));
+        // GENERAL
+        if (resultMap.containsKey("duration_ns")) {
+            editor.putLong("duration_ns", resultMap["duration_ns"] as Long)
+        }
+        if (resultMap.containsKey("start_time_ns")) {
+            editor.putLong("start_time_ns", resultMap["start_time_ns"] as Long)
+        }
+        if (resultMap.containsKey("voip_result_status")) {
+            editor.putString("voip_result_status", resultMap["voip_result_status"] as String?)
+        }
 
-        if (resultMap.containsKey("voip_result_in_max_jitter"))
-            editor.putLong("voip_result_in_max_jitter", (Long) resultMap.get("voip_result_in_max_jitter"));
-
-        if (resultMap.containsKey("voip_result_in_sequence_error"))
-            editor.putLong("voip_result_in_sequence_error", (Integer) resultMap.get("voip_result_in_sequence_error"));
-
-        if (resultMap.containsKey("voip_result_in_skew"))
-            editor.putLong("voip_result_in_skew", (Long) resultMap.get("voip_result_in_skew"));
-
-        if (resultMap.containsKey("voip_result_in_max_delta"))
-            editor.putLong("voip_result_in_max_delta", (Long) resultMap.get("voip_result_in_max_delta"));
-
-
-        //OUT
-
-        if (resultMap.containsKey("voip_result_out_skew"))
-            editor.putLong("voip_result_out_skew", (Long) resultMap.get("voip_result_out_skew"));
-
-        if (resultMap.containsKey("voip_result_out_max_delta"))
-            editor.putLong("voip_result_out_max_delta", (Long) resultMap.get("voip_result_out_max_delta"));
-
-        if (resultMap.containsKey("voip_result_out_sequence_error"))
-            editor.putLong("voip_result_out_sequence_error", (Long) resultMap.get("voip_result_out_sequence_error"));
-
-        if (resultMap.containsKey("voip_result_out_long_seq"))
-            editor.putLong("voip_result_out_long_seq", (Long) resultMap.get("voip_result_out_long_seq"));
-
-        if (resultMap.containsKey("voip_result_out_short_seq"))
-            editor.putLong("voip_result_out_short_seq", (Long) resultMap.get("voip_result_out_short_seq"));
-
-        if (resultMap.containsKey("voip_result_out_mean_jitter"))
-            editor.putLong("voip_result_out_mean_jitter", (Long) resultMap.get("voip_result_out_mean_jitter"));
-
-        if (resultMap.containsKey("voip_result_out_max_jitter"))
-            editor.putLong("voip_result_out_max_jitter", (Long) resultMap.get("voip_result_out_max_jitter"));
-
-        if (resultMap.containsKey("voip_result_out_num_packets"))
-            editor.putLong("voip_result_out_num_packets", (Long) resultMap.get("voip_result_out_num_packets"));
-
-
-        //OBJECTIVES
-
-        if (resultMap.containsKey("voip_objective_bits_per_sample"))
-            editor.putInt("voip_objective_bits_per_sample", (Integer) resultMap.get("voip_objective_bits_per_sample"));
-
-        if (resultMap.containsKey("voip_objective_in_port"))
-            editor.putInt("voip_objective_in_port", (Integer) resultMap.get("voip_objective_in_port"));
-
-        if (resultMap.containsKey("voip_objective_out_port"))
-            editor.putInt("voip_objective_out_port", (Integer) resultMap.get("voip_objective_out_port"));
-
-        if (resultMap.containsKey("voip_objective_delay"))
-            editor.putLong("voip_objective_delay", (Long) resultMap.get("voip_objective_delay"));
-
-        if (resultMap.containsKey("voip_objective_timeout"))
-            editor.putLong("voip_objective_timeout", (Long) resultMap.get("voip_objective_timeout"));
-
-        if (resultMap.containsKey("voip_objective_payload"))
-            editor.putInt("voip_objective_payload", (Integer) resultMap.get("voip_objective_payload"));
-
-        if (resultMap.containsKey("voip_objective_call_duration"))
-            editor.putLong("voip_objective_call_duration", (Long) resultMap.get("voip_objective_call_duration"));
-
-        if (resultMap.containsKey("voip_objective_sample_rate"))
-            editor.putInt("voip_objective_sample_rate", (Integer) resultMap.get("voip_objective_sample_rate"));
-
-
-        //GENERAL
-
-        if (resultMap.containsKey("duration_ns"))
-            editor.putLong("duration_ns", (Long) resultMap.get("duration_ns"));
-
-        if (resultMap.containsKey("start_time_ns"))
-            editor.putLong("start_time_ns", (Long) resultMap.get("start_time_ns"));
-
-        if (resultMap.containsKey("voip_result_status"))
-            editor.putString("voip_result_status", (String) resultMap.get("voip_result_status"));
-
-        boolean successfullySaved = editor.commit();
-
-        return successfullySaved;
+        return editor.commit()
     }
 
     /**
      * Gets voip test results from shared preferences file
-     *
-     * @param context
-     * @return object filed with data
      */
-    public VoipTestResult load(@NonNull Context context) {
-        VoipTestResult voipTestResult = new VoipTestResult();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(VOIP_TEST_RESULT_SHARED_PREF_KEY, Context.MODE_PRIVATE);
+    fun load(context: Context): VoipTestResult {
+        val voipTestResult = VoipTestResult()
+        val sharedPreferences = context.getSharedPreferences(VOIP_TEST_RESULT_SHARED_PREF_KEY, Context.MODE_PRIVATE)
 
-        //IN
+        // IN
         if (sharedPreferences.contains("voip_result_in_num_packets")) {
-            int voip_result_in_num_packets = sharedPreferences.getInt("voip_result_in_num_packets", -1);
-            voipTestResult.setResultInNumPackets(voip_result_in_num_packets == -1 ? null : voip_result_in_num_packets);
+            val v = sharedPreferences.getInt("voip_result_in_num_packets", -1)
+            voipTestResult.resultInNumPackets = if (v == -1) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_long_seq")) {
-            int voip_result_in_long_seq = sharedPreferences.getInt("voip_result_in_long_seq", -1);
-            voipTestResult.setResultInLongestSeqPackets(voip_result_in_long_seq == -1 ? null : voip_result_in_long_seq);
+            val v = sharedPreferences.getInt("voip_result_in_long_seq", -1)
+            voipTestResult.resultInLongestSeqPackets = if (v == -1) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_short_seq")) {
-            int voip_result_in_short_seq = sharedPreferences.getInt("voip_result_in_short_seq", -1);
-            voipTestResult.setResultInShortestSeqPackets(voip_result_in_short_seq == -1 ? null : voip_result_in_short_seq);
+            val v = sharedPreferences.getInt("voip_result_in_short_seq", -1)
+            voipTestResult.resultInShortestSeqPackets = if (v == -1) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_mean_jitter")) {
-            long voip_result_in_mean_jitter = sharedPreferences.getLong("voip_result_in_mean_jitter", Long.MIN_VALUE);
-            voipTestResult.setResultInMeanJitter(voip_result_in_mean_jitter == Long.MIN_VALUE ? null : voip_result_in_mean_jitter);
+            val v = sharedPreferences.getLong("voip_result_in_mean_jitter", Long.MIN_VALUE)
+            voipTestResult.resultInMeanJitter = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_max_jitter")) {
-            long voip_result_in_max_jitter = sharedPreferences.getLong("voip_result_in_max_jitter", Long.MIN_VALUE);
-            voipTestResult.setResultInMaxJitter(voip_result_in_max_jitter == Long.MIN_VALUE ? null : voip_result_in_max_jitter);
+            val v = sharedPreferences.getLong("voip_result_in_max_jitter", Long.MIN_VALUE)
+            voipTestResult.resultInMaxJitter = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_sequence_error")) {
-            int voip_result_in_sequence_error = sharedPreferences.getInt("voip_result_in_sequence_error", Integer.MIN_VALUE);
-            voipTestResult.setResultInSeqError(voip_result_in_sequence_error == Integer.MIN_VALUE ? null : voip_result_in_sequence_error);
+            val v = sharedPreferences.getInt("voip_result_in_sequence_error", Int.MIN_VALUE)
+            voipTestResult.resultInSeqError = if (v == Int.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_skew")) {
-            long voip_result_in_skew = sharedPreferences.getLong("voip_result_in_skew", Long.MIN_VALUE);
-            voipTestResult.setResultInSkew(voip_result_in_skew == Long.MIN_VALUE ? null : voip_result_in_skew);
+            val v = sharedPreferences.getLong("voip_result_in_skew", Long.MIN_VALUE)
+            voipTestResult.resultInSkew = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_in_max_delta")) {
-            long voip_result_in_max_delta = sharedPreferences.getLong("voip_result_in_max_delta", Long.MIN_VALUE);
-            voipTestResult.setResultInMaxDelta(voip_result_in_max_delta == Long.MIN_VALUE ? null : voip_result_in_max_delta);
+            val v = sharedPreferences.getLong("voip_result_in_max_delta", Long.MIN_VALUE)
+            voipTestResult.resultInMaxDelta = if (v == Long.MIN_VALUE) null else v
         }
 
-
-        //OUT
-
+        // OUT
         if (sharedPreferences.contains("voip_result_out_skew")) {
-            long voip_result_out_skew = sharedPreferences.getLong("voip_result_out_skew", Long.MIN_VALUE);
-            voipTestResult.setResultOutSkew(voip_result_out_skew == Long.MIN_VALUE ? null : voip_result_out_skew);
+            val v = sharedPreferences.getLong("voip_result_out_skew", Long.MIN_VALUE)
+            voipTestResult.resultOutSkew = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_max_delta")) {
-            long voip_result_out_max_delta = sharedPreferences.getLong("voip_result_out_max_delta", Long.MIN_VALUE);
-            voipTestResult.setResultOutMaxDelta(voip_result_out_max_delta == Long.MIN_VALUE ? null : voip_result_out_max_delta);
+            val v = sharedPreferences.getLong("voip_result_out_max_delta", Long.MIN_VALUE)
+            voipTestResult.resultOutMaxDelta = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_sequence_error")) {
-            long voip_result_out_sequence_error = sharedPreferences.getLong("voip_result_out_sequence_error", Long.MIN_VALUE);
-            voipTestResult.setResultOutSeqError(voip_result_out_sequence_error == Long.MIN_VALUE ? null : voip_result_out_sequence_error);
+            val v = sharedPreferences.getLong("voip_result_out_sequence_error", Long.MIN_VALUE)
+            voipTestResult.resultOutSeqError = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_long_seq")) {
-            long voip_result_out_long_seq = sharedPreferences.getLong("voip_result_out_long_seq", Long.MIN_VALUE);
-            voipTestResult.setResultOutLongestSeqPackets(voip_result_out_long_seq == Long.MIN_VALUE ? null : voip_result_out_long_seq);
+            val v = sharedPreferences.getLong("voip_result_out_long_seq", Long.MIN_VALUE)
+            voipTestResult.resultOutLongestSeqPackets = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_short_seq")) {
-            long voip_result_out_short_seq = sharedPreferences.getLong("voip_result_out_short_seq", Long.MIN_VALUE);
-            voipTestResult.setResultOutShortestSeqPackets(voip_result_out_short_seq == Long.MIN_VALUE ? null : voip_result_out_short_seq);
+            val v = sharedPreferences.getLong("voip_result_out_short_seq", Long.MIN_VALUE)
+            voipTestResult.resultOutShortestSeqPackets = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_mean_jitter")) {
-            long voip_result_out_mean_jitter = sharedPreferences.getLong("voip_result_out_mean_jitter", Long.MIN_VALUE);
-            voipTestResult.setResultOutMeanJitter(voip_result_out_mean_jitter == Long.MIN_VALUE ? null : voip_result_out_mean_jitter);
+            val v = sharedPreferences.getLong("voip_result_out_mean_jitter", Long.MIN_VALUE)
+            voipTestResult.resultOutMeanJitter = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_max_jitter")) {
-            long voip_result_out_max_jitter = sharedPreferences.getLong("voip_result_out_max_jitter", Long.MIN_VALUE);
-            voipTestResult.setResultOutMaxJitter(voip_result_out_max_jitter == Long.MIN_VALUE ? null : voip_result_out_max_jitter);
+            val v = sharedPreferences.getLong("voip_result_out_max_jitter", Long.MIN_VALUE)
+            voipTestResult.resultOutMaxJitter = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_out_num_packets")) {
-            long voip_result_out_num_packets = sharedPreferences.getLong("voip_result_out_num_packets", Long.MIN_VALUE);
-            voipTestResult.setResultOutNumPackets(voip_result_out_num_packets == Long.MIN_VALUE ? null : voip_result_out_num_packets);
+            val v = sharedPreferences.getLong("voip_result_out_num_packets", Long.MIN_VALUE)
+            voipTestResult.resultOutNumPackets = if (v == Long.MIN_VALUE) null else v
         }
 
-
-        //OBJECTIVES
-
+        // OBJECTIVES
         if (sharedPreferences.contains("voip_objective_bits_per_sample")) {
-            int voip_objective_bits_per_sample = sharedPreferences.getInt("voip_objective_bits_per_sample", Integer.MIN_VALUE);
-            voipTestResult.setObjectiveBitsPerSample(voip_objective_bits_per_sample == Integer.MIN_VALUE ? null : voip_objective_bits_per_sample);
+            val v = sharedPreferences.getInt("voip_objective_bits_per_sample", Int.MIN_VALUE)
+            voipTestResult.objectiveBitsPerSample = if (v == Int.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_in_port")) {
-            int voip_objective_in_port = sharedPreferences.getInt("voip_objective_in_port", Integer.MIN_VALUE);
-            voipTestResult.setObjectivePortIn(voip_objective_in_port == Integer.MIN_VALUE ? null : voip_objective_in_port);
+            val v = sharedPreferences.getInt("voip_objective_in_port", Int.MIN_VALUE)
+            voipTestResult.objectivePortIn = if (v == Int.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_out_port")) {
-            int voip_objective_out_port = sharedPreferences.getInt("voip_objective_out_port", Integer.MIN_VALUE);
-            voipTestResult.setObjectivePortOut(voip_objective_out_port == Integer.MIN_VALUE ? null : voip_objective_out_port);
+            val v = sharedPreferences.getInt("voip_objective_out_port", Int.MIN_VALUE)
+            voipTestResult.objectivePortOut = if (v == Int.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_delay")) {
-            long voip_objective_delay = sharedPreferences.getLong("voip_objective_delay", Long.MIN_VALUE);
-            voipTestResult.setObjectiveDelay(voip_objective_delay == Long.MIN_VALUE ? null : voip_objective_delay);
+            val v = sharedPreferences.getLong("voip_objective_delay", Long.MIN_VALUE)
+            voipTestResult.objectiveDelay = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_timeout")) {
-            long voip_objective_timeout = sharedPreferences.getLong("voip_objective_timeout", Long.MIN_VALUE);
-            voipTestResult.setObjectiveTimeoutNS(voip_objective_timeout == Long.MIN_VALUE ? null : voip_objective_timeout);
+            val v = sharedPreferences.getLong("voip_objective_timeout", Long.MIN_VALUE)
+            voipTestResult.objectiveTimeoutNS = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_payload")) {
-            int voip_objective_payload = sharedPreferences.getInt("voip_objective_payload", Integer.MIN_VALUE);
-            voipTestResult.setObjectivePayload(voip_objective_payload == Integer.MIN_VALUE ? null : voip_objective_payload);
+            val v = sharedPreferences.getInt("voip_objective_payload", Int.MIN_VALUE)
+            voipTestResult.objectivePayload = if (v == Int.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_call_duration")) {
-            long voip_objective_call_duration = sharedPreferences.getLong("voip_objective_call_duration", Long.MIN_VALUE);
-            voipTestResult.setObjectiveCallDuration(voip_objective_call_duration == Long.MIN_VALUE ? null : voip_objective_call_duration);
+            val v = sharedPreferences.getLong("voip_objective_call_duration", Long.MIN_VALUE)
+            voipTestResult.objectiveCallDuration = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_objective_sample_rate")) {
-            int voip_objective_sample_rate = sharedPreferences.getInt("voip_objective_sample_rate", Integer.MIN_VALUE);
-            voipTestResult.setObjectiveBitsPerSample(voip_objective_sample_rate == Integer.MIN_VALUE ? null : voip_objective_sample_rate);
+            val v = sharedPreferences.getInt("voip_objective_sample_rate", Int.MIN_VALUE)
+            voipTestResult.objectiveBitsPerSample = if (v == Int.MIN_VALUE) null else v
         }
 
-
-        //GENERAL
-
+        // GENERAL
         if (sharedPreferences.contains("duration_ns")) {
-            long duration_ns = sharedPreferences.getLong("duration_ns", Long.MIN_VALUE);
-            voipTestResult.setObjectiveDelay(duration_ns == Long.MIN_VALUE ? null : duration_ns);
+            val v = sharedPreferences.getLong("duration_ns", Long.MIN_VALUE)
+            voipTestResult.objectiveDelay = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("start_time_ns")) {
-            long start_time_ns = sharedPreferences.getLong("start_time_ns", Long.MIN_VALUE);
-            voipTestResult.setStartTimeInNS(start_time_ns == Long.MIN_VALUE ? null : start_time_ns);
+            val v = sharedPreferences.getLong("start_time_ns", Long.MIN_VALUE)
+            voipTestResult.startTimeInNS = if (v == Long.MIN_VALUE) null else v
         }
-
         if (sharedPreferences.contains("voip_result_status")) {
-            String voip_result_status = sharedPreferences.getString("voip_result_status", TestResultConst.TEST_RESULT_ERROR);
-            voipTestResult.setTestResultStatus(voip_result_status);
+            val voipResultStatus = sharedPreferences.getString("voip_result_status", TestResultConst.TEST_RESULT_ERROR)
+            voipTestResult.testResultStatus = voipResultStatus
         }
 
-
-        return voipTestResult;
+        return voipTestResult
     }
 
     /**
      * Clears shared preferences file with voip test result
-     *
-     * @param context
-     * @return
      */
-    public boolean delete(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(VOIP_TEST_RESULT_SHARED_PREF_KEY, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        return editor.commit();
+    fun delete(context: Context): Boolean {
+        val sharedPreferences = context.getSharedPreferences(VOIP_TEST_RESULT_SHARED_PREF_KEY, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        return editor.commit()
     }
 
+    companion object {
+        private const val VOIP_TEST_RESULT_SHARED_PREF_KEY = "VOIP_TEST_RESULT_SHARED_PREF"
+    }
 }

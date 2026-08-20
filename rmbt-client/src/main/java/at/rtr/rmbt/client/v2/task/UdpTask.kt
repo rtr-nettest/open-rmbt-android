@@ -1,522 +1,438 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
  * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client.v2.task;
+ */
+package at.rtr.rmbt.client.v2.task
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.nio.channels.DatagramChannel;
-import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import at.rtr.rmbt.client.QualityOfServiceTest;
-import at.rtr.rmbt.client.RMBTClient;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
-import at.rtr.rmbt.util.net.udp.NioUdpStreamSender;
-import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
-import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings;
-import at.rtr.rmbt.util.net.udp.UdpStreamReceiver;
-import at.rtr.rmbt.util.net.udp.UdpStreamReceiver.UdpStreamReceiverSettings;
+import at.rtr.rmbt.client.QualityOfServiceTest
+import at.rtr.rmbt.client.RMBTClient
+import at.rtr.rmbt.client.v2.task.result.QoSTestResult
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.rtr.rmbt.util.net.udp.NioUdpStreamSender
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings
+import at.rtr.rmbt.util.net.udp.UdpStreamReceiver
+import at.rtr.rmbt.util.net.udp.UdpStreamReceiver.UdpStreamReceiverSettings
+import java.io.DataOutputStream
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
+import java.nio.channels.DatagramChannel
+import java.util.TreeSet
+import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.regex.Pattern
 
 /**
- * 
  * @author lb
- *
  */
-public class UdpTask extends AbstractQoSTask {
-	
-	private final static boolean ABORT_ON_DUPLICATE_UDP_PACKETS = false;
-	
-	private final static Pattern QOS_RECEIVE_RESPONSE_PATTERN = Pattern.compile("RCV ([\\d]*) ([\\d]*)");
-	
-	private final Integer packetCountIncoming;
-	
-	private final Integer packetCountOutgoing;
-	
-	private Integer outgoingPort;
-	
-	private final Integer incomingPort;
-	
-	private final long timeout;
-	
-	private final long delay;
-	
-	private final static long DEFAULT_TIMEOUT = 3000000000L;
-	
-	private final static long DEFAULT_DELAY = 300000000L;
-	
-	private final static int UDP_TEST_ONE_DIRECTION_IDENTIFIER = 1;
-	
-	private final static int UDP_TEST_AWAIT_RESPONSE_IDENTIFIER = 3;
-	
-	private final static int UDP_TEST_RESPONSE = 2;
-		
-	public final static String PARAM_NUM_PACKETS_INCOMING = "in_num_packets";
-	
-	public final static String PARAM_NUM_PACKETS_OUTGOING = "out_num_packets";
-	
-	public final static String PARAM_PORT = "in_port";
-	
-	public final static String PARAM_PORT_OUT = "out_port";
-		
-	public final static String PARAM_TIMEOUT = "timeout";
-	
-	public final static String PARAM_DELAY = "delay";
-	
-	public final static String RESULT_OUTGOING_PACKETS = "udp_result_out_num_packets";
-	
-	public final static String RESULT_INCOMING_PACKETS = "udp_result_in_num_packets";
-	
-	public final static String RESULT_INCOMING_PLR = "udp_result_in_packet_loss_rate";
-	
-	public final static String RESULT_NUM_PACKETS_INCOMING_RESPONSE = "udp_result_in_response_num_packets";
-	
-	public final static String RESULT_OUTGOING_PLR = "udp_result_out_packet_loss_rate";
-	
-	public final static String RESULT_NUM_PACKETS_OUTGOING_RESPONSE = "udp_result_out_response_num_packets";
-	
-	public final static String RESULT_PORT_OUTGOING = "udp_objective_out_port";
-	
-	public final static String RESULT_PORT_INCOMING = "udp_objective_in_port";
-	
-	public final static String RESULT_NUM_PACKETS_INCOMING = "udp_objective_in_num_packets";
-	
-	public final static String RESULT_NUM_PACKETS_OUTGOING = "udp_objective_out_num_packets";
-	
-	public final static String RESULT_DELAY = "udp_objective_delay";
-	
-	public final static String RESULT_TIMEOUT = "udp_objective_timeout";
-	
-	
-	/**
-	 * 
-	 * @author lb
-	 *
-	 */
-	public static class UdpPacketData {
-		int remotePort;
-		int numPackets;
-		int dupNumPackets;
-		int rcvServerResponse;
-		
-		public UdpPacketData(int remotePort, int numPackets, int dupNumPackets) {
-			this.remotePort = remotePort;
-			this.numPackets = numPackets;
-			this.dupNumPackets = dupNumPackets;
-			this.rcvServerResponse = 0;
-		}
+class UdpTask(nnTest: QualityOfServiceTest, taskDesc: TaskDesc, threadId: Int) :
+    AbstractQoSTask(nnTest, taskDesc, threadId, threadId) {
 
-		@Override
-		public String toString() {
-			return "UdpPacketData [remotePort=" + remotePort + ", numPackets="
-					+ numPackets + ", dupNumPackets=" + dupNumPackets
-					+ ", rcvServerResponse=" + rcvServerResponse + "]";
-		}
-	}
-	/**
-	 * 
-	 * @param taskDesc
-	 */
-	public UdpTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId, threadId);
-		String value = (String) taskDesc.getParams().get(PARAM_NUM_PACKETS_INCOMING);
-		this.packetCountIncoming = value != null ? Integer.valueOf(value) : null;
-		
-		value = (String) taskDesc.getParams().get(PARAM_NUM_PACKETS_OUTGOING);
-		this.packetCountOutgoing = value != null ? Integer.valueOf(value) : null;
-		
-		value = (String) taskDesc.getParams().get(PARAM_PORT);
-		this.incomingPort = value != null ? Integer.valueOf(value) : null;
+    private val packetCountIncoming: Int?
+    private val packetCountOutgoing: Int?
+    private var outgoingPort: Int?
+    private val incomingPort: Int?
+    private val timeout: Long
+    private val delay: Long
 
-		value = (String) taskDesc.getParams().get(PARAM_PORT_OUT);
-		this.outgoingPort = value != null ? Integer.valueOf(value) : null;
-		
-		value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
-		
-		value = (String) taskDesc.getParams().get(PARAM_DELAY);
-		this.delay = value != null ? Long.valueOf(value) : DEFAULT_DELAY;
-	}
+    init {
+        var value = taskDesc.getParams()[PARAM_NUM_PACKETS_INCOMING] as String?
+        this.packetCountIncoming = value?.toInt()
 
-	/**
-	 * 
-	 */
-	public QoSTestResult call() throws Exception {
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.UDP);
-		try {
-			onStart(result);
+        value = taskDesc.getParams()[PARAM_NUM_PACKETS_OUTGOING] as String?
+        this.packetCountOutgoing = value?.toInt()
 
-		    DatagramSocket socket = null;
-		    
-		    final UdpPacketData outgoingPacketData = new UdpPacketData(0, 0, 0);
-		    final UdpPacketData incomingPacketData = new UdpPacketData(0, 0, 0);
+        value = taskDesc.getParams()[PARAM_PORT] as String?
+        this.incomingPort = value?.toInt()
 
-		    try {
-		    	final CountDownLatch outgoingLatch = new CountDownLatch(1);
-		    	
-		    	//run UDP OUT test:
-		    	if (this.packetCountOutgoing != null) {
-		    		
-	    			ControlConnectionResponseCallback outgoingRequestCallback = new ControlConnectionResponseCallback() {
-						public void onResponse(final String response, final String request) {
-							try {
-								if (request.startsWith("GET UDPPORT")) {
-					    			if (response != null && !response.startsWith("ERR")) {
-					    				outgoingPort = Integer.valueOf(response);
-										sendCommand("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing, this);
-					    			}
-								}
-								else if (request.startsWith("UDPTEST OUT")) {
-									if (response != null && response.startsWith("OK")) {
+        value = taskDesc.getParams()[PARAM_PORT_OUT] as String?
+        this.outgoingPort = value?.toInt()
 
-										Future<UdpPacketData> udpOutTimeoutTask = RMBTClient.getCommonThreadPool().submit(new Callable<UdpPacketData>() {
+        value = taskDesc.getParams()[PARAM_TIMEOUT] as String?
+        this.timeout = if (value != null) value.toLong() else DEFAULT_TIMEOUT
 
-											public UdpPacketData call() throws Exception {
-												sendUdpPackets(outgoingPacketData);
-												return outgoingPacketData;
-											}
-											
-										});
-										
-										try {
-											udpOutTimeoutTask.get(timeout, TimeUnit.NANOSECONDS);
-										}
-										catch (Exception e) {
-											System.err.println("UDP Outgoing Timeout reached!");
-											e.printStackTrace();
-											udpOutTimeoutTask.cancel(true);
-										}
-										
-										outgoingLatch.countDown();
-									}	
-								}
-							}
-							catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					};
-					
-		    		if (outgoingPort == null) {
-		    			sendCommand("GET UDPPORT", outgoingRequestCallback);
-		    		}
-		    		else {
-		    			sendCommand("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing, outgoingRequestCallback);
-		    		}
-		    		
-	    			if (!outgoingLatch.await(timeout, TimeUnit.NANOSECONDS)) {
-	    				System.out.println("OUT " + outgoingPort + " TIMEOUT REACHED: " + outgoingPacketData);
-	    			}
+        value = taskDesc.getParams()[PARAM_DELAY] as String?
+        this.delay = if (value != null) value.toLong() else DEFAULT_DELAY
+    }
 
-	    			//request results;
-    				final CountDownLatch outgoingResultLatch = new CountDownLatch(1);
-    				final ControlConnectionResponseCallback outgoingResultRequestCallback = new ControlConnectionResponseCallback() {
-						
-						public void onResponse(final String response, final String request) {
-							if (response != null && response.startsWith("RCV")) {
-								System.out.println("UDPTASK OUT :" + outgoingPort + " -> " + response);
-									
-								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
-								if (m.find()) {
-									outgoingPacketData.rcvServerResponse = Integer.valueOf(m.group(1));	
-								}
-								
-								outgoingResultLatch.countDown();
-							}						
-						}
-					};
-		    		
-					sendCommand("GET UDPRESULT OUT " + outgoingPort, outgoingResultRequestCallback);
-					outgoingResultLatch.await(CONTROL_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
+    /**
+     * @author lb
+     */
+    class UdpPacketData(var remotePort: Int, var numPackets: Int, var dupNumPackets: Int) {
+        var rcvServerResponse = 0
 
-		    	}
-				
-				//run UDP IN test:
-				if (this.packetCountIncoming != null && this.incomingPort != null) {
-					socket = new DatagramSocket(incomingPort);
-					final DatagramSocket dgSocket = socket;
-					sendCommand("UDPTEST IN " + incomingPort + " " + packetCountIncoming, null);
-					socket.setSoTimeout((int)(timeout/1000000));
-					
-					Future<UdpPacketData> udpInTimeoutTask = RMBTClient.getCommonThreadPool().submit(new Callable<UdpPacketData>() {
+        override fun toString(): String =
+            "UdpPacketData [remotePort=$remotePort, numPackets=$numPackets, dupNumPackets=$dupNumPackets, " +
+                "rcvServerResponse=$rcvServerResponse]"
+    }
 
-						public UdpPacketData call() throws Exception {
-							receiveUdpPackets(dgSocket, packetCountIncoming, incomingPacketData);
-							return incomingPacketData;
-						}
-						
-					});
-					
-					try {
-						udpInTimeoutTask.get(timeout, TimeUnit.NANOSECONDS);
-					}
-					catch (TimeoutException e) {
-						System.err.println("UDP Incoming Timeout reached!");
-						udpInTimeoutTask.cancel(true);
-					}
+    override fun call(): QoSTestResult {
+        val result = initQoSTestResult(QoSTestResultEnum.UDP)
+        try {
+            onStart(result)
 
-					final CountDownLatch incomingLatch = new CountDownLatch(1);
-					final ControlConnectionResponseCallback incomingResultRequestCallback = new ControlConnectionResponseCallback() {
-						
-						public void onResponse(final String response, final String request) {
-							if (response != null && response.startsWith("RCV")) {
-								System.out.println("UDPTASK IN :" + incomingPort + " -> " + response);
-								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
-								if (m.find()) {
-									incomingPacketData.rcvServerResponse = Integer.valueOf(m.group(1));	
-								}
-								incomingLatch.countDown();
-							}
-						}
-					};
-					
-					//wait a short amount of time until requesting results
-					Thread.sleep(150);
-					//request server results:
-					sendCommand("GET UDPRESULT IN " + incomingPort, incomingResultRequestCallback);
-					incomingLatch.await(CONTROL_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);					
-				}								
-		    }
-		    catch (Exception e) {
-		    	e.printStackTrace();
-		    }
-		    finally {
-		    	if (socket != null && socket.isConnected()) {
-		    		socket.close();
-		    	}	
-		    }
-	   		
-	   		if (this.packetCountOutgoing != null) {
-	   			System.out.println("OUT " + outgoingPort + ": " + outgoingPacketData);
-	   			result.getResultMap().put(RESULT_NUM_PACKETS_OUTGOING, packetCountOutgoing);
-	   			result.getResultMap().put(RESULT_PORT_OUTGOING, outgoingPort);
-	   	   		result.getResultMap().put(RESULT_OUTGOING_PACKETS, outgoingPacketData != null ? outgoingPacketData.rcvServerResponse : 0);
-	   			result.getResultMap().put(RESULT_NUM_PACKETS_OUTGOING_RESPONSE, outgoingPacketData != null ? outgoingPacketData.numPackets : 0);
-	   			
-	   			final int outgoingPackets = (outgoingPacketData != null ? outgoingPacketData.numPackets : 0);
-	   	   		final int lostPackets = packetCountOutgoing - outgoingPackets;
-	   	   		
-	   	   		System.out.println("UDP Test: outgoing all: " + outgoingPackets + ", lost: " + lostPackets);
-	   	   		if (lostPackets > 0) {
-	   	   			int packetLossRate = (int) (((float)lostPackets / (float)packetCountOutgoing) * 100f);
-		   	   		result.getResultMap().put(RESULT_OUTGOING_PLR, String.valueOf(packetLossRate));	
-	   	   		}
-	   	   		else {
-		   	   		result.getResultMap().put(RESULT_OUTGOING_PLR, "0");
-	   	   		}
-	   		}
-	   		
-	   		if (this.packetCountIncoming != null && this.incomingPort != null) {
-	   			System.out.println("IN " + incomingPort + ": " + incomingPacketData);
-	   	   		final int incomingPackets = incomingPacketData != null ? incomingPacketData.rcvServerResponse : 0;
-	   	   		
-	   	   		result.getResultMap().put(RESULT_NUM_PACKETS_INCOMING, packetCountIncoming);
-	   	   		result.getResultMap().put(RESULT_PORT_INCOMING, incomingPort);
-	   	   		result.getResultMap().put(RESULT_INCOMING_PACKETS, incomingPacketData != null ? incomingPacketData.numPackets : 0);
-	   	   		result.getResultMap().put(RESULT_NUM_PACKETS_INCOMING_RESPONSE, incomingPackets);
+            var socket: DatagramSocket? = null
 
-	   	   		final int lostPackets = packetCountIncoming - incomingPackets;
-	   	   		if (lostPackets > 0) {
-	   	   			int packetLossRate = (int) (((float)lostPackets / (float)packetCountIncoming) * 100f);
-		   	   		result.getResultMap().put(RESULT_INCOMING_PLR, String.valueOf(packetLossRate));	
-	   	   		}
-	   	   		else {
-		   	   		result.getResultMap().put(RESULT_INCOMING_PLR, "0");
-	   	   		}
-	   		}
-	   		
-	   		result.getResultMap().put(RESULT_DELAY, delay);
-	   		result.getResultMap().put(RESULT_TIMEOUT, timeout);
-	   	
-	        return result;			
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		finally {
-			onEnd(result);
-		}
-	}
+            val outgoingPacketData = UdpPacketData(0, 0, 0)
+            val incomingPacketData = UdpPacketData(0, 0, 0)
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.AbstractRmbtTask#initTask()
-	 */
-	@Override
-	public void initTask() {
+            try {
+                val outgoingLatch = CountDownLatch(1)
 
-	}
+                // run UDP OUT test:
+                if (packetCountOutgoing != null) {
+                    val outgoingRequestCallback = object : ControlConnectionResponseCallback {
+                        override fun onResponse(response: String?, request: String?) {
+                            try {
+                                if (request != null && request.startsWith("GET UDPPORT")) {
+                                    if (response != null && !response.startsWith("ERR")) {
+                                        outgoingPort = response.toInt()
+                                        sendCommand("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing, this)
+                                    }
+                                } else if (request != null && request.startsWith("UDPTEST OUT")) {
+                                    if (response != null && response.startsWith("OK")) {
+                                        val udpOutTimeoutTask = RMBTClient.getCommonThreadPool().submit(object : Callable<UdpPacketData> {
+                                            override fun call(): UdpPacketData {
+                                                sendUdpPackets(outgoingPacketData)
+                                                return outgoingPacketData
+                                            }
+                                        })
 
-	/**
-	 * 
-	 * @return
-	 * @throws Exception 
-	 */
-	public DatagramChannel sendUdpPackets(final UdpPacketData packetData) throws Exception {
-	    final UdpStreamSenderSettings<DatagramChannel> udpSettings = new UdpStreamSenderSettings<DatagramChannel>(null, true, 
-	    		InetAddress.getByName(getTestServerAddr()), outgoingPort, packetCountOutgoing, delay, 
-	    		timeout, TimeUnit.NANOSECONDS, false, 10000);
-	    
-	    final NioUdpStreamSender udpStreamSender = new NioUdpStreamSender(udpSettings, new UdpStreamCallback() {			
-			final TreeSet<Integer> packetsReceived = new TreeSet<Integer>();
-			final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
-	    	
-			public boolean onSend(DataOutputStream dataOut, int packetNumber) throws IOException {
-				System.out.println("UDP OUT Test: sending packet #" + packetNumber);
-	    		dataOut.writeByte(UDP_TEST_AWAIT_RESPONSE_IDENTIFIER);
-	    		dataOut.writeByte(packetNumber);
-    			dataOut.write(params.getUUID().getBytes());
-    			dataOut.write(String.valueOf(System.currentTimeMillis()).getBytes());
-    			return true;
-			}
-			
-			public synchronized void onReceive(final DatagramPacket dp) throws IOException {
-				final byte[] buffer = dp.getData();
-				int packetNumber = buffer[1];
-			    
-			    System.out.println("UDP OUT Test: received packet: #" + packetNumber + " -> " + buffer);
-				//check udp packet:
-				if (buffer[0] != UDP_TEST_RESPONSE) {
-					udpSettings.getSocket().close();
-					throw new IOException("bad UDP IN TEST packet identifier");
-				}
-				
-				//check for duplicate packets:
-				if (packetsReceived.contains(packetNumber)) {
-					duplicatePackets.add(packetNumber);
-					if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
-						udpSettings.getSocket().close();
-						throw new IOException("duplicate UDP IN TEST packet id");
-					}
-					else {
-						System.out.println("duplicate UDP IN TEST packet id");
-					}
-				}
-				else {
-					packetsReceived.add(packetNumber);
-				}
-				
-				packetData.numPackets = packetsReceived.size();
-				packetData.dupNumPackets = duplicatePackets.size();
-			}
+                                        try {
+                                            udpOutTimeoutTask.get(timeout, TimeUnit.NANOSECONDS)
+                                        } catch (e: Exception) {
+                                            System.err.println("UDP Outgoing Timeout reached!")
+                                            e.printStackTrace()
+                                            udpOutTimeoutTask.cancel(true)
+                                        }
 
-			public void onBind(Integer port) throws IOException {
-				System.out.println("UDP; Binding on port " + port);
-			}
-		});
-	    
-	    return udpStreamSender.send();
-	}
-	
-	/**
-	 * 
-	 * @param socket
-	 * @return
-	 * @throws InterruptedException
-	 */
-	public void receiveUdpPackets(final DatagramSocket socket, int packets, final UdpPacketData packetData) throws InterruptedException {
-		final TreeSet<Integer> packetsReceived = new TreeSet<Integer>();
-		final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
-	
-		try {			
-			final int timeOutMs = (int) TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS);
-			socket.setSoTimeout(timeOutMs);
-			
-			final UdpStreamReceiverSettings settings = new UdpStreamReceiverSettings(socket, packets, true);
-			
-			final UdpStreamReceiver udpStreamReceiver = new UdpStreamReceiver(settings, new UdpStreamCallback() {
-				
-				public boolean onSend(DataOutputStream dataOut, int packetNumber)
-						throws IOException {
-		    		dataOut.writeByte(UDP_TEST_RESPONSE);
-		    		dataOut.writeByte(packetNumber);
-	    			dataOut.write(params.getUUID().getBytes());
-	    			dataOut.write(String.valueOf(System.currentTimeMillis()).getBytes());
-					return true;
-				}
-				
-				public void onReceive(DatagramPacket dp) throws IOException {
-					final byte[] data = dp.getData();
-					final int packetNumber = data[1];
-				    
-				    System.out.println("UDP IN Test: received packet #" + packetNumber + " on port: " + socket.getLocalPort() + " -> " + data);
-				    
-					//check udp packet:
-					if (data[0] != UDP_TEST_ONE_DIRECTION_IDENTIFIER && data[0] != UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
-						throw new IOException("bad UDP IN TEST packet identifier");
-					}
-					
-					//check for duplicate packets:
-					if (packetsReceived.contains(packetNumber)) {
-						duplicatePackets.add(packetNumber);
-						if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
-							throw new IOException("duplicate UDP IN TEST packet id");
-						}
-					}
-					else {
-						packetsReceived.add(packetNumber);					    
-					}
-					
-					packetData.dupNumPackets = duplicatePackets.size();
-					packetData.numPackets = packetsReceived.size();
-				}
+                                        outgoingLatch.countDown()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
 
-				public void onBind(Integer port) throws IOException {
-					// TODO Auto-generated method stub
-					
-				}
-			});
-			
+                    if (outgoingPort == null) {
+                        sendCommand("GET UDPPORT", outgoingRequestCallback)
+                    } else {
+                        sendCommand("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing, outgoingRequestCallback)
+                    }
 
-			udpStreamReceiver.receive();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally {
-			if (socket != null && !socket.isClosed()) {
-				socket.close();
-			}			
-		}		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
-	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.UDP;
-	}
+                    if (!outgoingLatch.await(timeout, TimeUnit.NANOSECONDS)) {
+                        println("OUT " + outgoingPort + " TIMEOUT REACHED: " + outgoingPacketData)
+                    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
-	 */
-	public boolean needsQoSControlConnection() {
-		return true;
-	}
+                    // request results;
+                    val outgoingResultLatch = CountDownLatch(1)
+                    val outgoingResultRequestCallback = object : ControlConnectionResponseCallback {
+                        override fun onResponse(response: String?, request: String?) {
+                            if (response != null && response.startsWith("RCV")) {
+                                println("UDPTASK OUT :" + outgoingPort + " -> " + response)
+
+                                val m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response)
+                                if (m.find()) {
+                                    outgoingPacketData.rcvServerResponse = m.group(1).toInt()
+                                }
+
+                                outgoingResultLatch.countDown()
+                            }
+                        }
+                    }
+
+                    sendCommand("GET UDPRESULT OUT $outgoingPort", outgoingResultRequestCallback)
+                    outgoingResultLatch.await(CONTROL_CONNECTION_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
+                }
+
+                // run UDP IN test:
+                if (packetCountIncoming != null && incomingPort != null) {
+                    val dgSocket = DatagramSocket(incomingPort)
+                    socket = dgSocket
+                    sendCommand("UDPTEST IN " + incomingPort + " " + packetCountIncoming, null)
+                    dgSocket.soTimeout = (timeout / 1000000).toInt()
+
+                    val udpInTimeoutTask = RMBTClient.getCommonThreadPool().submit(object : Callable<UdpPacketData> {
+                        override fun call(): UdpPacketData {
+                            receiveUdpPackets(dgSocket, packetCountIncoming, incomingPacketData)
+                            return incomingPacketData
+                        }
+                    })
+
+                    try {
+                        udpInTimeoutTask.get(timeout, TimeUnit.NANOSECONDS)
+                    } catch (e: TimeoutException) {
+                        System.err.println("UDP Incoming Timeout reached!")
+                        udpInTimeoutTask.cancel(true)
+                    }
+
+                    val incomingLatch = CountDownLatch(1)
+                    val incomingResultRequestCallback = object : ControlConnectionResponseCallback {
+                        override fun onResponse(response: String?, request: String?) {
+                            if (response != null && response.startsWith("RCV")) {
+                                println("UDPTASK IN :" + incomingPort + " -> " + response)
+                                val m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response)
+                                if (m.find()) {
+                                    incomingPacketData.rcvServerResponse = m.group(1).toInt()
+                                }
+                                incomingLatch.countDown()
+                            }
+                        }
+                    }
+
+                    // wait a short amount of time until requesting results
+                    Thread.sleep(150)
+                    // request server results:
+                    sendCommand("GET UDPRESULT IN $incomingPort", incomingResultRequestCallback)
+                    incomingLatch.await(CONTROL_CONNECTION_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                val s = socket
+                if (s != null && s.isConnected) {
+                    s.close()
+                }
+            }
+
+            if (packetCountOutgoing != null) {
+                println("OUT " + outgoingPort + ": " + outgoingPacketData)
+                result.resultMap[RESULT_NUM_PACKETS_OUTGOING] = packetCountOutgoing
+                result.resultMap[RESULT_PORT_OUTGOING] = outgoingPort
+                result.resultMap[RESULT_OUTGOING_PACKETS] = outgoingPacketData.rcvServerResponse
+                result.resultMap[RESULT_NUM_PACKETS_OUTGOING_RESPONSE] = outgoingPacketData.numPackets
+
+                val outgoingPackets = outgoingPacketData.numPackets
+                val lostPackets = packetCountOutgoing - outgoingPackets
+
+                println("UDP Test: outgoing all: $outgoingPackets, lost: $lostPackets")
+                if (lostPackets > 0) {
+                    val packetLossRate = ((lostPackets.toFloat() / packetCountOutgoing.toFloat()) * 100f).toInt()
+                    result.resultMap[RESULT_OUTGOING_PLR] = packetLossRate.toString()
+                } else {
+                    result.resultMap[RESULT_OUTGOING_PLR] = "0"
+                }
+            }
+
+            if (packetCountIncoming != null && incomingPort != null) {
+                println("IN " + incomingPort + ": " + incomingPacketData)
+                val incomingPackets = incomingPacketData.rcvServerResponse
+
+                result.resultMap[RESULT_NUM_PACKETS_INCOMING] = packetCountIncoming
+                result.resultMap[RESULT_PORT_INCOMING] = incomingPort
+                result.resultMap[RESULT_INCOMING_PACKETS] = incomingPacketData.numPackets
+                result.resultMap[RESULT_NUM_PACKETS_INCOMING_RESPONSE] = incomingPackets
+
+                val lostPackets = packetCountIncoming - incomingPackets
+                if (lostPackets > 0) {
+                    val packetLossRate = ((lostPackets.toFloat() / packetCountIncoming.toFloat()) * 100f).toInt()
+                    result.resultMap[RESULT_INCOMING_PLR] = packetLossRate.toString()
+                } else {
+                    result.resultMap[RESULT_INCOMING_PLR] = "0"
+                }
+            }
+
+            result.resultMap[RESULT_DELAY] = delay
+            result.resultMap[RESULT_TIMEOUT] = timeout
+
+            return result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        } finally {
+            onEnd(result)
+        }
+    }
+
+    override fun initTask() {
+    }
+
+    fun sendUdpPackets(packetData: UdpPacketData): DatagramChannel? {
+        val udpSettings = UdpStreamSenderSettings<DatagramChannel>(
+            null, true,
+            InetAddress.getByName(getTestServerAddr()), outgoingPort!!, packetCountOutgoing!!, delay,
+            timeout, TimeUnit.NANOSECONDS, false, 10000
+        )
+
+        val udpStreamSender = NioUdpStreamSender(udpSettings, object : UdpStreamCallback {
+            val packetsReceived = TreeSet<Int>()
+            val duplicatePackets = TreeSet<Int>()
+
+            override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
+                println("UDP OUT Test: sending packet #$packetNumber")
+                dataOut.writeByte(UDP_TEST_AWAIT_RESPONSE_IDENTIFIER)
+                dataOut.writeByte(packetNumber)
+                dataOut.write(params.uuid!!.toByteArray())
+                dataOut.write(System.currentTimeMillis().toString().toByteArray())
+                return true
+            }
+
+            @Synchronized
+            override fun onReceive(dp: DatagramPacket) {
+                val buffer = dp.data
+                val packetNumber = buffer[1].toInt()
+
+                println("UDP OUT Test: received packet: #$packetNumber -> $buffer")
+                // check udp packet:
+                if (buffer[0].toInt() != UDP_TEST_RESPONSE) {
+                    udpSettings.socket?.close()
+                    throw IOException("bad UDP IN TEST packet identifier")
+                }
+
+                // check for duplicate packets:
+                if (packetsReceived.contains(packetNumber)) {
+                    duplicatePackets.add(packetNumber)
+                    if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
+                        udpSettings.socket?.close()
+                        throw IOException("duplicate UDP IN TEST packet id")
+                    } else {
+                        println("duplicate UDP IN TEST packet id")
+                    }
+                } else {
+                    packetsReceived.add(packetNumber)
+                }
+
+                packetData.numPackets = packetsReceived.size
+                packetData.dupNumPackets = duplicatePackets.size
+            }
+
+            override fun onBind(port: Int?) {
+                println("UDP; Binding on port $port")
+            }
+        })
+
+        return udpStreamSender.send()
+    }
+
+    fun receiveUdpPackets(socket: DatagramSocket, packets: Int, packetData: UdpPacketData) {
+        val packetsReceived = TreeSet<Int>()
+        val duplicatePackets = TreeSet<Int>()
+
+        try {
+            val timeOutMs = TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS).toInt()
+            socket.soTimeout = timeOutMs
+
+            val settings = UdpStreamReceiverSettings(socket, packets, true)
+
+            val udpStreamReceiver = UdpStreamReceiver(settings, object : UdpStreamCallback {
+
+                override fun onSend(dataOut: DataOutputStream, packetNumber: Int): Boolean {
+                    dataOut.writeByte(UDP_TEST_RESPONSE)
+                    dataOut.writeByte(packetNumber)
+                    dataOut.write(params.uuid!!.toByteArray())
+                    dataOut.write(System.currentTimeMillis().toString().toByteArray())
+                    return true
+                }
+
+                override fun onReceive(dp: DatagramPacket) {
+                    val data = dp.data
+                    val packetNumber = data[1].toInt()
+
+                    println("UDP IN Test: received packet #$packetNumber on port: " + socket.localPort + " -> " + data)
+
+                    // check udp packet:
+                    if (data[0].toInt() != UDP_TEST_ONE_DIRECTION_IDENTIFIER && data[0].toInt() != UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
+                        throw IOException("bad UDP IN TEST packet identifier")
+                    }
+
+                    // check for duplicate packets:
+                    if (packetsReceived.contains(packetNumber)) {
+                        duplicatePackets.add(packetNumber)
+                        if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
+                            throw IOException("duplicate UDP IN TEST packet id")
+                        }
+                    } else {
+                        packetsReceived.add(packetNumber)
+                    }
+
+                    packetData.dupNumPackets = duplicatePackets.size
+                    packetData.numPackets = packetsReceived.size
+                }
+
+                override fun onBind(port: Int?) {
+                }
+            })
+
+            udpStreamReceiver.receive()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            if (!socket.isClosed) {
+                socket.close()
+            }
+        }
+    }
+
+    override fun getTestType(): QoSTestResultEnum = QoSTestResultEnum.UDP
+
+    override fun needsQoSControlConnection(): Boolean = true
+
+    companion object {
+        private const val ABORT_ON_DUPLICATE_UDP_PACKETS = false
+
+        private val QOS_RECEIVE_RESPONSE_PATTERN: Pattern = Pattern.compile("RCV ([\\d]*) ([\\d]*)")
+
+        private const val DEFAULT_TIMEOUT = 3000000000L
+
+        private const val DEFAULT_DELAY = 300000000L
+
+        private const val UDP_TEST_ONE_DIRECTION_IDENTIFIER = 1
+
+        private const val UDP_TEST_AWAIT_RESPONSE_IDENTIFIER = 3
+
+        private const val UDP_TEST_RESPONSE = 2
+
+        const val PARAM_NUM_PACKETS_INCOMING = "in_num_packets"
+
+        const val PARAM_NUM_PACKETS_OUTGOING = "out_num_packets"
+
+        const val PARAM_PORT = "in_port"
+
+        const val PARAM_PORT_OUT = "out_port"
+
+        const val PARAM_TIMEOUT = "timeout"
+
+        const val PARAM_DELAY = "delay"
+
+        const val RESULT_OUTGOING_PACKETS = "udp_result_out_num_packets"
+
+        const val RESULT_INCOMING_PACKETS = "udp_result_in_num_packets"
+
+        const val RESULT_INCOMING_PLR = "udp_result_in_packet_loss_rate"
+
+        const val RESULT_NUM_PACKETS_INCOMING_RESPONSE = "udp_result_in_response_num_packets"
+
+        const val RESULT_OUTGOING_PLR = "udp_result_out_packet_loss_rate"
+
+        const val RESULT_NUM_PACKETS_OUTGOING_RESPONSE = "udp_result_out_response_num_packets"
+
+        const val RESULT_PORT_OUTGOING = "udp_objective_out_port"
+
+        const val RESULT_PORT_INCOMING = "udp_objective_in_port"
+
+        const val RESULT_NUM_PACKETS_INCOMING = "udp_objective_in_num_packets"
+
+        const val RESULT_NUM_PACKETS_OUTGOING = "udp_objective_out_num_packets"
+
+        const val RESULT_DELAY = "udp_objective_delay"
+
+        const val RESULT_TIMEOUT = "udp_objective_timeout"
+    }
 }

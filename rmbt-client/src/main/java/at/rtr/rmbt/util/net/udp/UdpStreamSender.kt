@@ -13,132 +13,118 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.net.udp;
+ */
+package at.rtr.rmbt.util.net.udp
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketTimeoutException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * udp stream sender used by the udp and voip qos test
  * @author lb
- *
  */
-public class UdpStreamSender implements StreamSender<DatagramSocket> {
-	
-	UdpStreamSenderSettings<DatagramSocket> settings;
-	
-	UdpStreamCallback callback;
-	
-	final AtomicBoolean isRunning = new AtomicBoolean(false);
-	
-	public UdpStreamSender(UdpStreamSenderSettings<DatagramSocket> settings, UdpStreamCallback callback) {
-		this.settings = settings;
-		this.callback = callback;
-	}
-	
-	public void stop() {
-		isRunning.set(false);
-	}
+class UdpStreamSender(
+    private val settings: UdpStreamSenderSettings<DatagramSocket>,
+    private val callback: UdpStreamCallback?
+) : StreamSender<DatagramSocket> {
 
-	/**
-	 * send a stream of udp packets
-	 * @return the {@link DatagramSocket} used for this stream or null if an exception occurred
-	 * @throws InterruptedException
-	 * @throws TimeoutException 
-	 */
-	public DatagramSocket send() throws InterruptedException, TimeoutException {
-		System.out.println("UDP Stream: " + settings);
-		
-	    isRunning.set(true);
-	    
-		int packetsSent = 0;
-	    final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	    final DataOutputStream dataOut = new DataOutputStream(byteOut);
+    private val isRunning = AtomicBoolean(false)
 
-	    byte[] data;
+    fun stop() {
+        isRunning.set(false)
+    }
 
-	    final long delayMs = TimeUnit.MILLISECONDS.convert(settings.delay, settings.timeUnit);
-	    long lastSendTimestamp = 0;
-	    
-	    final long startTimeMs = System.currentTimeMillis();
-	    final long timeoutMs = TimeUnit.MILLISECONDS.convert(settings.timeout, settings.timeUnit);
-	    final long stopTimeMs = timeoutMs > 0 ? timeoutMs + startTimeMs : 0;
+    /**
+     * send a stream of udp packets
+     * @return the [DatagramSocket] used for this stream or null if an exception occurred
+     */
+    override fun send(): DatagramSocket? {
+        println("UDP Stream: $settings")
 
-	    while(isRunning.get()) {    	
-	    	if (Thread.interrupted()) {
-	    		isRunning.set(false);
-	            throw new InterruptedException();	
+        isRunning.set(true)
+
+        var packetsSent = 0
+        val byteOut = ByteArrayOutputStream()
+        val dataOut = DataOutputStream(byteOut)
+
+        val delayMs = TimeUnit.MILLISECONDS.convert(settings.delay, settings.timeUnit)
+        var lastSendTimestamp: Long = 0
+
+        val startTimeMs = System.currentTimeMillis()
+        val timeoutMs = TimeUnit.MILLISECONDS.convert(settings.timeout, settings.timeUnit)
+        val stopTimeMs = if (timeoutMs > 0) timeoutMs + startTimeMs else 0
+
+        val socket = settings.socket!!
+
+        while (isRunning.get()) {
+            if (Thread.interrupted()) {
+                isRunning.set(false)
+                throw InterruptedException()
             }
-	    	
-	    	if (stopTimeMs > 0 && stopTimeMs < System.currentTimeMillis()) {
-	    		isRunning.set(false);
-	            throw new TimeoutException();	    		
-	    	}
 
-	    	//calculate correct packet delay
-	    	long currentDelay = System.currentTimeMillis() - lastSendTimestamp;
-	    	currentDelay = currentDelay > delayMs ? 0 : delayMs - currentDelay;
-	    	if (currentDelay > 0) {
-	    		Thread.sleep(currentDelay);
-	    	}
-	    	
-	    	byteOut.reset();
-	    	
-	    	try {
+            if (stopTimeMs > 0 && stopTimeMs < System.currentTimeMillis()) {
+                isRunning.set(false)
+                throw TimeoutException()
+            }
 
-	    		if (callback != null && callback.onSend(dataOut, packetsSent)) {
-    		    	data = byteOut.toByteArray();
-    		    	
-    		    	DatagramPacket packet = null;
-    		    	if (!settings.socket.isConnected()) {
-    				    packet = new DatagramPacket(data, data.length, settings.targetHost, settings.targetPort);		    		
-    		    	}
-    		    	else {
-    		    		packet = new DatagramPacket(data, data.length);
-    		    	}
-    		    	
-    	    		settings.socket.send(packet);
-    		    	packetsSent++;
-    		    	lastSendTimestamp = System.currentTimeMillis();
-	    		}
+            // calculate correct packet delay
+            var currentDelay = System.currentTimeMillis() - lastSendTimestamp
+            currentDelay = if (currentDelay > delayMs) 0 else delayMs - currentDelay
+            if (currentDelay > 0) {
+                Thread.sleep(currentDelay)
+            }
 
-	    		
-	    		if (!settings.writeOnly) {
-	    			try {
-	    			    byte buffer[] = new byte[1024];
+            byteOut.reset()
 
-	    			    DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
-	    			    settings.socket.setSoTimeout((int) TimeUnit.MILLISECONDS.convert(settings.responseSoTimeout, settings.timeUnit));
-	    			    settings.socket.receive(dp);
-	    			    if (callback != null) {
-	    			    	callback.onReceive(dp);
-	    			    }
-	    			}
-	    			catch (SocketTimeoutException e) {
-	    				e.printStackTrace();
-	    			}
-	    		}
-	    		
-	    		if (packetsSent >= settings.packets) {
-	    			isRunning.set(false);
-	    		}
-	    	} catch (IOException e) {
-	    		e.printStackTrace();
-	    		if (settings.closeOnFinish) {
-	    			settings.socket.close();
-	    		}
-	    		return null;
-	    	}
-	    }
+            try {
+                if (callback != null && callback.onSend(dataOut, packetsSent)) {
+                    val data = byteOut.toByteArray()
 
-	    return settings.socket;
-	}
+                    val packet = if (!socket.isConnected) {
+                        DatagramPacket(data, data.size, settings.targetHost, settings.targetPort)
+                    } else {
+                        DatagramPacket(data, data.size)
+                    }
+
+                    socket.send(packet)
+                    packetsSent++
+                    lastSendTimestamp = System.currentTimeMillis()
+                }
+
+                if (!settings.writeOnly) {
+                    try {
+                        val buffer = ByteArray(1024)
+
+                        val dp = DatagramPacket(buffer, buffer.size)
+                        socket.soTimeout = TimeUnit.MILLISECONDS.convert(settings.responseSoTimeout, settings.timeUnit).toInt()
+                        socket.receive(dp)
+                        callback?.onReceive(dp)
+                    } catch (e: SocketTimeoutException) {
+                        e.printStackTrace()
+                    }
+                }
+
+                if (packetsSent >= settings.packets) {
+                    isRunning.set(false)
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                if (settings.closeOnFinish) {
+                    socket.close()
+                }
+                return null
+            }
+        }
+
+        return socket
+    }
 }

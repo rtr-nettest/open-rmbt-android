@@ -13,310 +13,198 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.net.rtp;
+ */
+package at.rtr.rmbt.util.net.rtp
 
-import java.nio.ByteOrder;
-import java.util.Arrays;
-
-import at.rtr.rmbt.util.ByteUtil;
-import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.PayloadType;
-import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException;
-import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException.RtpErrorType;
-import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpVersion;
+import at.rtr.rmbt.util.ByteUtil
+import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.PayloadType
+import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException
+import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException.RtpErrorType
+import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpVersion
+import java.nio.ByteOrder
 
 /**
  * rtp packet including header and payload
  * @author lb
- *
  */
-public class RtpPacket {
-	byte[] header;
-	byte[] csrcIdentifier;
-	byte[] payload;
-	
-	public RtpPacket(PayloadType payloadType, int csrcCount, long[] csrc, int seqNumber, long timeStamp, long ssrc) {
-		this(payloadType, csrcCount, csrc, seqNumber, timeStamp, ssrc, null);
-	}
-	
-	public RtpPacket(PayloadType payloadType, int csrcCount, long[] csrc, int seqNumber, long timeStamp, long ssrc, byte[] payload) {
-		this.header = RealtimeTransportProtocol.createHeaderBytes(RtpVersion.VER2, false, false, 
-				csrcCount, false, payloadType, seqNumber, timeStamp, ssrc);
-		
-		this.csrcIdentifier = RealtimeTransportProtocol.createCsrcIdentifierBytes(csrc);
-		this.payload = payload;
-	}
-	
-	public RtpPacket(byte[] packet) throws RtpException {
-		if (packet == null || packet.length < 12) {
-			throw new RtpException(RtpErrorType.PACKET_SIZE_TOO_SMALL);
-		}
+class RtpPacket {
+    var header: ByteArray = ByteArray(0)
+    var csrcIdentifier: ByteArray? = null
+    var payload: ByteArray? = null
 
-		try {
-			header = new byte[12];
-			System.arraycopy(packet, 0, header, 0, header.length);
-			int curPos = header.length;
-			int csrsCount = getCsrcCount();
-			if (csrsCount > 0) {
-				csrcIdentifier = new byte[csrsCount * 4];
-				System.arraycopy(packet, curPos, csrcIdentifier, 0, csrcIdentifier.length);
-				curPos += csrcIdentifier.length;
-			}
-			if (packet.length > curPos) {
-				int payloadSize = packet.length - curPos;
-				payload = new byte[payloadSize];
-				System.arraycopy(packet, curPos, payload, 0, payload.length);
-			}
-		}
-		catch (Exception e)  {
-			throw new RtpException(RtpErrorType.INVALID_HEADER);
-		}
-	}
+    constructor(payloadType: PayloadType, csrcCount: Int, csrc: LongArray?, seqNumber: Int, timeStamp: Long, ssrc: Long) :
+        this(payloadType, csrcCount, csrc, seqNumber, timeStamp, ssrc, null)
 
-	public byte[] getHeader() {
-		return header;
-	}
+    constructor(
+        payloadType: PayloadType,
+        csrcCount: Int,
+        csrc: LongArray?,
+        seqNumber: Int,
+        timeStamp: Long,
+        ssrc: Long,
+        payload: ByteArray?
+    ) {
+        this.header = RealtimeTransportProtocol.createHeaderBytes(
+            RtpVersion.VER2, false, false,
+            csrcCount, false, payloadType, seqNumber, timeStamp, ssrc
+        )
 
-	public void setHeader(byte[] header) {
-		this.header = header;
-	}
+        this.csrcIdentifier = RealtimeTransportProtocol.createCsrcIdentifierBytes(csrc)
+        this.payload = payload
+    }
 
-	public byte[] getCsrcIdentifier() {
-		return csrcIdentifier;
-	}
+    constructor(packet: ByteArray?) {
+        if (packet == null || packet.size < 12) {
+            throw RtpException(RtpErrorType.PACKET_SIZE_TOO_SMALL)
+        }
 
-	public void setCsrcIdentifier(byte[] csrcIdentifier) {
-		this.csrcIdentifier = csrcIdentifier;
-	}
+        try {
+            header = ByteArray(12)
+            System.arraycopy(packet, 0, header, 0, header.size)
+            var curPos = header.size
+            val csrsCount = getCsrcCount()
+            if (csrsCount > 0) {
+                val csrc = ByteArray(csrsCount * 4)
+                System.arraycopy(packet, curPos, csrc, 0, csrc.size)
+                curPos += csrc.size
+                csrcIdentifier = csrc
+            }
+            if (packet.size > curPos) {
+                val payloadSize = packet.size - curPos
+                val p = ByteArray(payloadSize)
+                System.arraycopy(packet, curPos, p, 0, p.size)
+                payload = p
+            }
+        } catch (e: Exception) {
+            throw RtpException(RtpErrorType.INVALID_HEADER)
+        }
+    }
 
-	public byte[] getPayload() {
-		return payload;
-	}
+    fun getPayloadType(): PayloadType {
+        return PayloadType.getByCodecValue(header[1].toInt() and 0x7F)
+    }
 
-	public void setPayload(byte[] payload) {
-		this.payload = payload;
-	}
-	
-	/**
-	 * 
-	 * @param packet
-	 * @return
-	 */
-	public PayloadType getPayloadType() {
-		return PayloadType.getByCodecValue(header[1] & 0x7F);
-	}
-	
-	/**
-	 * 
-	 * @param packet
-	 * @param payloadType
-	 */
-	public void setPayloadType( PayloadType payloadType) {
-		header[1] = ByteUtil.setRightBitsValue(header[1], 7, payloadType.getValue());
-	}
-	
-	/**
-	 * 
-	 * @param packet
-	 * @return
-	 */
-	public boolean hasMarker() {
-		return ByteUtil.getBit(header[1], 7);
-	}
+    fun setPayloadType(payloadType: PayloadType) {
+        header[1] = ByteUtil.setRightBitsValue(header[1], 7, payloadType.value)
+    }
 
-	/**
-	 * 
-	 * @param packet
-	 * @param hasMarker
-	 */
-	public void setHasMarker(boolean hasMarker) {
-		header[1] = ByteUtil.setBit(header[1], 7, hasMarker);
-	}
-		
-	/**
-	 * 
-	 * @param packet
-	 * @return
-	 */
-	public RtpVersion getVersion() {
-		return RtpUtil.getVersion(header[0]);
-	}
-	
-	/**
-	 * 
-	 * @param version
-	 */
-	public void setVersion(RtpVersion version) {
-		header[0] = ByteUtil.setLeftBitsValue(header[0], 2, version.getVersion());
-	}
-	
-	/**
-	 * 
-	 * @param packet
-	 * @return
-	 */
-	public int getCsrcCount() {
-		return (header[0] & 0x0F);
-	}
-	
-	/**
-	 * 
-	 * @param csrcCount
-	 */
-	public void setCsrcCount(int csrcCount) {
-		header[0] = ByteUtil.setRightBitsValue(header[0], 4, csrcCount);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public long[] getCsrcIdentifiersAsLong() {
-		if (csrcIdentifier != null && csrcIdentifier.length > 0) {
-			long[] csrcIds = new long[csrcIdentifier.length / 4];
-			for (int i = 0; i < csrcIds.length; i++) {
-				csrcIds[i] = ByteUtil.getLong(csrcIdentifier, i*4, 3 + i*4, ByteOrder.BIG_ENDIAN);
-			}
-			
-			return csrcIds;
-		}
-		
-		return new long[] {};
-	}
-	
-	/**
-	 * 
-	 * @param packet
-	 * @return
-	 */
-	public boolean hasPadding() {
-		return ByteUtil.getBit(header[0], 5);
-	}
-	
-	/**
-	 * 
-	 * @param hasPadding
-	 */
-	public void setHasPadding(boolean hasPadding) {
-		header[0] = ByteUtil.setBit(header[0], 5, hasPadding);
-	}
-	
-	/**
-	 * 
-	 * @param packet
-	 * @return
-	 */
-	public boolean hasExtension() {
-		return ByteUtil.getBit(header[0], 4);
-	}
-	
-	/**
-	 * 
-	 * @param hasExtension
-	 */
-	public void setHasExtension(boolean hasExtension) {
-		header[0] = ByteUtil.setBit(header[0], 4, hasExtension);
-	}
+    fun hasMarker(): Boolean {
+        return ByteUtil.getBit(header[1], 7)
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public int getSequnceNumber() {
-		return ByteUtil.getInt(header, 2, 3, ByteOrder.BIG_ENDIAN);
-	}
+    fun setHasMarker(hasMarker: Boolean) {
+        header[1] = ByteUtil.setBit(header[1], 7, hasMarker)
+    }
 
-	/**
-	 * 
-	 * @param seqNumber
-	 */
-	public void setSequnceNumber(int seqNumber) {
-		header = ByteUtil.setInt(header, 2, 3, seqNumber, ByteOrder.BIG_ENDIAN);
-	}
+    fun getVersion(): RtpVersion {
+        return RtpUtil.getVersion(header[0])
+    }
 
-	/**
-	 * 
-	 * @param delta
-	 */
-	public void increaseSequenceNumber(int delta) {
-		setSequnceNumber(getSequnceNumber() + delta);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public long getTimestamp() {
-		return ByteUtil.getLong(header, 4, 7, ByteOrder.BIG_ENDIAN);
-	}
+    fun setVersion(version: RtpVersion) {
+        header[0] = ByteUtil.setLeftBitsValue(header[0], 2, version.version)
+    }
 
-	/**
-	 * 
-	 * @param timestamp
-	 */
-	public void setTimestamp(long timestamp) {
-		header = ByteUtil.setLong(header, 4, 7, timestamp, ByteOrder.BIG_ENDIAN);
-	}
-	
-	/**
-	 * 
-	 * @param delta
-	 */
-	public void increaseTimestamp(long delta) {
-		setTimestamp(getTimestamp() + delta);
-	}
+    fun getCsrcCount(): Int {
+        return header[0].toInt() and 0x0F
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public long getSsrc() {
-		return ByteUtil.getLong(header, 8, 11, ByteOrder.BIG_ENDIAN);
-	}
-	
-	/**
-	 * 
-	 * @param ssrc
-	 * @return
-	 */
-	public void setSsrc(long ssrc) {
-		header = ByteUtil.setLong(header, 8, 11, ssrc, ByteOrder.BIG_ENDIAN);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public byte[] getBytes() {
-		final byte[] d = new byte[header.length 
-		                    + (csrcIdentifier != null ? csrcIdentifier.length : 0) 
-		                    + (payload != null ? payload.length : 0)];
-		
-		int curPos = 0;
-		System.arraycopy(header, 0, d, 0, header.length);
-		curPos += header.length;
-		if (csrcIdentifier != null) {
-			System.arraycopy(csrcIdentifier, 0, d, curPos, csrcIdentifier.length);
-			curPos += csrcIdentifier.length;
-		}
-		if (payload != null) {
-			System.arraycopy(payload, 0, d, curPos, payload.length);
-		}
-		
-		return d;
-	}
+    fun setCsrcCount(csrcCount: Int) {
+        header[0] = ByteUtil.setRightBitsValue(header[0], 4, csrcCount)
+    }
 
-	@Override
-	public String toString() {
-		return "RtpPacket [payload=" + Arrays.toString(payload)
-				+ ", getPayloadType()=" + getPayloadType() + ", hasMarker()="
-				+ hasMarker() + ", getVersion()=" + getVersion()
-				+ ", getCsrcCount()=" + getCsrcCount()
-				+ ", getCsrcIdentifiersAsLong()="
-				+ Arrays.toString(getCsrcIdentifiersAsLong())
-				+ ", hasPadding()=" + hasPadding() + ", hasExtension()="
-				+ hasExtension() + ", getSequnceNumber()=" + getSequnceNumber()
-				+ ", getTimestamp()=" + getTimestamp() + ", getSsrc()="
-				+ getSsrc() + "]";
-	}
+    fun getCsrcIdentifiersAsLong(): LongArray {
+        val csrc = csrcIdentifier
+        if (csrc != null && csrc.isNotEmpty()) {
+            val csrcIds = LongArray(csrc.size / 4)
+            for (i in csrcIds.indices) {
+                csrcIds[i] = ByteUtil.getLong(csrc, i * 4, 3 + i * 4, ByteOrder.BIG_ENDIAN)
+            }
+
+            return csrcIds
+        }
+
+        return LongArray(0)
+    }
+
+    fun hasPadding(): Boolean {
+        return ByteUtil.getBit(header[0], 5)
+    }
+
+    fun setHasPadding(hasPadding: Boolean) {
+        header[0] = ByteUtil.setBit(header[0], 5, hasPadding)
+    }
+
+    fun hasExtension(): Boolean {
+        return ByteUtil.getBit(header[0], 4)
+    }
+
+    fun setHasExtension(hasExtension: Boolean) {
+        header[0] = ByteUtil.setBit(header[0], 4, hasExtension)
+    }
+
+    fun getSequnceNumber(): Int {
+        return ByteUtil.getInt(header, 2, 3, ByteOrder.BIG_ENDIAN)
+    }
+
+    fun setSequnceNumber(seqNumber: Int) {
+        header = ByteUtil.setInt(header, 2, 3, seqNumber, ByteOrder.BIG_ENDIAN)
+    }
+
+    fun increaseSequenceNumber(delta: Int) {
+        setSequnceNumber(getSequnceNumber() + delta)
+    }
+
+    fun getTimestamp(): Long {
+        return ByteUtil.getLong(header, 4, 7, ByteOrder.BIG_ENDIAN)
+    }
+
+    fun setTimestamp(timestamp: Long) {
+        header = ByteUtil.setLong(header, 4, 7, timestamp, ByteOrder.BIG_ENDIAN)
+    }
+
+    fun increaseTimestamp(delta: Long) {
+        setTimestamp(getTimestamp() + delta)
+    }
+
+    fun getSsrc(): Long {
+        return ByteUtil.getLong(header, 8, 11, ByteOrder.BIG_ENDIAN)
+    }
+
+    fun setSsrc(ssrc: Long) {
+        header = ByteUtil.setLong(header, 8, 11, ssrc, ByteOrder.BIG_ENDIAN)
+    }
+
+    fun getBytes(): ByteArray {
+        val d = ByteArray(
+            header.size +
+                (csrcIdentifier?.size ?: 0) +
+                (payload?.size ?: 0)
+        )
+
+        var curPos = 0
+        System.arraycopy(header, 0, d, 0, header.size)
+        curPos += header.size
+        csrcIdentifier?.let {
+            System.arraycopy(it, 0, d, curPos, it.size)
+            curPos += it.size
+        }
+        payload?.let {
+            System.arraycopy(it, 0, d, curPos, it.size)
+        }
+
+        return d
+    }
+
+    override fun toString(): String {
+        return "RtpPacket [payload=" + payload.contentToString() +
+            ", getPayloadType()=" + getPayloadType() + ", hasMarker()=" +
+            hasMarker() + ", getVersion()=" + getVersion() +
+            ", getCsrcCount()=" + getCsrcCount() +
+            ", getCsrcIdentifiersAsLong()=" +
+            getCsrcIdentifiersAsLong().contentToString() +
+            ", hasPadding()=" + hasPadding() + ", hasExtension()=" +
+            hasExtension() + ", getSequnceNumber()=" + getSequnceNumber() +
+            ", getTimestamp()=" + getTimestamp() + ", getSsrc()=" +
+            getSsrc() + "]"
+    }
 }

@@ -13,110 +13,72 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.net.udp;
+ */
+package at.rtr.rmbt.util.net.udp
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.util.concurrent.atomic.AtomicBoolean;
+import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.util.concurrent.atomic.AtomicBoolean
 
-import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
+class UdpStreamReceiver(
+    private val settings: UdpStreamReceiverSettings,
+    private val callback: UdpStreamCallback?
+) {
 
-public class UdpStreamReceiver {
+    /**
+     * @author lb
+     */
+    class UdpStreamReceiverSettings(
+        var socket: DatagramSocket,
+        var packets: Int,
+        var sendResponse: Boolean
+    )
 
-	/**
-	 * 
-	 * @author lb
-	 *
-	 */
-	public static class UdpStreamReceiverSettings {
-		int packets;
-		long delay;
-		boolean sendResponse = false;
-		DatagramSocket socket;
+    private val isRunning = AtomicBoolean(false)
 
-		public UdpStreamReceiverSettings(DatagramSocket socket, int packets, boolean sendResponse) {
-			this.socket = socket;
-			this.packets = packets;
-			this.sendResponse = sendResponse;
-		}
-		
-		public DatagramSocket getSocket() {
-			return socket;
-		}
-		public void setSocket(DatagramSocket socket) {
-			this.socket = socket;
-		}
-		public boolean isSendResponse() {
-			return sendResponse;
-		}
-		public void setSendResponse(boolean sendResponse) {
-			this.sendResponse = sendResponse;
-		}
-		public int getPackets() {
-			return packets;
-		}
-		public void setPackets(int packets) {
-			this.packets = packets;
-		}
-	}
-	
-	UdpStreamCallback callback;
-	
-	UdpStreamReceiverSettings settings;
-	
-	final AtomicBoolean isRunning = new AtomicBoolean(false);
-	
-	public UdpStreamReceiver(UdpStreamReceiverSettings settings, UdpStreamCallback callback) {
-		this.callback = callback;
-		this.settings = settings;
-	}
-	
-	public void stop() {
-		isRunning.set(false);
-	}
-	
-	public void receive() throws InterruptedException, IOException {
-	    final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	    final DataOutputStream dataOut = new DataOutputStream(byteOut);
+    fun stop() {
+        isRunning.set(false)
+    }
 
-		isRunning.set(true);
-		int packetsReceived = 0;
-		
-		while(isRunning.get()) {
-	    	if (Thread.interrupted()) {
-	    		settings.socket.close();
-	    		isRunning.set(false);
-	            throw new InterruptedException();	
+    fun receive() {
+        val byteOut = ByteArrayOutputStream()
+        val dataOut = DataOutputStream(byteOut)
+
+        isRunning.set(true)
+        var packetsReceived = 0
+
+        while (isRunning.get()) {
+            if (Thread.interrupted()) {
+                settings.socket.close()
+                isRunning.set(false)
+                throw InterruptedException()
             }
-			
-		    byte data[] = new byte[1024];
-		    DatagramPacket packet = new DatagramPacket(data, data.length);
-		    
-		    settings.socket.receive(packet);
-		    packetsReceived++;
-		    
-		    if (callback != null) {
-		    	callback.onReceive(packet);
-		    }
-		    
-		    if (packetsReceived >= settings.packets) {
-				isRunning.set(false);
-			}
-		    
-			if (settings.sendResponse) 
-			{
-				byteOut.reset();
 
-				if (callback != null && callback.onSend(dataOut, packetsReceived)) {
-					final byte[] dataToSend = byteOut.toByteArray();
-					DatagramPacket dp = new DatagramPacket(dataToSend, dataToSend.length, packet.getAddress(), packet.getPort());
-					settings.socket.send(dp);
-				}
-			}
-		}
-	}
+            val data = ByteArray(1024)
+            val packet = DatagramPacket(data, data.size)
+
+            settings.socket.receive(packet)
+            packetsReceived++
+
+            callback?.onReceive(packet)
+
+            if (packetsReceived >= settings.packets) {
+                isRunning.set(false)
+            }
+
+            if (settings.sendResponse) {
+                byteOut.reset()
+
+                if (callback != null && callback.onSend(dataOut, packetsReceived)) {
+                    val dataToSend = byteOut.toByteArray()
+                    val dp = DatagramPacket(dataToSend, dataToSend.size, packet.address, packet.port)
+                    settings.socket.send(dp)
+                }
+            }
+        }
+    }
 }

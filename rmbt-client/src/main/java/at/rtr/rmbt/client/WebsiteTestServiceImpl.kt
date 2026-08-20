@@ -1,369 +1,231 @@
-package at.rtr.rmbt.client;
+package at.rtr.rmbt.client
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.TrafficStats;
-import android.os.Handler;
-import android.os.Process;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.TrafficStats
+import android.os.Handler
+import android.os.Process
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import at.rtr.rmbt.client.v2.task.service.WebsiteTestService
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+class WebsiteTestServiceImpl(private val context: Context) : WebsiteTestService {
 
-import at.rtr.rmbt.client.v2.task.service.WebsiteTestService;
+    private var webView: WebView? = null
 
-public class WebsiteTestServiceImpl implements WebsiteTestService {
+    private val isRunning = AtomicBoolean(false)
 
-    /**
-     * <p>
-     * if set to true the traffic will be recorded using
-     * {@link TrafficStats#getUidRxBytes(int)} and {@link TrafficStats#getUidTxPackets(int)}
-     * </p>
-     * <p>
-     * otherwise this service will call:
-     * {@link TrafficStats#getTotalRxBytes()} and {@link TrafficStats#getTotalTxPackets()}
-     * </p>
-     */
-    private final static boolean USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT = true;
+    private val hasFinished = AtomicBoolean(false)
 
-    private WebView webView;
+    private val hasError = AtomicBoolean(false)
 
-    private final Context context;
+    private val resourceCount = AtomicInteger(0)
 
-    private final AtomicBoolean isRunning = new AtomicBoolean(false);
+    private var statusCode = -1
 
-    private final AtomicBoolean hasFinished = new AtomicBoolean(false);
+    private var duration: Long = -1
 
-    private final AtomicBoolean hasError = new AtomicBoolean(false);
+    private var listener: WebsiteTestService.RenderingListener? = null
 
-    private final AtomicInteger resourceCount = new AtomicInteger(0);
+    private var trafficRxStart: Long = 0
 
-    private int statusCode = -1;
+    private var trafficTxStart: Long = 0
 
-    private long duration = -1;
+    private var trafficRxEnd: Long = 0
 
-    private RenderingListener listener;
+    private var trafficTxEnd: Long = 0
 
-    private long trafficRxStart;
+    private val handler: Handler = Handler(context.mainLooper)
 
-    private long trafficTxStart;
+    private var processUid = 0
 
-    private long trafficRxEnd;
-
-    private long trafficTxEnd;
-
-    private final Handler handler;
-
-    private int processUid;
-
-    public WebsiteTestServiceImpl(final Context context) {
-        this.context = context;
-        this.handler = new Handler(context.getMainLooper());
+    override fun getInstance(): WebsiteTestServiceImpl {
+        return WebsiteTestServiceImpl(context)
     }
 
-
-    /**
-     * @return
-     */
-    public WebsiteTestServiceImpl getInstance() {
-        return new WebsiteTestServiceImpl(context);
+    override fun getHash(): String? {
+        return null
     }
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#getHash()
-     */
-    @Override
-    public String getHash() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    override fun getDownloadDuration(): Long = duration
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#getDownloadDuration()
-     */
-    @Override
-    public long getDownloadDuration() {
-        return duration;
-    }
+    override fun run(targetUrl: String?, timeOut: Long) {
+        handler.post {
+            this@WebsiteTestServiceImpl.processUid = Process.myUid()
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#run(java.lang.String, long)
-     */
-    @Override
-    public void run(final String targetUrl, final long timeOut) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                WebsiteTestServiceImpl.this.processUid = Process.myUid();
+            var wv = webView
+            if (wv == null) {
+                wv = WebView(context)
+                webView = wv
+            }
+            wv.clearCache(true)
 
-                //webView.removeAllViews();
+            val start = System.nanoTime()
 
-                if (webView == null)
-                    webView = new WebView(context);
-                webView.clearCache(true);
+            println("Running WEBSITETASK $targetUrl")
 
-                final long start = System.nanoTime();
+            val isTrafficServiceSupported = if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
+                TrafficStats.getUidRxBytes(processUid) != TrafficStats.UNSUPPORTED.toLong()
+            } else {
+                TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED.toLong()
+            }
 
-                System.out.println("Running WEBSITETASK " + targetUrl);
-
-                boolean isTrafficServiceSupported = USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT ?
-                        TrafficStats.getUidRxBytes(processUid) != TrafficStats.UNSUPPORTED :
-                        TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED;
-
-
-                if (!isTrafficServiceSupported) {
-                    trafficRxStart = -1;
-                    trafficTxStart = -1;
-                    trafficRxEnd = -1;
-                    trafficTxEnd = -1;
+            if (!isTrafficServiceSupported) {
+                trafficRxStart = -1
+                trafficTxStart = -1
+                trafficRxEnd = -1
+                trafficTxEnd = -1
+            } else {
+                if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
+                    trafficTxStart = TrafficStats.getUidTxBytes(processUid)
+                    trafficRxStart = TrafficStats.getUidRxBytes(processUid)
                 } else {
-                    if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
-                        trafficTxStart = TrafficStats.getUidTxBytes(processUid);
-                        trafficRxStart = TrafficStats.getUidRxBytes(processUid);
-                    } else {
-                        trafficTxStart = TrafficStats.getTotalTxBytes();
-                        trafficRxStart = TrafficStats.getTotalRxBytes();
-                    }
+                    trafficTxStart = TrafficStats.getTotalTxBytes()
+                    trafficRxStart = TrafficStats.getTotalRxBytes()
+                }
+            }
+
+            val timeoutThread = Thread(Runnable {
+                try {
+                    println("WEBSITETASK STARTING TIMEOUT THREAD: $timeOut ms")
+                    Thread.sleep(timeOut)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                    Thread.currentThread().interrupt() // restore interrupt state
+                    return@Runnable
                 }
 
-                Thread timeoutThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            System.out.println("WEBSITETASK STARTING TIMEOUT THREAD: " + timeOut + " ms");
-                            Thread.sleep(timeOut);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt(); // restore interrupt state
-                            return;
-                        }
+                if (!this@WebsiteTestServiceImpl.hasFinished() && listener != null) {
+                    setEndTrafficCounter()
 
-                        if (!WebsiteTestServiceImpl.this.hasFinished() && listener != null) {
-                            setEndTrafficCounter();
-
-                            if (listener.onTimeoutReached(WebsiteTestServiceImpl.this)) {
-                                System.out.println("WEBSITETESTTASK TIMEOUT");
-                                WebsiteTestServiceImpl.this.handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        WebsiteTestServiceImpl.this.webView.stopLoading();
-                                    }
-                                });
-                            }
+                    if (listener!!.onTimeoutReached(this@WebsiteTestServiceImpl)) {
+                        println("WEBSITETESTTASK TIMEOUT")
+                        this@WebsiteTestServiceImpl.handler.post {
+                            this@WebsiteTestServiceImpl.webView?.stopLoading()
                         }
                     }
-                });
+                }
+            })
 
-                timeoutThread.start();
+            timeoutThread.start()
 
-                webView.getSettings().setJavaScriptEnabled(true);
-                webView.setWebViewClient(new WebViewClient() {
+            wv.settings.javaScriptEnabled = true
+            wv.webViewClient = object : WebViewClient() {
 
-					/*
-					@Override
-					public boolean shouldOverrideUrlLoading(WebView view,
-							String url) {
-						view.loadUrl(url);
-						return true;
-					}
-					*/
+                override fun onLoadResource(view: WebView, url: String) {
+                    println("getting resource: " + url + " progress: " + view.progress)
+                    resourceCount.incrementAndGet()
+                    super.onLoadResource(view, url)
+                }
 
-                    @Override
-                    public void onLoadResource(WebView view, String url) {
-                        System.out.println("getting resource: " + url + " progress: " + view.getProgress());
-                        resourceCount.incrementAndGet();
-                        super.onLoadResource(view, url);
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+
+                    this@WebsiteTestServiceImpl.isRunning.set(false)
+                    this@WebsiteTestServiceImpl.hasFinished.set(true)
+                    this@WebsiteTestServiceImpl.hasError.set(false)
+                    this@WebsiteTestServiceImpl.duration = System.nanoTime() - start
+
+                    if (this@WebsiteTestServiceImpl.trafficRxStart != -1L) {
+                        setEndTrafficCounter()
                     }
 
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-                        super.onPageFinished(view, url);
+                    println("PAGE FINISHED " + targetUrl + " progress: " + view.progress + "%, resources counter: " + resourceCount.get())
+                    listener?.onRenderFinished(this@WebsiteTestServiceImpl)
+                }
 
-                        WebsiteTestServiceImpl.this.isRunning.set(false);
-                        WebsiteTestServiceImpl.this.hasFinished.set(true);
-                        WebsiteTestServiceImpl.this.hasError.set(false);
-                        WebsiteTestServiceImpl.this.duration = System.nanoTime() - start;
+                override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+                    this@WebsiteTestServiceImpl.isRunning.set(true)
+                    this@WebsiteTestServiceImpl.hasFinished.set(false)
+                    this@WebsiteTestServiceImpl.hasError.set(false)
 
-                        if (WebsiteTestServiceImpl.this.trafficRxStart != -1) {
-                            setEndTrafficCounter();
-                        }
+                    listener?.onDownloadStarted(this@WebsiteTestServiceImpl)
 
-                        System.out.println("PAGE FINISHED " + targetUrl + " progress: " + view.getProgress() + "%, resources counter: " + resourceCount.get());
-                        if (listener != null) {
-                            listener.onRenderFinished(WebsiteTestServiceImpl.this);
-                        }
+                    println("PAGE STARTED $targetUrl")
+
+                    super.onPageStarted(view, url, favicon)
+                }
+
+                @Deprecated("Deprecated in Java")
+                override fun onReceivedError(view: WebView, errorCode: Int, description: String?, failingUrl: String?) {
+                    @Suppress("DEPRECATION")
+                    super.onReceivedError(view, errorCode, description, failingUrl)
+
+                    this@WebsiteTestServiceImpl.isRunning.set(false)
+                    this@WebsiteTestServiceImpl.hasFinished.set(true)
+                    this@WebsiteTestServiceImpl.hasError.set(true)
+                    this@WebsiteTestServiceImpl.duration = System.nanoTime() - start
+
+                    if (this@WebsiteTestServiceImpl.trafficRxStart != -1L) {
+                        setEndTrafficCounter()
                     }
 
-                    @Override
-                    public void onPageStarted(final WebView view, String url, Bitmap favicon) {
-                        WebsiteTestServiceImpl.this.isRunning.set(true);
-                        WebsiteTestServiceImpl.this.hasFinished.set(false);
-                        WebsiteTestServiceImpl.this.hasError.set(false);
-
-                        if (listener != null) {
-                            listener.onDownloadStarted(WebsiteTestServiceImpl.this);
-                        }
-
-                        System.out.println("PAGE STARTED " + targetUrl);
-
-                        super.onPageStarted(view, url, favicon);
-                    }
-
-                    @Override
-                    public void onReceivedError(WebView view, int errorCode,
-                                                String description, String failingUrl) {
-                        super.onReceivedError(view, errorCode, description, failingUrl);
-
-                        WebsiteTestServiceImpl.this.isRunning.set(false);
-                        WebsiteTestServiceImpl.this.hasFinished.set(true);
-                        WebsiteTestServiceImpl.this.hasError.set(true);
-                        WebsiteTestServiceImpl.this.duration = System.nanoTime() - start;
-
-                        if (WebsiteTestServiceImpl.this.trafficRxStart != -1) {
-                            setEndTrafficCounter();
-                        }
-
-                        if (listener != null) {
-                            listener.onError(WebsiteTestServiceImpl.this);
-                        }
-                    }
-                });
-
-                AsyncHtmlStatusCodeRetriever task = new AsyncHtmlStatusCodeRetriever();
-                task.setContentRetrieverListener(new AsyncHtmlStatusCodeRetriever.ContentRetrieverListener() {
-
-                    @Override
-                    public void onContentFinished(Integer statusCode) {
-                        if (statusCode == null)
-                            statusCode = -1;
-                        WebsiteTestServiceImpl.this.statusCode = statusCode;
-                        if (statusCode >= 0) {
-                            //webView.loadDataWithBaseURL(targetUrl, htmlContent, "text/html", "utf-8", null);
-                            webView.loadUrl(targetUrl);
-                            //webView.loadData(htmlContent, "text/html", "utf-8");
-                        } else {
-                            WebsiteTestServiceImpl.this.isRunning.set(false);
-                            WebsiteTestServiceImpl.this.hasFinished.set(true);
-                            WebsiteTestServiceImpl.this.hasError.set(true);
-                            WebsiteTestServiceImpl.this.duration = System.nanoTime() - start;
-
-                            if (WebsiteTestServiceImpl.this.trafficRxStart != -1) {
-                                setEndTrafficCounter();
-                            }
-
-                            if (listener != null) {
-                                listener.onError(WebsiteTestServiceImpl.this);
-                            }
-                        }
-                    }
-                });
-
-                task.execute(targetUrl);
-
-                //webView.loadUrl(targetUrl);
+                    listener?.onError(this@WebsiteTestServiceImpl)
+                }
             }
-        });
 
-    }
+            val task = AsyncHtmlStatusCodeRetriever()
+            task.setContentRetrieverListener(object : AsyncHtmlStatusCodeRetriever.ContentRetrieverListener {
+                override fun onContentFinished(statusCode: Int?) {
+                    val code = statusCode ?: -1
+                    this@WebsiteTestServiceImpl.statusCode = code
+                    if (code >= 0) {
+                        wv.loadUrl(targetUrl!!)
+                    } else {
+                        this@WebsiteTestServiceImpl.isRunning.set(false)
+                        this@WebsiteTestServiceImpl.hasFinished.set(true)
+                        this@WebsiteTestServiceImpl.hasError.set(true)
+                        this@WebsiteTestServiceImpl.duration = System.nanoTime() - start
 
-    /**
-     *
-     */
-    private void setEndTrafficCounter() {
-        if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
-            this.trafficRxEnd = TrafficStats.getUidRxBytes(processUid);
-            this.trafficTxEnd = TrafficStats.getUidTxBytes(processUid);
-        } else {
-            this.trafficRxEnd = TrafficStats.getTotalRxBytes();
-            this.trafficTxEnd = TrafficStats.getTotalTxBytes();
+                        if (this@WebsiteTestServiceImpl.trafficRxStart != -1L) {
+                            setEndTrafficCounter()
+                        }
+
+                        listener?.onError(this@WebsiteTestServiceImpl)
+                    }
+                }
+            })
+
+            task.execute(targetUrl)
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#isRunning()
-     */
-    @Override
-    public boolean isRunning() {
-        final boolean isRunning = this.isRunning.get();
-        return isRunning;
+    private fun setEndTrafficCounter() {
+        if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
+            this.trafficRxEnd = TrafficStats.getUidRxBytes(processUid)
+            this.trafficTxEnd = TrafficStats.getUidTxBytes(processUid)
+        } else {
+            this.trafficRxEnd = TrafficStats.getTotalRxBytes()
+            this.trafficTxEnd = TrafficStats.getTotalTxBytes()
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#hasFinished()
-     */
-    @Override
-    public boolean hasFinished() {
-        final boolean hasFinished = this.hasFinished.get();
-        return hasFinished;
+    override fun isRunning(): Boolean = isRunning.get()
+
+    override fun hasFinished(): Boolean = hasFinished.get()
+
+    override fun setOnRenderingFinishedListener(listener: WebsiteTestService.RenderingListener) {
+        this.listener = listener
     }
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#setOnRenderingFinishedListener(at.alladin.rmbt.client.v2.task.WebsiteTest.RenderingFinishedListener)
-     */
-    @Override
-    public void setOnRenderingFinishedListener(RenderingListener listener) {
-        this.listener = listener;
-    }
+    override fun hasError(): Boolean = hasError.get()
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#hasError()
-     */
-    @Override
-    public boolean hasError() {
-        return this.hasError.get();
-    }
+    override fun getStatusCode(): Int = statusCode
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#getStatusCode()
-     */
-    @Override
-    public int getStatusCode() {
-        return statusCode;
-    }
+    override fun getTxBytes(): Long = if (trafficTxStart != -1L) trafficTxEnd - trafficTxStart else -1
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#getTxBytes()
-     */
-    @Override
-    public long getTxBytes() {
-        return (trafficTxStart != -1 ? trafficTxEnd - trafficTxStart : -1);
-    }
+    override fun getRxBytes(): Long = if (trafficRxStart != -1L) trafficRxEnd - trafficRxStart else -1
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#getRxBytes()
-     */
-    @Override
-    public long getRxBytes() {
-        return (trafficRxStart != -1 ? trafficRxEnd - trafficRxStart : -1);
-    }
+    override fun getTotalTrafficBytes(): Long = if (getRxBytes() != -1L) getRxBytes() + getTxBytes() else -1
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.WebsiteTest#getTotalTrafficBytes()
-     */
-    @Override
-    public long getTotalTrafficBytes() {
-        return (getRxBytes() != -1 ? getRxBytes() + getTxBytes() : -1);
-    }
+    override fun getResourceCount(): Int = resourceCount.get()
 
-    /*
-     * (non-Javadoc)
-     * @see at.alladin.rmbt.client.v2.task.service.WebsiteTestService#getResourceCount()
-     */
-    @Override
-    public int getResourceCount() {
-        return resourceCount.get();
+    companion object {
+        /**
+         * if set to true the traffic will be recorded using process-uid traffic stats, otherwise total traffic stats.
+         */
+        private const val USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT = true
     }
-
 }

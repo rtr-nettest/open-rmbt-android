@@ -1,223 +1,195 @@
 /*******************************************************************************
  * Copyright 2013-2014 alladin-IT GmbH
  * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client;
+ */
+package at.rtr.rmbt.client
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Locale;
-import java.util.Scanner;
-import java.util.regex.Pattern;
+import at.rtr.rmbt.client.helper.Config
+import timber.log.Timber
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.util.Locale
+import java.util.Scanner
+import java.util.regex.Pattern
+import javax.net.ssl.SSLSocket
 
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
+abstract class AbstractRMBTTest(
+    protected val client: RMBTClient,
+    protected val params: RMBTTestParameter,
+    protected val threadId: Int
+) {
 
-import at.rtr.rmbt.client.helper.Config;
-import timber.log.Timber;
+    protected var `in`: InputStreamCounter? = null
 
-public abstract class AbstractRMBTTest {
-    protected static final String EXPECT_GREETING = Config.RMBT_SERVER_NAME;
-    protected static final Pattern RMBT_SERVER_PATTERN = Pattern.compile(Config.RMBT_VERSION_EXPRESSION);
-	
-    protected final RMBTClient client;
-    protected final RMBTTestParameter params;
-    protected final int threadId;
+    protected var reader: BufferedReader? = null
 
-    protected InputStreamCounter in;
-    protected BufferedReader reader;
-    protected OutputStreamCounter out;
-    
-    protected long totalDown;
-    protected long totalUp;
-    protected int chunksize;
-    protected byte[] buf;
+    protected var out: OutputStreamCounter? = null
 
-    
-    /**
-     * 
-     * @param client
-     * @param params
-     * @param threadId
-     */
-    public AbstractRMBTTest(RMBTClient client, RMBTTestParameter params, int threadId) {
-    	this.threadId = threadId;
-    	this.client = client;
-    	this.params = params;
+    protected var totalDown: Long = 0
+
+    protected var totalUp: Long = 0
+
+    protected var chunksize = 0
+
+    protected var buf: ByteArray? = null
+
+    protected fun getSocket(host: String, port: Int, isSecure: Boolean, timeOut: Int): Socket {
+        val sockAddr = InetSocketAddress(host, port)
+
+        val factory = client.sslSocketFactory
+        val socket: Socket = if (factory != null && isSecure) {
+            factory.createSocket()
+        } else {
+            Socket()
+        }
+
+        println("Connecting to $sockAddr with timout: $timeOut" + "ms " + socket + " [SSL: " + isSecure + "]")
+        socket.connect(sockAddr, timeOut)
+
+        return socket
     }
 
-    protected Socket getSocket(final String host, final int port, final boolean isSecure, final int timeOut) throws UnknownHostException, IOException
-    {
-    	InetSocketAddress sockAddr = new InetSocketAddress(host, port);
-    	
-    	final Socket socket;
-    	
-        if (client.getSslSocketFactory() != null && isSecure)
-        {
-            socket = client.getSslSocketFactory().createSocket();
-        }
-        else {
-            socket = new Socket();
-        }
-        
-        if (socket != null) {
-        	System.out.println("Connecting to " + sockAddr + " with timout: " + timeOut + "ms " + socket + " [SSL: " + isSecure + "]");
-        	socket.connect(sockAddr, timeOut);
-        }
-        
-    	return socket;
-    }
+    protected fun connect(
+        testResult: TestResult?,
+        host: InetAddress,
+        port: Int,
+        protocolVersion: String,
+        response: String,
+        isSecure: Boolean,
+        connTimeOut: Int
+    ): Socket? {
+        log(String.format(Locale.US, "thread %d: connecting...", threadId))
 
-    protected Socket connect(final TestResult testResult, final InetAddress host, final int port, final String protocolVersion, final String response, final boolean isSecure, final int connTimeOut) throws IOException {
-        log(String.format(Locale.US, "thread %d: connecting...", threadId));
-        
-        final InetAddress inetAddress = host;
-        
-        final Socket s = getSocket(inetAddress.getHostAddress(), port, isSecure, connTimeOut);
-        s.setSoTimeout(12000);
-        
+        val s = getSocket(host.hostAddress!!, port, isSecure, connTimeOut)
+        s.soTimeout = 12000
+
         if (testResult != null) {
-        	testResult.ip_local = s.getLocalAddress();
-        	testResult.ip_server = s.getInetAddress();
-        	testResult.port_remote = s.getPort();
+            testResult.ip_local = s.localAddress
+            testResult.ip_server = s.inetAddress
+            testResult.port_remote = s.port
         }
-        
-        if (s instanceof SSLSocket)
-        {
-            final SSLSocket sslSocket = (SSLSocket) s;
-            final SSLSession session = sslSocket.getSession();
+
+        if (s is SSLSocket) {
+            val session = s.session
             if (testResult != null) {
-            	testResult.encryption = String.format(Locale.US, "%s (%s)", session.getProtocol(), session.getCipherSuite());
+                testResult.encryption = String.format(Locale.US, "%s (%s)", session.protocol, session.cipherSuite)
             }
         }
-        
-        log(String.format(Locale.US, "thread %d: ReceiveBufferSize: '%s'.", threadId, s.getReceiveBufferSize()));
-        log(String.format(Locale.US, "thread %d: SendBufferSize: '%s'.", threadId, s.getSendBufferSize()));
-        
-        if (in != null)
-            totalDown += in.getCount();
-        if (out != null)
-            totalUp += out.getCount();
-        
-        in = new InputStreamCounter(s.getInputStream());
-        reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 4096);
-        out = new OutputStreamCounter(s.getOutputStream());
-        
-        String line = reader.readLine();
-        if (!line.equals(protocolVersion))
-        {
-            log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
-            return null;
-        }
-        
-        line = reader.readLine();
-        if (!line.startsWith("ACCEPT "))
-        {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            return null;
-        }
-        
-        final String send = String.format(Locale.US, "TOKEN %s\n", params.getToken());
-        
-        out.write(send.getBytes("US-ASCII"));
-        
-        line = reader.readLine();
-        
-        if (line == null)
-        {
-            log(String.format(Locale.US, "thread %d: got no answer expected 'OK'", threadId, line));
-            return null;
-        }
-        else if (!line.equals("OK"))
-        {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'OK'", threadId, line));
-            return null;
-        }
-        
-        line = reader.readLine();
-        final Scanner scanner = new Scanner(line);
-        try
-        {
-        	if (response.equals("CHUNKSIZE")) {
-                if (!response.equals(scanner.next()))
-                {
-                    log(String.format(Locale.US, "thread %d: got '%s' expected 'CHUNKSIZE'", threadId, line));
-                    return null;
-                }
-                try
-                {
-                    chunksize = scanner.nextInt();
-                    log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d", threadId, chunksize));
-                }
-                catch (final Exception e)
-                {
-                    log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line));
-                    return null;
-                }
-                if (buf == null || buf != null && buf.length != chunksize)
-                    buf = new byte[chunksize];
-                
-                s.setSoTimeout(0);
-                return s;        		
-        	}
-        	else {
-        		log(String.format(Locale.US, "thread %d: got '%s'", threadId, line));
-        		s.setSoTimeout(0);
-        		return s;
-        	}
 
-        }
-        finally
-        {
-            scanner.close();
-        }    	
-    }
-    
-    protected Socket connect(final TestResult testResult) throws IOException
-    {
-    	return connect(testResult, InetAddress.getByName(params.getHost()), params.getPort(), EXPECT_GREETING, "CHUNKSIZE", true, 20000);
-    }
-    
-    /**
-     * 
-     * @param message
-     * @return
-     * @throws IOException 
-     * @throws UnsupportedEncodingException 
-     */
-    protected void sendMessage(final String message) throws UnsupportedEncodingException, IOException {
-        String send;
-        send = String.format(Locale.US, message);        	
+        log(String.format(Locale.US, "thread %d: ReceiveBufferSize: '%s'.", threadId, s.receiveBufferSize))
+        log(String.format(Locale.US, "thread %d: SendBufferSize: '%s'.", threadId, s.sendBufferSize))
 
-        System.out.println("sending command (thread " + Thread.currentThread().getId() + "): " + send);
-		out.write(send.getBytes("US-ASCII"));
-        out.flush();
+        `in`?.let { totalDown += it.count }
+        out?.let { totalUp += it.count }
+
+        val inputCounter = InputStreamCounter(s.getInputStream())
+        `in` = inputCounter
+        val r = BufferedReader(InputStreamReader(inputCounter, "US-ASCII"), 4096)
+        reader = r
+        val outputCounter = OutputStreamCounter(s.getOutputStream())
+        out = outputCounter
+
+        var line = r.readLine()
+        if (line != protocolVersion) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING))
+            return null
+        }
+
+        line = r.readLine()
+        if (line == null || !line.startsWith("ACCEPT ")) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            return null
+        }
+
+        val send = String.format(Locale.US, "TOKEN %s\n", params.token)
+
+        outputCounter.write(send.toByteArray(charset("US-ASCII")))
+
+        line = r.readLine()
+
+        if (line == null) {
+            log(String.format(Locale.US, "thread %d: got no answer expected 'OK'", threadId, line))
+            return null
+        } else if (line != "OK") {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'OK'", threadId, line))
+            return null
+        }
+
+        line = r.readLine()
+        val scanner = Scanner(line)
+        try {
+            if (response == "CHUNKSIZE") {
+                if (response != scanner.next()) {
+                    log(String.format(Locale.US, "thread %d: got '%s' expected 'CHUNKSIZE'", threadId, line))
+                    return null
+                }
+                try {
+                    chunksize = scanner.nextInt()
+                    log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d", threadId, chunksize))
+                } catch (e: Exception) {
+                    log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line))
+                    return null
+                }
+                val currentBuf = buf
+                if (currentBuf == null || currentBuf.size != chunksize) {
+                    buf = ByteArray(chunksize)
+                }
+
+                s.soTimeout = 0
+                return s
+            } else {
+                log(String.format(Locale.US, "thread %d: got '%s'", threadId, line))
+                s.soTimeout = 0
+                return s
+            }
+        } finally {
+            scanner.close()
+        }
     }
-    
-    protected void log(final CharSequence text) {
+
+    protected open fun connect(testResult: TestResult?): Socket? {
+        return connect(testResult, InetAddress.getByName(params.host), params.port, EXPECT_GREETING, "CHUNKSIZE", true, 20000)
+    }
+
+    protected fun sendMessage(message: String) {
+        val send = String.format(Locale.US, message)
+
+        println("sending command (thread " + Thread.currentThread().id + "): " + send)
+        out!!.write(send.toByteArray(charset("US-ASCII")))
+        out!!.flush()
+    }
+
+    protected fun log(text: CharSequence?) {
         if (client != null) {
-            client.log(text);
+            client.log(text)
         } else {
-            if (text != null) Timber.d(text.toString());
+            if (text != null) Timber.d(text.toString())
         }
     }
 
+    companion object {
+        // @JvmStatic is required by Kotlin (not for Java interop) so the RMBTTest subclass
+        // can access these protected companion members.
+        @JvmStatic
+        protected val EXPECT_GREETING: String = Config.RMBT_SERVER_NAME
+
+        @JvmStatic
+        protected val RMBT_SERVER_PATTERN: Pattern = Pattern.compile(Config.RMBT_VERSION_EXPRESSION)
+    }
 }

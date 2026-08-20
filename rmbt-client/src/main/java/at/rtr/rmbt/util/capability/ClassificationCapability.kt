@@ -13,32 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.capability;
+ */
+package at.rtr.rmbt.util.capability
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class ClassificationCapability {
+class ClassificationCapability {
 
-	public final static int DEFAULT_CLASSIFICATON_COUNT = 3;
-	
-	@SerializedName("count")
-	protected int count = DEFAULT_CLASSIFICATON_COUNT;
+    /**
+     * amount of classification items supported by client
+     */
+    @SerializedName("count")
+    var count = DEFAULT_CLASSIFICATON_COUNT
 
-	/**
-	 * amount of classification items supported by client
-	 * @return
-	 */
-	public int getCount() {
-		return count;
-	}
+    override fun toString(): String = "ClassificationCapability [count=$count]"
 
-	public void setCount(int count) {
-		this.count = count;
-	}
-
-	@Override
-	public String toString() {
-		return "ClassificationCapability [count=" + count + "]";
-	}
+    companion object {
+        const val DEFAULT_CLASSIFICATON_COUNT = 3
+    }
 }

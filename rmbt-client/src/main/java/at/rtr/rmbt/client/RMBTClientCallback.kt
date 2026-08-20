@@ -1,21 +1,19 @@
-package at.rtr.rmbt.client;
+package at.rtr.rmbt.client
 
-import org.jetbrains.annotations.Nullable;
+import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 
-import at.rtr.rmbt.client.helper.TestStatus;
-import at.rtr.rmbt.client.v2.task.result.QoSResultCollector;
+interface RMBTClientCallback {
 
-public interface RMBTClientCallback {
+    fun onClientReady(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int)
 
-    void onClientReady(String testUUID, String loopUUID, String testToken, long testStartTimeNanos, int threadNumber);
+    fun onSpeedDataChanged(threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean)
 
-    void onSpeedDataChanged(int threadId, long bytes, long timestampNanos, boolean isUpload);
+    fun onPingDataChanged(clientPing: Long, serverPing: Long, timeNs: Long)
 
-    void onPingDataChanged(long clientPing, long serverPing, long timeNs);
+    fun onTestCompleted(result: TotalTestResult, waitQoSResults: Boolean)
 
-    void onTestCompleted(TotalTestResult result, boolean waitQoSResults);
+    fun onQoSTestCompleted(qosResult: QoSResultCollector?)
 
-    void onQoSTestCompleted(@Nullable QoSResultCollector qosResult);
-
-    void onTestStatusUpdate(TestStatus status);
+    fun onTestStatusUpdate(status: TestStatus?)
 }

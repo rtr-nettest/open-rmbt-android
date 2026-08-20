@@ -13,945 +13,945 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package at.rtr.rmbt.client;
+ */
+package at.rtr.rmbt.client
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import at.rtr.rmbt.client.helper.Config
+import at.rtr.rmbt.client.helper.TestStatus
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.InetAddress
+import java.net.Socket
+import java.util.ArrayList
+import java.util.Collections
+import java.util.InputMismatchException
+import java.util.Locale
+import java.util.Scanner
+import java.util.concurrent.BrokenBarrierException
+import java.util.concurrent.Callable
+import java.util.concurrent.CyclicBarrier
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
+import java.util.regex.Pattern
+import javax.net.ssl.SSLSocket
 
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
+class RMBTTest(
+    client: RMBTClient,
+    params: RMBTTestParameter,
+    threadId: Int,
+    private val barrier: CyclicBarrier,
+    storeResults: Int,
+    private val minDiffTime: Long,
+    private val fallbackToOneThread: AtomicBoolean
+) : AbstractRMBTTest(client, params, threadId), Callable<ThreadTestResult?> {
 
-import at.rtr.rmbt.client.helper.Config;
-import at.rtr.rmbt.client.helper.TestStatus;
+    private val doDownload = true
+    private val doUpload = true
 
-public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestResult> {
-    private static final long nsecsL = 1000000000L;
-//    private static final double nsecs = 1e9;
+    private val curTransfer = AtomicLong()
+    private val curTime = AtomicLong()
 
-    private static final long UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL;
-    private static final long UPLOAD_MAX_WAIT_SECS = 3;
+    // Server-announced chunk-size bounds, parsed from the greeting line
+    // "CHUNKSIZE <default> <min> <max>". If the server sends only the default, min = max = default.
+    private var chunksizeMin = 0
+    private var chunksizeMax = 0
 
-    private final CyclicBarrier barrier;
-    private final AtomicBoolean fallbackToOneThread;
-
-    private final boolean doDownload = true;
-    private final boolean doUpload = true;
-
-    private final AtomicLong curTransfer = new AtomicLong();
-    private final AtomicLong curTime = new AtomicLong();
-
-    private final long minDiffTime;
-    private final int maxCoarseResults;
-    private final int maxFineResults;
-
-    private class SingleResult {
-        private final Results fine;
-        private final Results coarse;
-
-        private int fineResults = 0;
-        private int coarseResults = 0;
-
-        SingleResult() {
-            fine = new Results(maxFineResults);
-            coarse = new Results(maxCoarseResults);
+    /**
+     * Choose the protocol chunk size from the pre-test throughput estimate, mirroring the Rust
+     * reference client (clientRust/src/pretest.rs): target ~50 chunks/sec (one chunk per ~20 ms),
+     * i.e. chunkSize = bytesPerSecond / 50, rounded to the nearest KiB and clamped to the server's
+     * [min, max] (further capped at MAX_CHUNK_SIZE to bound per-thread memory on mobile). `ns` is the
+     * server-reported TIME of the largest pre-test batch; `rttNs` (first tiny batch's TIME) is
+     * subtracted as a round-trip estimate. The chosen size is stored in `chunksize` and sent to the
+     * server on GETTIME / PUTNORESULT / PUT; `buf` (the I/O buffer) is (re)allocated to match.
+     */
+    private fun computeChunkSize(bytes: Long, ns: Long, rttNs: Long) {
+        val lo = (if (chunksizeMin > 0) chunksizeMin else chunksize).toLong()
+        val hi = Math.min(if (chunksizeMax > 0) chunksizeMax else MAX_CHUNK_SIZE, MAX_CHUNK_SIZE).toLong()
+        val transferNs = ns - rttNs
+        val bps = when {
+            bytes <= 0L -> 0.0
+            transferNs > 0L -> bytes.toDouble() / (transferNs.toDouble() / 1e9)
+            ns > 0L -> bytes.toDouble() / (ns.toDouble() / 1e9)
+            else -> 0.0
         }
-
-        @Override
-        public String toString() {
-            return "SingleResult [fine=" + fine + ", coarse=" + coarse
-                    + ", fineResults=" + fineResults + ", coarseResults="
-                    + coarseResults + "]";
+        val chosen = if (bps <= 0.0) {
+            lo
+        } else {
+            val ideal = (bps / 50.0).toLong()
+            val roundedKiB = (ideal + 512) / 1024 * 1024 // round to nearest KiB, like the Rust client
+            roundedKiB.coerceIn(lo, hi)
         }
+        chunksize = chosen.toInt()
+        val currentBuf = buf
+        if (currentBuf == null || currentBuf.size != chunksize) {
+            buf = ByteArray(chunksize)
+        }
+        log(String.format(Locale.US, "thread %d: chunk size = %d KiB (%.1f Mbit/s)", threadId, chunksize / 1024, bps * 8.0 / 1e6))
+    }
 
+    private fun parseTimeNs(line: String?): Long {
+        if (line == null) return -1
+        val m = TIME_PATTERN.matcher(line)
+        return if (m.find()) m.group(1)!!.toLongOrNull() ?: -1 else -1
+    }
 
-        public void addResult(final long newBytes, final long newNsec) {
+    private val maxCoarseResults: Int = storeResults
+    private val maxFineResults: Int = storeResults
 
-            boolean addToCoarse = coarseResults == 0;
+    private inner class SingleResult {
+        private val fine: Results = Results(maxFineResults)
+        private val coarse: Results = Results(maxCoarseResults)
+
+        private var fineResults = 0
+        private var coarseResults = 0
+
+        override fun toString(): String =
+            "SingleResult [fine=$fine, coarse=$coarse, fineResults=$fineResults, coarseResults=$coarseResults]"
+
+        fun addResult(newBytes: Long, newNsec: Long) {
+            var addToCoarse = coarseResults == 0
             if (!addToCoarse) {
-                final long diffTime = newNsec - coarse.nsec[(coarseResults - 1) % coarse.nsec.length];
-                if (diffTime > minDiffTime)
-                    addToCoarse = true;
+                val diffTime = newNsec - coarse.nsec[(coarseResults - 1) % coarse.nsec.size]
+                if (diffTime > minDiffTime) {
+                    addToCoarse = true
+                }
             }
 
-            if (coarse.bytes.length > 0) {
+            if (coarse.bytes.isNotEmpty()) {
                 if (addToCoarse) {
-                    int coarsePos = coarseResults++ % coarse.bytes.length;
-                    coarse.bytes[coarsePos] = newBytes;
-                    coarse.nsec[coarsePos] = newNsec;
+                    val coarsePos = coarseResults++ % coarse.bytes.size
+                    coarse.bytes[coarsePos] = newBytes
+                    coarse.nsec[coarsePos] = newNsec
                 }
 
-                int finePos = fineResults++ % fine.bytes.length;
-                fine.bytes[finePos] = newBytes;
-                fine.nsec[finePos] = newNsec;
+                val finePos = fineResults++ % fine.bytes.size
+                fine.bytes[finePos] = newBytes
+                fine.nsec[finePos] = newNsec
             }
         }
 
-//        @SuppressWarnings("unused")
-//        void logResult(final String type)
-//        {
-//            log(String.format(Locale.US, "thread %d - Time Diff %d", threadId, nsec));
-//            log(String.format(Locale.US, "thread %d: %.0f kBit/s %s (%.2f kbytes / %.3f secs)", threadId, getSpeed() / 1e3, type,
-//                    getBytes() / 1e3, getNsec() / nsecs));
-//        }
-
-//        // bit/s
-//        double getSpeed()
-//        {
-//            return (double) getBytes() / (double) getNsec() * nsecs * 8.0;
-//        }
-
-        public long getBytes() {
-            if (fineResults == 0)
-                return 0;
-            else
-                return fine.bytes[(fineResults - 1) % fine.bytes.length];
+        fun getBytes(): Long {
+            return if (fineResults == 0) 0 else fine.bytes[(fineResults - 1) % fine.bytes.size]
         }
 
-        public long getNsec() {
-            if (fineResults == 0)
-                return 0;
-            else
-                return fine.nsec[(fineResults - 1) % fine.nsec.length];
+        fun getNsec(): Long {
+            return if (fineResults == 0) 0 else fine.nsec[(fineResults - 1) % fine.nsec.size]
         }
 
-        public Results getAllResults() {
-            final int numResultsCoarse = Math.min(coarseResults, maxCoarseResults);
-            final int numResultsFine = Math.min(fineResults, maxFineResults);
-            final int numResults = numResultsCoarse + numResultsFine;
+        fun getAllResults(): Results {
+            val numResultsCoarse = Math.min(coarseResults, maxCoarseResults)
+            val numResultsFine = Math.min(fineResults, maxFineResults)
+            val numResults = numResultsCoarse + numResultsFine
 
-            long[] resultBytes = new long[numResults];
-            long[] resultNsec = new long[numResults];
+            var resultBytes = LongArray(numResults)
+            var resultNsec = LongArray(numResults)
 
-            int results = 0;
-            int posCoarse = coarseResults - numResultsCoarse;
-            int posFine = fineResults - numResultsFine;
+            var results = 0
+            var posCoarse = coarseResults - numResultsCoarse
+            var posFine = fineResults - numResultsFine
 
             while (results < numResults && (posCoarse < coarseResults || posFine < fineResults)) {
-                final boolean coarseAvail = posCoarse < coarseResults;
-                final boolean fineAvail = posFine < fineResults;
-                final long thisCoarse = coarseAvail ? coarse.nsec[posCoarse % coarse.nsec.length] : -1;
-                final long thisFine = fineAvail ? fine.nsec[posFine % fine.nsec.length] : -1;
+                val coarseAvail = posCoarse < coarseResults
+                val fineAvail = posFine < fineResults
+                val thisCoarse = if (coarseAvail) coarse.nsec[posCoarse % coarse.nsec.size] else -1
+                val thisFine = if (fineAvail) fine.nsec[posFine % fine.nsec.size] else -1
 
-                if ((thisFine <= thisCoarse || thisCoarse == -1) && fineAvail) {
-                    resultNsec[results] = thisFine;
-                    resultBytes[results++] = fine.bytes[posFine++ % fine.bytes.length];
+                if ((thisFine <= thisCoarse || thisCoarse == -1L) && fineAvail) {
+                    resultNsec[results] = thisFine
+                    resultBytes[results++] = fine.bytes[posFine++ % fine.bytes.size]
 
-                    if (thisFine == thisCoarse && coarseAvail)
-                        posCoarse++;
-                } else if ((thisCoarse < thisFine || thisFine == -1) && coarseAvail) {
-                    resultNsec[results] = thisCoarse;
-                    resultBytes[results++] = coarse.bytes[posCoarse++ % coarse.bytes.length];
-                } else // shoudn't happen; avoid endless loop
-                    break;
+                    if (thisFine == thisCoarse && coarseAvail) {
+                        posCoarse++
+                    }
+                } else if ((thisCoarse < thisFine || thisFine == -1L) && coarseAvail) {
+                    resultNsec[results] = thisCoarse
+                    resultBytes[results++] = coarse.bytes[posCoarse++ % coarse.bytes.size]
+                } else {
+                    // shouldn't happen; avoid endless loop
+                    break
+                }
             }
 
             if (results < numResults) {
-//                resultBytes = Arrays.copyOf(resultBytes, results); // copyOf not avail in android sdk < 9
-//                resultNsec = Arrays.copyOf(resultNsec, results);
-
-                long[] newResultBytes = new long[results];
-                long[] newResultNsec = new long[results];
-                System.arraycopy(resultBytes, 0, newResultBytes, 0, results);
-                System.arraycopy(resultNsec, 0, newResultNsec, 0, results);
-                resultBytes = newResultBytes;
-                resultNsec = newResultNsec;
+                val newResultBytes = LongArray(results)
+                val newResultNsec = LongArray(results)
+                System.arraycopy(resultBytes, 0, newResultBytes, 0, results)
+                System.arraycopy(resultNsec, 0, newResultNsec, 0, results)
+                resultBytes = newResultBytes
+                resultNsec = newResultNsec
             }
-            final Results result = new Results(resultBytes, resultNsec);
-            return result;
+            return Results(resultBytes, resultNsec)
         }
 
-        public void addCoarseSpeedItems(List<SpeedItem> list, boolean upload, int thread) {
-            long lastNsec = 0;
-            final int numResultsCoarse = Math.min(coarseResults, maxCoarseResults);
-            for (int i = 0; i < numResultsCoarse; i++) {
-                final long nsec = coarse.nsec[i % coarse.nsec.length];
-                final long bytes = coarse.bytes[i % coarse.bytes.length];
-                final SpeedItem item = new SpeedItem(upload, thread, nsec, bytes);
-                client.onSpeedDataChanged(thread, bytes, nsec, upload);
-                list.add(item);
-                lastNsec = nsec;
+        fun addCoarseSpeedItems(list: MutableList<SpeedItem>, upload: Boolean, thread: Int) {
+            var lastNsec: Long = 0
+            val numResultsCoarse = Math.min(coarseResults, maxCoarseResults)
+            for (i in 0 until numResultsCoarse) {
+                val nsec = coarse.nsec[i % coarse.nsec.size]
+                val bytes = coarse.bytes[i % coarse.bytes.size]
+                val item = SpeedItem(upload, thread, nsec, bytes)
+                client.onSpeedDataChanged(thread, bytes, nsec, upload)
+                list.add(item)
+                lastNsec = nsec
             }
 
-            final long nsec = getNsec();
+            val nsec = getNsec()
             if (nsec > lastNsec) {
-                final long bytes = getBytes();
-                final SpeedItem item = new SpeedItem(upload, thread, nsec, bytes);
-                client.onSpeedDataChanged(thread, bytes, nsec, upload);
-                list.add(item);
+                val bytes = getBytes()
+                val item = SpeedItem(upload, thread, nsec, bytes)
+                client.onSpeedDataChanged(thread, bytes, nsec, upload)
+                list.add(item)
             }
         }
     }
 
-    public RMBTTest(final RMBTClient client, final RMBTTestParameter params, final int threadId,
-                    final CyclicBarrier barrier, final int storeResults, final long minDiffTime,
-                    final AtomicBoolean fallbackToOneThread) {
-        super(client, params, threadId);
-        this.barrier = barrier;
-        this.maxCoarseResults = storeResults;
-        this.maxFineResults = storeResults;
-        this.minDiffTime = minDiffTime;
-        this.fallbackToOneThread = fallbackToOneThread;
+    class CurrentSpeed {
+        var trans: Long = 0
+
+        var time: Long = 0
+
+        override fun toString(): String = "CurrentSpeed [trans=$trans, time=$time]"
     }
 
-    static class CurrentSpeed {
-        long trans;
-        long time;
-
-        @Override
-        public String toString() {
-            return "CurrentSpeed [trans=" + trans + ", time=" + time + "]";
-        }
+    fun getCurrentSpeed(result: CurrentSpeed?): CurrentSpeed {
+        val r = result ?: CurrentSpeed()
+        r.trans = curTransfer.get()
+        r.time = curTime.get()
+        return r
     }
 
-    public CurrentSpeed getCurrentSpeed(CurrentSpeed result) {
-        if (result == null)
-            result = new CurrentSpeed();
-        result.trans = curTransfer.get();
-        result.time = curTime.get();
-        return result;
-    }
+    override fun connect(testResult: TestResult?): Socket? {
+        val tr = testResult!!
+        log(String.format(Locale.US, "thread %d: connecting...", threadId))
 
-    protected Socket connect(final TestResult testResult) throws IOException {
-        log(String.format(Locale.US, "thread %d: connecting...", threadId));
+        val inetAddress = InetAddress.getByName(params.host)
 
-        final InetAddress inetAddress = InetAddress.getByName(params.getHost());
+        println("connecting to: " + inetAddress.hostName + ":" + params.port)
+        val s = getSocket(inetAddress.hostAddress!!, params.port, true, 20000)
 
-        System.out.println("connecting to: " + inetAddress.getHostName() + ":" + params.getPort());
-        final Socket s = getSocket(inetAddress.getHostAddress(), params.getPort(), true, 20000);
+        tr.ip_local = s.localAddress
+        tr.ip_server = s.inetAddress
 
-        testResult.ip_local = s.getLocalAddress();
-        testResult.ip_server = s.getInetAddress();
+        tr.port_remote = s.port
 
-        testResult.port_remote = s.getPort();
-
-        if (s instanceof SSLSocket) {
-            final SSLSocket sslSocket = (SSLSocket) s;
-            final SSLSession session = sslSocket.getSession();
-            testResult.encryption = String.format(Locale.US, "%s (%s)", session.getProtocol(), session.getCipherSuite());
+        if (s is SSLSocket) {
+            val session = s.session
+            tr.encryption = String.format(Locale.US, "%s (%s)", session.protocol, session.cipherSuite)
         }
 
-        log(String.format(Locale.US, "thread %d: ReceiveBufferSize: '%s'.", threadId, s.getReceiveBufferSize()));
-        log(String.format(Locale.US, "thread %d: SendBufferSize: '%s'.", threadId, s.getSendBufferSize()));
+        log(String.format(Locale.US, "thread %d: ReceiveBufferSize: '%s'.", threadId, s.receiveBufferSize))
+        log(String.format(Locale.US, "thread %d: SendBufferSize: '%s'.", threadId, s.sendBufferSize))
 
-        if (in != null)
-            totalDown += in.getCount();
-        if (out != null)
-            totalUp += out.getCount();
+        `in`?.let { totalDown += it.count }
+        out?.let { totalUp += it.count }
 
-        in = new InputStreamCounter(s.getInputStream());
-        reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 4096);
-        out = new OutputStreamCounter(s.getOutputStream());
+        val inCounter = InputStreamCounter(s.getInputStream())
+        `in` = inCounter
+        val rdr = BufferedReader(InputStreamReader(inCounter, "US-ASCII"), 4096)
+        reader = rdr
+        val outCounter = OutputStreamCounter(s.getOutputStream())
+        out = outCounter
 
-        String line;
+        var line: String?
 
-        //Server type RMBThttp -> The client has to do a HTTP request and upgrade the connection
-        if (params.getServerType().equals(Config.SERVER_TYPE_RMBT_HTTP)) {
-            log(String.format(Locale.US, "thread %d: requesting HTTP upgrade", threadId));
-            //Request RMBT test
-            final String request = String.format("GET /rmbt HTTP/1.1\r\n" +
+        // Server type RMBThttp -> The client has to do a HTTP request and upgrade the connection
+        if (params.serverType == Config.SERVER_TYPE_RMBT_HTTP) {
+            log(String.format(Locale.US, "thread %d: requesting HTTP upgrade", threadId))
+            // Request RMBT test
+            val request = String.format(
+                "GET /rmbt HTTP/1.1\r\n" +
                     "Connection: Upgrade\r\n" +
                     "Upgrade: RMBT\r\n" +
                     "RMBT-Version: %s\r\n" +
-                    "\r\n", Config.RMBT_LATEST_SERVER);
+                    "\r\n",
+                Config.RMBT_LATEST_SERVER
+            )
 
-            out.write(request.getBytes("US-ASCII"));
-            out.flush();
+            outCounter.write(request.toByteArray(charset("US-ASCII")))
+            outCounter.flush()
 
-            line = reader.readLine();
+            line = rdr.readLine()
 
-            //Read the HTTP response (terminated with an empty newline)
-            if (!line.contains("101")) { //HTTP status code 101 Switching Protocols
-                log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
-                return null;
+            // Read the HTTP response (terminated with an empty newline)
+            if (!line!!.contains("101")) { // HTTP status code 101 Switching Protocols
+                log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING))
+                return null
             }
-            while (!line.equals("\r\n") && !line.isEmpty()) {
-                line = reader.readLine();
+            while (line != "\r\n" && !line!!.isEmpty()) {
+                line = rdr.readLine()
             }
         }
-        //At this point, the communication is based on RMBT
-        // - either directly from the start, or from switching from RMBThttp
-        line = reader.readLine();
-        if (line.contains(EXPECT_GREETING)) {
-            line = line.trim();
-            Matcher matcher = RMBT_SERVER_PATTERN.matcher(line.trim());
-            String version;
+        // At this point, the communication is based on RMBT
+        line = rdr.readLine()
+        if (line!!.contains(EXPECT_GREETING)) {
+            line = line.trim()
+            val matcher = RMBT_SERVER_PATTERN.matcher(line)
             if (matcher.find()) {
-                version = matcher.group(1);
-                testResult.client_version = version;
+                tr.client_version = matcher.group(1)
             }
         } else {
-            log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
-            return null;
+            log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING))
+            return null
         }
 
-        line = reader.readLine();
-        if (!line.startsWith("ACCEPT ")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            return null;
+        line = rdr.readLine()
+        if (!line!!.startsWith("ACCEPT ")) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            return null
         }
 
-        final String send = String.format(Locale.US, "TOKEN %s\n", params.getToken());
+        val send = String.format(Locale.US, "TOKEN %s\n", params.token)
 
-        out.write(send.getBytes("US-ASCII"));
+        outCounter.write(send.toByteArray(charset("US-ASCII")))
 
-        line = reader.readLine();
+        line = rdr.readLine()
 
         if (line == null) {
-            log(String.format(Locale.US, "thread %d: got no answer expected 'OK'", threadId, line));
-            return null;
-        } else if (!line.equals("OK")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'OK'", threadId, line));
-            return null;
+            log(String.format(Locale.US, "thread %d: got no answer expected 'OK'", threadId, line))
+            return null
+        } else if (line != "OK") {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'OK'", threadId, line))
+            return null
         }
 
-        line = reader.readLine();
-        final Scanner scanner = new Scanner(line);
+        line = rdr.readLine()
+        val scanner = Scanner(line)
         try {
-            if (!"CHUNKSIZE".equals(scanner.next())) {
-                log(String.format(Locale.US, "thread %d: got '%s' expected 'CHUNKSIZE'", threadId, line));
-                return null;
+            if ("CHUNKSIZE" != scanner.next()) {
+                log(String.format(Locale.US, "thread %d: got '%s' expected 'CHUNKSIZE'", threadId, line))
+                return null
             }
             try {
-                chunksize = scanner.nextInt();
-                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d", threadId, chunksize));
-            } catch (final Exception e) {
-                log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line));
-                return null;
+                chunksize = scanner.nextInt()
+                // newer servers announce "CHUNKSIZE <default> <min> <max>"; fall back to default
+                chunksizeMin = if (scanner.hasNextInt()) scanner.nextInt() else chunksize
+                chunksizeMax = if (scanner.hasNextInt()) scanner.nextInt() else chunksize
+                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d (min %d, max %d)", threadId, chunksize, chunksizeMin, chunksizeMax))
+            } catch (e: Exception) {
+                log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line))
+                return null
             }
-            if (buf == null || buf != null && buf.length != chunksize)
-                buf = new byte[chunksize];
-            return s;
+            val currentBuf = buf
+            if (currentBuf == null || currentBuf.size != chunksize) {
+                buf = ByteArray(chunksize)
+            }
+            return s
         } finally {
-            scanner.close();
+            scanner.close()
         }
     }
 
-    public ThreadTestResult call() {
-        log(String.format(Locale.US, "thread %d: started.", threadId));
-        final ThreadTestResult testResult = new ThreadTestResult();
-        Socket s = null;
+    override fun call(): ThreadTestResult? {
+        log(String.format(Locale.US, "thread %d: started.", threadId))
+        val testResult = ThreadTestResult()
+        var s: Socket? = null
         try {
-
-            s = connect(testResult);
-            if (s == null)
-                throw new Exception("error during connect to test server");
-
-            log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId));
-            barrier.await();
-
-            /***** short download *****/
-            {
-                final long targetTimeEnd = System.nanoTime() + params.getPretestDuration() * nsecsL;
-                int chunks = 1;
-                do {
-                    downloadChunks(chunks);
-                    chunks *= 2;
-                }
-                while (System.nanoTime() < targetTimeEnd);
-
-                if (chunks <= 4)
-                    // connection is quite slow, we'll only use 1 thread
-                    fallbackToOneThread.set(true);
+            s = connect(testResult)
+            if (s == null) {
+                throw Exception("error during connect to test server")
             }
-            /*********************/
 
-            boolean _fallbackToOneThread;
-            setStatus(TestStatus.PING);
-            /***** ping *****/
-            {
-                barrier.await();
+            log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId))
+            barrier.await()
 
-                startTrafficService(TestStatus.PING);
+            // ***** short download (pre-test): estimate throughput, then choose the chunk size *****
+            run {
+                val targetTimeEnd = System.nanoTime() + params.pretestDuration * nsecsL
+                var chunks = 1
+                var rttNs = 0L
+                var lastBytes = 0L
+                var lastNs = 0L
+                do {
+                    val timeNs = downloadChunks(chunks)
+                    if (timeNs > 0) {
+                        if (rttNs == 0L) rttNs = timeNs // first (tiny) batch ≈ round-trip time
+                        lastNs = timeNs
+                        lastBytes = chunks.toLong() * chunksize
+                    }
+                    chunks *= 2
+                } while (System.nanoTime() < targetTimeEnd)
 
-                _fallbackToOneThread = fallbackToOneThread.get();
+                if (chunks <= 4) {
+                    // connection is quite slow, we'll only use 1 thread
+                    fallbackToOneThread.set(true)
+                }
 
-                if (_fallbackToOneThread && threadId != 0)
-                    return null;
+                // choose the protocol chunk size from the estimate (bps / 50, clamped to [min, max])
+                computeChunkSize(lastBytes, lastNs, rttNs)
+            }
 
-                final int NUMPINGS = params.getNumPings();
-                long shortestPing = Long.MAX_VALUE;
-                long medianPing = Long.MAX_VALUE;
-                List<Long> pings = new ArrayList<>();
-                final long timeStart = System.nanoTime();
-                if (threadId == 0) // only one thread pings!
-                {
-                    for (int i = 0; i < NUMPINGS; i++) {
-                        final Ping ping = ping();
+            val fallbackToOneThreadLocal: Boolean
+            setStatus(TestStatus.PING)
+            // ***** ping *****
+            run {
+                barrier.await()
+
+                startTrafficService(TestStatus.PING)
+
+                fallbackToOneThreadLocal = fallbackToOneThread.get()
+
+                if (fallbackToOneThreadLocal && threadId != 0) {
+                    return null
+                }
+
+                val numPings = params.numPings
+                var shortestPing = Long.MAX_VALUE
+                var medianPing = Long.MAX_VALUE
+                val pings = ArrayList<Long>()
+                val timeStart = System.nanoTime()
+                if (threadId == 0) { // only one thread pings!
+                    var i = 0
+                    while (i < numPings) {
+                        val ping = ping()
                         if (ping != null) {
-                            client.updatePingStatus(timeStart, i + 1, System.nanoTime());
+                            client.updatePingStatus(timeStart, i + 1, System.nanoTime())
 
-                            pings.add(ping.server);
-                            if (ping.client < shortestPing)
-                                shortestPing = ping.client;
+                            pings.add(ping.server)
+                            if (ping.client < shortestPing) {
+                                shortestPing = ping.client
+                            }
 
-                            client.onPingDataChanged(ping.client, ping.server, ping.timeNs);
-                            testResult.pings.add(ping);
+                            client.onPingDataChanged(ping.client, ping.server, ping.timeNs)
+                            testResult.pings.add(ping)
 
-                            final long timeElapsed = (System.nanoTime() - timeStart) / 1000000;
-                            if (params.getDoPingIntervalMilliseconds() > timeElapsed && i >= (NUMPINGS-1)) {
-                                i--;
+                            val timeElapsed = (System.nanoTime() - timeStart) / 1000000
+                            if (params.doPingIntervalMilliseconds > timeElapsed && i >= numPings - 1) {
+                                i--
                             }
                         }
+                        i++
                     }
 
                     // median
-                    Collections.sort(pings);
-                    //Arrays.sort(pings);
-                    int middle = ((pings.size()) / 2);
-                    if (pings.size() % 2 == 0) {
-                        long medianA = pings.get(middle);
-                        long medianB = pings.get(middle - 1);
-                        medianPing = (medianA + medianB) / 2;
+                    Collections.sort(pings)
+                    val middle = pings.size / 2
+                    medianPing = if (pings.size % 2 == 0) {
+                        val medianA = pings[middle]
+                        val medianB = pings[middle - 1]
+                        (medianA + medianB) / 2
                     } else {
-                        medianPing = pings.get(middle + 1);
+                        pings[middle + 1]
                     }
                     // display median ping
-                    client.setPing(medianPing);
+                    client.setPing(medianPing)
                 }
-                testResult.ping_shortest = shortestPing;
-                testResult.ping_median = medianPing;
-
+                testResult.ping_shortest = shortestPing
+                testResult.ping_median = medianPing
             }
-            /*********************/
 
-            /***** jitter and packet loss *****/
-            if (client.isEnabledJitterAndPacketLossTest() && client.getTaskDescList() != null && !client.getTaskDescList().isEmpty()) { // todo: add check for presence of jitter test configuration in the map
+            // ***** jitter and packet loss *****
+            if (client.isEnabledJitterAndPacketLossTest && !client.taskDescList.isNullOrEmpty()) {
                 if (threadId == 0) {
-                    client.performVoipTest();
+                    client.performVoipTest()
                 }
-                barrier.await();
+                barrier.await()
             }
-            /*********************/
 
             if (doDownload) {
-                final int duration = params.getDuration();
-                //final int duration = 1;
+                val duration = params.duration
 
-                setStatus(TestStatus.DOWN);
-                /***** download *****/
+                setStatus(TestStatus.DOWN)
+                // ***** download *****
 
-                if (!_fallbackToOneThread)
-                    barrier.await();
-
-                stopTrafficService(TestStatus.PING);
-                startTrafficService(TestStatus.DOWN);
-
-                curTransfer.set(0);
-                curTime.set(0);
-
-                final SingleResult result = new SingleResult();
-                final boolean reinitSocket = download(duration, 0, result);
-                if (reinitSocket) {
-                    s.close();
-                    s = connect(testResult);
-                    log(String.format(Locale.US, "thread %d: reconnected", threadId));
-                    if (s == null)
-                        throw new Exception("error during connect to test server");
+                if (!fallbackToOneThreadLocal) {
+                    barrier.await()
                 }
 
-                testResult.down = result.getAllResults();
-                result.addCoarseSpeedItems(testResult.speedItems, false, threadId);
+                stopTrafficService(TestStatus.PING)
+                startTrafficService(TestStatus.DOWN)
 
-//                if (threadId == 0) {
-//                	System.out.println("download speed items: " + testResult.speedItems);
-//                	System.out.println("download raw results: " + result);
-//                }
+                curTransfer.set(0)
+                curTime.set(0)
 
-                curTransfer.set(result.getBytes());
-                curTime.set(result.getNsec());
+                val result = SingleResult()
+                val reinitSocket = download(duration, 0, result)
+                if (reinitSocket) {
+                    s.close()
+                    s = connect(testResult)
+                    log(String.format(Locale.US, "thread %d: reconnected", threadId))
+                    if (s == null) {
+                        throw Exception("error during connect to test server")
+                    }
+                }
 
+                testResult.down = result.getAllResults()
+                result.addCoarseSpeedItems(testResult.speedItems, false, threadId)
 
-                /*********************/
-
+                curTransfer.set(result.getBytes())
+                curTime.set(result.getNsec())
             }
 
             if (doUpload) {
-                final int duration = params.getDuration();
-                //final int duration = 1;
+                val duration = params.duration
 
-                setStatus(TestStatus.INIT_UP);
-                /***** short upload *****/
-                {
-                    if (!_fallbackToOneThread)
-                        barrier.await();
-
-                    stopTrafficService(TestStatus.DOWN);
-
-                    curTransfer.set(0);
-                    curTime.set(0);
-
-                    final long targetTimeEnd = System.nanoTime() + params.getPretestDuration() * nsecsL;
-                    int chunks = 1;
-                    do {
-                        uploadChunks(chunks);
-                        chunks *= 2;
+                setStatus(TestStatus.INIT_UP)
+                // ***** short upload *****
+                run {
+                    if (!fallbackToOneThreadLocal) {
+                        barrier.await()
                     }
-                    while (System.nanoTime() < targetTimeEnd);
+
+                    stopTrafficService(TestStatus.DOWN)
+
+                    curTransfer.set(0)
+                    curTime.set(0)
+
+                    val targetTimeEnd = System.nanoTime() + params.pretestDuration * nsecsL
+                    var chunks = 1
+                    do {
+                        uploadChunks(chunks)
+                        chunks *= 2
+                    } while (System.nanoTime() < targetTimeEnd)
                 }
-                /*********************/
 
-                /***** upload *****/
+                // ***** upload *****
+                setStatus(TestStatus.UP)
 
-                setStatus(TestStatus.UP);
+                startTrafficService(TestStatus.UP)
 
-                startTrafficService(TestStatus.UP);
+                curTransfer.set(0)
+                curTime.set(0)
 
-                curTransfer.set(0);
-                curTime.set(0);
+                if (!fallbackToOneThreadLocal) {
+                    barrier.await()
+                }
 
-                if (!_fallbackToOneThread)
-                    barrier.await();
+                val result = SingleResult()
 
-                final SingleResult result = new SingleResult();
+                upload(duration, result)
 
-                upload(duration, result);
+                testResult.up = result.getAllResults()
+                result.addCoarseSpeedItems(testResult.speedItems, true, threadId)
 
-                testResult.up = result.getAllResults();
-                result.addCoarseSpeedItems(testResult.speedItems, true, threadId);
+                `in`?.let { totalDown += it.count }
+                out?.let { totalUp += it.count }
 
-                if (in != null)
-                    totalDown += in.getCount();
-                if (out != null)
-                    totalUp += out.getCount();
+                testResult.totalDownBytes = totalDown
+                testResult.totalUpBytes = totalUp
 
-                testResult.totalDownBytes = totalDown;
-                testResult.totalUpBytes = totalUp;
+                curTransfer.set(result.getBytes())
+                curTime.set(result.getNsec())
 
-                curTransfer.set(result.getBytes());
-                curTime.set(result.getNsec());
-
-                stopTrafficService(TestStatus.UP);
-
-                /*********************/
+                stopTrafficService(TestStatus.UP)
             }
-
-        } catch (final BrokenBarrierException e) {
-            client.log("interrupted (BBE)");
-            Thread.currentThread().interrupt();
-        } catch (final InterruptedException e) {
-            client.log("interrupted");
-            Thread.currentThread().interrupt();
-        } catch (final Exception e) {
-            client.log(e);
-            client.abortTest(true);
+        } catch (e: BrokenBarrierException) {
+            client.log("interrupted (BBE)")
+            Thread.currentThread().interrupt()
+        } catch (e: InterruptedException) {
+            client.log("interrupted")
+            Thread.currentThread().interrupt()
+        } catch (e: Exception) {
+            client.log(e)
+            client.abortTest(true)
         } finally {
-            if (s != null)
+            if (s != null) {
                 try {
-                    s.close();
-                } catch (final IOException e) {
-                    client.log(e);
+                    s.close()
+                } catch (e: IOException) {
+                    client.log(e)
                 }
-        }
-        return testResult;
-    }
-
-    private void downloadChunks(final int chunks) throws InterruptedException, IOException {
-        if (Thread.interrupted())
-            throw new InterruptedException();
-
-        if (chunks < 1)
-            throw new IllegalArgumentException();
-
-        log(String.format(Locale.US, "thread %d: getting %d chunk(s)", threadId, chunks));
-
-        String line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
-        if (!line.startsWith("ACCEPT ")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            throw new IllegalStateException();
-        }
-
-        String send;
-        send = String.format(Locale.US, "GETCHUNKS %d\n", chunks);
-        out.write(send.getBytes("US-ASCII"));
-        out.flush();
-
-        // long expectBytes = chunksize * chunks;
-        long totalRead = 0;
-        long read;
-        byte lastByte = (byte) 0;
-        do {
-            if (Thread.interrupted())
-                throw new InterruptedException();
-            read = in.read(buf);
-            if (read > 0) {
-                final int posLast = chunksize - 1 - (int) (totalRead % chunksize);
-                if (read > posLast)
-                    lastByte = buf[posLast];
-                totalRead += read;
             }
         }
-        while (read > 0 && lastByte != (byte) 0xff);
-
-        send = "OK\n";
-        out.write(send.getBytes("US-ASCII"));
-        out.flush();
-
-        line = reader.readLine(); // read TIME line
+        return testResult
     }
 
-    /**
-     * perform single donwload test
-     *
-     * @param seconds requested duration of the test
-     * @param result  SingleResult object to store the results in
-     * @return true if the socket needs to be reinitialized, false if can be
-     * reused
-     * @throws IOException
-     * @throws UnsupportedEncodingException
-     * @throws InterruptedException
-     * @throws IllegalStateException
-     */
-    private boolean download(final int seconds, final int additionalWait, final SingleResult result)
-            throws IOException, UnsupportedEncodingException, InterruptedException, IllegalStateException {
-        if (Thread.interrupted())
-            throw new InterruptedException();
-
-        if (seconds < 1)
-            throw new IllegalArgumentException();
-
-        log(String.format(Locale.US, "thread %d: download test %d seconds", threadId, seconds));
-
-        String line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
-        if (!line.startsWith("ACCEPT ")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            throw new IllegalStateException();
+    private fun downloadChunks(chunks: Int): Long {
+        if (Thread.interrupted()) {
+            throw InterruptedException()
         }
 
-        final long timeStart = System.nanoTime();
-        final long timeLatestEnd = timeStart + (seconds + additionalWait) * nsecsL;
+        require(chunks >= 1)
 
-        String send;
-        send = String.format(Locale.US, "GETTIME %d\n", seconds);
-        out.write(send.getBytes("US-ASCII"));
-        out.flush();
+        log(String.format(Locale.US, "thread %d: getting %d chunk(s)", threadId, chunks))
 
-        long totalRead = 0;
-        long read;
-        byte lastByte = (byte) 0;
+        val rdr = reader!!
+        val outStream = out!!
+        val inStream = `in`!!
+        val buffer = buf!!
+
+        var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
+        if (!line.startsWith("ACCEPT ")) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            throw IllegalStateException()
+        }
+
+        var send = String.format(Locale.US, "GETCHUNKS %d\n", chunks)
+        outStream.write(send.toByteArray(charset("US-ASCII")))
+        outStream.flush()
+
+        var totalRead: Long = 0
+        var read: Int
+        var lastByte = 0.toByte()
+        do {
+            if (Thread.interrupted()) {
+                throw InterruptedException()
+            }
+            read = inStream.read(buffer)
+            if (read > 0) {
+                // A read can now span several chunks; inspect the last chunk boundary it completed
+                // (the per-chunk last byte signals continue=0x00 / terminate=0xff).
+                val newTotal = totalRead + read
+                if (newTotal / chunksize > totalRead / chunksize) {
+                    val lastBoundary = newTotal / chunksize * chunksize - 1
+                    lastByte = buffer[(lastBoundary - totalRead).toInt()]
+                }
+                totalRead = newTotal
+            }
+        } while (read > 0 && lastByte != 0xff.toByte())
+
+        send = "OK\n"
+        outStream.write(send.toByteArray(charset("US-ASCII")))
+        outStream.flush()
+
+        return parseTimeNs(rdr.readLine()) // read + parse server TIME line
+    }
+
+    private fun download(seconds: Int, additionalWait: Int, result: SingleResult): Boolean {
+        if (Thread.interrupted()) {
+            throw InterruptedException()
+        }
+
+        require(seconds >= 1)
+
+        log(String.format(Locale.US, "thread %d: download test %d seconds", threadId, seconds))
+
+        val rdr = reader!!
+        val outStream = out!!
+        val inStream = `in`!!
+        val buffer = buf!!
+
+        var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
+        if (!line.startsWith("ACCEPT ")) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            throw IllegalStateException()
+        }
+
+        val timeStart = System.nanoTime()
+        val timeLatestEnd = timeStart + (seconds + additionalWait) * nsecsL
+
+        var send = String.format(Locale.US, "GETTIME %d %d\n", seconds, chunksize)
+        outStream.write(send.toByteArray(charset("US-ASCII")))
+        outStream.flush()
+
+        var totalRead: Long = 0
+        var read: Int
+        var lastByte = 0.toByte()
 
         do {
-            if (Thread.interrupted())
-                throw new InterruptedException();
-            read = in.read(buf);
-            if (read > 0) {
-                final int posLast = chunksize - 1 - (int) (totalRead % chunksize);
-                if (read > posLast)
-                    lastByte = buf[posLast];
-                totalRead += read;
-
-                final long nsec = System.nanoTime() - timeStart;
-
-                result.addResult(totalRead, nsec);
-                curTransfer.set(totalRead);
-                curTime.set(nsec);
+            if (Thread.interrupted()) {
+                throw InterruptedException()
             }
-        }
-        while (read > 0 && lastByte != (byte) 0xff && System.nanoTime() <= timeLatestEnd);
+            read = inStream.read(buffer)
+            if (read > 0) {
+                // A read can now span several chunks; inspect the last chunk boundary it completed
+                // (the per-chunk last byte signals continue=0x00 / terminate=0xff).
+                val newTotal = totalRead + read
+                if (newTotal / chunksize > totalRead / chunksize) {
+                    val lastBoundary = newTotal / chunksize * chunksize - 1
+                    lastByte = buffer[(lastBoundary - totalRead).toInt()]
+                }
+                totalRead = newTotal
 
-        final long timeEnd = System.nanoTime();
+                val nsec = System.nanoTime() - timeStart
+
+                result.addResult(totalRead, nsec)
+                curTransfer.set(totalRead)
+                curTime.set(nsec)
+            }
+        } while (read > 0 && lastByte != 0xff.toByte() && System.nanoTime() <= timeLatestEnd)
+
+        val timeEnd = System.nanoTime()
 
         if (read <= 0) {
-            log(String.format(Locale.US, "thread %d: error while receiving data", threadId));
-            throw new IllegalStateException();
+            log(String.format(Locale.US, "thread %d: error while receiving data", threadId))
+            throw IllegalStateException()
         }
 
-        final long nsec = timeEnd - timeStart;
-        result.addResult(totalRead, nsec);
-        curTransfer.set(totalRead);
-        curTime.set(nsec);
+        val nsec = timeEnd - timeStart
+        result.addResult(totalRead, nsec)
+        curTransfer.set(totalRead)
+        curTime.set(nsec)
 
-        if (lastByte != (byte) 0xff)
-            return true;
+        if (lastByte != 0xff.toByte()) {
+            return true
+        }
 
-        send = "OK\n";
-        out.write(send.getBytes("US-ASCII"));
-        out.flush();
+        send = "OK\n"
+        outStream.write(send.toByteArray(charset("US-ASCII")))
+        outStream.flush()
 
-        line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
-        final Scanner s = new Scanner(line);
-        s.findInLine("TIME (\\d+)");
-        s.close();
-        // result.nsecServer = Long.parseLong(s.match().group(1));
-        return false;
-
+        line = rdr.readLine() ?: throw IllegalStateException("connection lost")
+        val sc = Scanner(line)
+        sc.findInLine("TIME (\\d+)")
+        sc.close()
+        return false
     }
 
-    private void uploadChunks(final int chunks) throws InterruptedException, IOException {
-        if (Thread.interrupted())
-            throw new InterruptedException();
+    private fun uploadChunks(chunks: Int) {
+        if (Thread.interrupted()) {
+            throw InterruptedException()
+        }
 
-        if (chunks < 1)
-            throw new IllegalArgumentException();
+        require(chunks >= 1)
 
-        log(String.format(Locale.US, "thread %d: putting %d chunk(s)", threadId, chunks));
+        log(String.format(Locale.US, "thread %d: putting %d chunk(s)", threadId, chunks))
 
-        String line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
+        val rdr = reader!!
+        val outStream = out!!
+        val buffer = buf!!
+
+        var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
         if (!line.startsWith("ACCEPT ")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            throw new IllegalStateException();
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            throw IllegalStateException()
         }
 
-        out.write("PUTNORESULT\n".getBytes("US-ASCII"));
-        out.flush();
+        outStream.write(String.format(Locale.US, "PUTNORESULT %d\n", chunksize).toByteArray(charset("US-ASCII")))
+        outStream.flush()
 
-        line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
-        if (!line.equals("OK"))
-            throw new IllegalStateException();
-
-        buf[chunksize - 1] = (byte) 0; // set last byte to continue value
-
-        for (int i = 0; i < chunks; i++) {
-            if (i == chunks - 1)
-                buf[chunksize - 1] = (byte) 0xff; // set last byte to
-            // termination value
-            out.write(buf, 0, chunksize);
+        line = rdr.readLine() ?: throw IllegalStateException("connection lost")
+        if (line != "OK") {
+            throw IllegalStateException()
         }
 
-        line = reader.readLine(); // TIME line
+        buffer[chunksize - 1] = 0.toByte() // set last byte to continue value
+
+        for (i in 0 until chunks) {
+            if (i == chunks - 1) {
+                buffer[chunksize - 1] = 0xff.toByte() // set last byte to termination value
+            }
+            outStream.write(buffer, 0, chunksize)
+        }
+
+        rdr.readLine() // TIME line
     }
 
-    /**
-     * @param seconds requested duration of the test
-     * @param result  SingleResult object to store the results in
-     * @return true if the socket needs to be reinitialized, false if can be
-     * reused
-     * @throws IOException
-     * @throws UnsupportedEncodingException
-     * @throws InterruptedException
-     * @throws IllegalStateException
-     */
-    private boolean upload(final int seconds, final SingleResult result) throws IOException,
-            UnsupportedEncodingException, InterruptedException, IllegalStateException {
-        if (Thread.interrupted())
-            throw new InterruptedException();
-
-        if (seconds < 1 && !params.isEncryption())
-            throw new IllegalArgumentException();
-
-        log(String.format(Locale.US, "thread %d: upload test %d seconds", threadId, seconds));
-
-        long _enoughTime = (seconds - UPLOAD_MAX_DISCARD_TIME) * nsecsL;
-        if (_enoughTime < 0)
-            _enoughTime = 0;
-        final long enoughTime = _enoughTime;
-
-        String line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
-        if (!line.startsWith("ACCEPT ")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            throw new IllegalStateException();
+    private fun upload(seconds: Int, result: SingleResult): Boolean {
+        if (Thread.interrupted()) {
+            throw InterruptedException()
         }
 
-        out.write("PUT\n".getBytes("US-ASCII"));
-        out.flush();
+        if (seconds < 1 && !params.isEncryption) {
+            throw IllegalArgumentException()
+        }
 
-        line = reader.readLine();
-        if (line == null)
-            throw new IllegalStateException("connection lost");
-        if (!line.equals("OK"))
-            throw new IllegalStateException();
+        log(String.format(Locale.US, "thread %d: upload test %d seconds", threadId, seconds))
 
-        final AtomicBoolean terminateRxIfEnough = new AtomicBoolean(false);
-        final AtomicBoolean terminateRxAtAllEvents = new AtomicBoolean(false);
+        var enoughTimeTmp = (seconds - UPLOAD_MAX_DISCARD_TIME) * nsecsL
+        if (enoughTimeTmp < 0) {
+            enoughTimeTmp = 0
+        }
+        val enoughTime = enoughTimeTmp
 
-        final Future<Boolean> futureRx = RMBTClient.getCommonThreadPool().submit(new Callable<Boolean>() {
-            public Boolean call() throws Exception {
+        val rdr = reader!!
+        val outStream = out!!
+        val buffer = buf!!
 
-                final Pattern patternFull = Pattern.compile("TIME (\\d+) BYTES (\\d+)");
-                final Pattern patternTime = Pattern.compile("TIME (\\d+)");
+        var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
+        if (!line.startsWith("ACCEPT ")) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            throw IllegalStateException()
+        }
 
-                final Scanner s = new Scanner(reader);
+        outStream.write(String.format(Locale.US, "PUT %d\n", chunksize).toByteArray(charset("US-ASCII")))
+        outStream.flush()
+
+        line = rdr.readLine() ?: throw IllegalStateException("connection lost")
+        if (line != "OK") {
+            throw IllegalStateException()
+        }
+
+        val terminateRxIfEnough = AtomicBoolean(false)
+        val terminateRxAtAllEvents = AtomicBoolean(false)
+
+        val futureRx = RMBTClient.getCommonThreadPool().submit(object : Callable<Boolean> {
+            override fun call(): Boolean {
+                val patternFull = Pattern.compile("TIME (\\d+) BYTES (\\d+)")
+                val patternTime = Pattern.compile("TIME (\\d+)")
+
+                val sc = Scanner(rdr)
                 try {
-                    s.useDelimiter("\n");
-                    boolean terminate = false;
+                    sc.useDelimiter("\n")
+                    var terminate = false
                     do {
-                        String next = null;
+                        var next: String? = null
                         try {
-                            next = s.next(patternFull);
-                        } catch (final InputMismatchException e) {
+                            next = sc.next(patternFull)
+                        } catch (e: InputMismatchException) {
                         }
 
                         if (next == null) {
-                            next = s.next(patternTime);
+                            next = sc.next(patternTime)
                             if (next == null) {
-                                System.out.println(s.nextLine());
-                                throw new IllegalStateException();
+                                println(sc.nextLine())
+                                throw IllegalStateException()
                             }
-                            return false;
+                            return false
                         }
 
-                        final MatchResult match = s.match();
+                        val match = sc.match()
                         if (match.groupCount() == 2) {
-                            final long nsec = Long.parseLong(match.group(1));
-                            final long bytes = Long.parseLong(match.group(2));
-                            result.addResult(bytes, nsec);
-                            curTransfer.set(bytes);
-                            curTime.set(nsec);
+                            val nsec = match.group(1).toLong()
+                            val bytes = match.group(2).toLong()
+                            result.addResult(bytes, nsec)
+                            curTransfer.set(bytes)
+                            curTime.set(nsec)
                         }
 
-                        if (terminateRxAtAllEvents.get())
-                            terminate = true;
-                        if (terminateRxIfEnough.get() && curTime.get() > enoughTime)
-                            terminate = true;
-                    }
-                    while (!terminate);
-                    return true;
+                        if (terminateRxAtAllEvents.get()) {
+                            terminate = true
+                        }
+                        if (terminateRxIfEnough.get() && curTime.get() > enoughTime) {
+                            terminate = true
+                        }
+                    } while (!terminate)
+                    return true
                 } finally {
-                    s.close();
+                    sc.close()
                 }
             }
-        });
+        })
 
-        final long maxnsecs = seconds * 1000000000L;
-        buf[chunksize - 1] = (byte) 0x00; // set last byte to continue value
+        val maxnsecs = seconds * 1000000000L
+        buffer[chunksize - 1] = 0x00.toByte() // set last byte to continue value
 
-        final byte[] bufTx = buf.clone();
-        final AtomicBoolean terminateTx = new AtomicBoolean(false);
-        final Future<Void> futureTx = RMBTClient.getCommonThreadPool().submit(new Callable<Void>() {
-            public Void call() throws Exception {
-                for (; ; ) {
-                    if (Thread.interrupted())
-                        throw new InterruptedException();
+        // One protocol chunk per write(). The chunk size is the throughput-adapted value chosen by
+        // the pre-test (≈ 20 ms of data), so this stays responsive at low speed and efficient at
+        // high speed without any extra client-side batching.
+        val bufTx = buffer.clone()
+        val terminateTx = AtomicBoolean(false)
+        val futureTx = RMBTClient.getCommonThreadPool().submit(object : Callable<Void?> {
+            override fun call(): Void? {
+                while (true) {
+                    if (Thread.interrupted()) {
+                        throw InterruptedException()
+                    }
                     if (terminateTx.get()) {
                         // last package
-                        bufTx[chunksize - 1] = (byte) 0xff; // set last byte to termination value
-                        out.write(bufTx, 0, chunksize);
+                        bufTx[chunksize - 1] = 0xff.toByte() // set last byte to termination value
+                        outStream.write(bufTx, 0, chunksize)
                         // forces buffered bytes to be written out.
-                        out.flush();
-                        return null;
-                    } else
-                        out.write(bufTx, 0, chunksize);
+                        outStream.flush()
+                        return null
+                    } else {
+                        outStream.write(bufTx, 0, chunksize)
+                    }
                 }
             }
-        });
+        })
 
-        Boolean returnValue = null;
+        var returnValue: Boolean? = null
         try {
             try {
-                futureTx.get(maxnsecs, TimeUnit.NANOSECONDS);
-//                System.out.println("futureTx regular");
-            } catch (final TimeoutException e) {
+                futureTx.get(maxnsecs, TimeUnit.NANOSECONDS)
+            } catch (e: TimeoutException) {
                 try {
-                    terminateTx.set(true);
-                    futureTx.get(250, TimeUnit.MILLISECONDS);
-//                    System.out.println("futureTx after 250");
-                } catch (final TimeoutException e2) {
-                    futureTx.cancel(true);
-//                    System.out.println("futureTx cancel");
+                    terminateTx.set(true)
+                    futureTx.get(250, TimeUnit.MILLISECONDS)
+                } catch (e2: TimeoutException) {
+                    futureTx.cancel(true)
                 }
             }
 
-            Thread.sleep(100);
+            Thread.sleep(100)
 
-            terminateRxIfEnough.set(true);
+            terminateRxIfEnough.set(true)
 
             try {
-                returnValue = futureRx.get(UPLOAD_MAX_WAIT_SECS, TimeUnit.SECONDS);
-//                System.out.println("futureRx regular");
-            } catch (final TimeoutException e) {
+                returnValue = futureRx.get(UPLOAD_MAX_WAIT_SECS, TimeUnit.SECONDS)
+            } catch (e: TimeoutException) {
                 try {
-                    terminateRxAtAllEvents.set(true);
-                    returnValue = futureRx.get(250, TimeUnit.MILLISECONDS);
-//                    System.out.println("futureRx after 250");
-                } catch (final TimeoutException e2) {
-                    futureRx.cancel(true);
-//                    System.out.println("futureRx cancel");
+                    terminateRxAtAllEvents.set(true)
+                    returnValue = futureRx.get(250, TimeUnit.MILLISECONDS)
+                } catch (e2: TimeoutException) {
+                    futureRx.cancel(true)
                 }
             }
-        } catch (final ExecutionException e) {
-            if (e.getCause() instanceof IOException)
-                throw (IOException) e.getCause();
-            else
-                e.printStackTrace();
+        } catch (e: ExecutionException) {
+            if (e.cause is IOException) {
+                throw e.cause as IOException
+            } else {
+                e.printStackTrace()
+            }
         }
 
-        if (returnValue == null)
-            returnValue = true;
-        return returnValue;
+        if (returnValue == null) {
+            returnValue = true
+        }
+        return returnValue
     }
 
-    private Ping ping() throws IOException {
-        log(String.format(Locale.US, "thread %d: ping test", threadId));
+    private fun ping(): Ping? {
+        log(String.format(Locale.US, "thread %d: ping test", threadId))
 
-        final long pingTimeNs = System.nanoTime();
+        val pingTimeNs = System.nanoTime()
 
-        String line = reader.readLine();
-        if (!line.startsWith("ACCEPT ")) {
-            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            return null;
+        val rdr = reader!!
+        val outStream = out!!
+
+        var line = rdr.readLine()
+        if (!line!!.startsWith("ACCEPT ")) {
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line))
+            return null
         }
 
-        final byte[] data = "PING\n".getBytes("US-ASCII");
-        final long timeStart = System.nanoTime();
-        out.write(data);
-        out.flush();
-        line = reader.readLine();
-        final long timeEnd = System.nanoTime();
-        out.write("OK\n".getBytes("US-ASCII"));
-        out.flush();
-        if (!line.equals("PONG"))
-            return null;
+        val data = "PING\n".toByteArray(charset("US-ASCII"))
+        val timeStart = System.nanoTime()
+        outStream.write(data)
+        outStream.flush()
+        line = rdr.readLine()
+        val timeEnd = System.nanoTime()
+        outStream.write("OK\n".toByteArray(charset("US-ASCII")))
+        outStream.flush()
+        if (line != "PONG") {
+            return null
+        }
 
-        line = reader.readLine();
-        final Scanner s = new Scanner(line);
-        s.findInLine("TIME (\\d+)");
-        s.close();
+        line = rdr.readLine()
+        val sc = Scanner(line)
+        sc.findInLine("TIME (\\d+)")
+        sc.close()
 
-        final long diffClient = timeEnd - timeStart;
-        final long diffServer = Long.parseLong(s.match().group(1));
+        val diffClient = timeEnd - timeStart
+        val diffServer = sc.match().group(1).toLong()
 
-        final double pingClient = diffClient / 1e6;
-        final double pingServer = diffServer / 1e6;
+        val pingClient = diffClient / 1e6
+        val pingServer = diffServer / 1e6
 
-        log(String.format(Locale.US, "thread %d - client: %.3f ms ping", threadId, pingClient));
-        log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer));
-        return new Ping(diffClient, diffServer, pingTimeNs);
+        log(String.format(Locale.US, "thread %d - client: %.3f ms ping", threadId, pingClient))
+        log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer))
+        return Ping(diffClient, diffServer, pingTimeNs)
     }
 
-    private void setStatus(final TestStatus status) {
-        if (threadId == 0)
-            client.setStatus(status);
+    private fun setStatus(status: TestStatus) {
+        if (threadId == 0) {
+            client.status = status
+        }
     }
 
-    private void startTrafficService(final TestStatus status) {
-        client.startTrafficService(threadId, status);
+    private fun startTrafficService(status: TestStatus) {
+        client.startTrafficService(threadId, status)
     }
 
-    private void stopTrafficService(final TestStatus status) {
-        client.stopTrafficMeasurement(threadId, status);
+    private fun stopTrafficService(status: TestStatus) {
+        client.stopTrafficMeasurement(threadId, status)
+    }
+
+    companion object {
+        private const val nsecsL = 1000000000L
+
+        private const val UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL
+        private const val UPLOAD_MAX_WAIT_SECS = 3L
+
+        // Upper bound for the dynamically chosen protocol chunk size (see computeChunkSize). The
+        // server's announced max can be several MB; cap it here to bound per-thread memory on mobile.
+        private const val MAX_CHUNK_SIZE = 256 * 1024
+
+        private val TIME_PATTERN: Pattern = Pattern.compile("TIME (\\d+)")
     }
 }
