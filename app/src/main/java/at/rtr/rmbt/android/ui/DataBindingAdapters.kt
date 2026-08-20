@@ -35,8 +35,12 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import at.specure.util.getEuBand
+import cz.mroczis.netmonster.core.model.cell.CellCdma
+import cz.mroczis.netmonster.core.model.cell.CellGsm
 import cz.mroczis.netmonster.core.model.cell.CellLte
 import cz.mroczis.netmonster.core.model.cell.CellNr
+import cz.mroczis.netmonster.core.model.cell.CellTdscdma
+import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -100,14 +104,14 @@ private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
     val lines = mutableListOf<String>()
     when (primary) {
         is CellNr -> lines += listOfNotNull(
-            infoLine("Ch", primary.getEuBand()?.channelNumber),
+            infoLine("NR-ARFCN", primary.getEuBand()?.channelNumber),
             infoLine("NCI", primary.nci),
             infoLine("TAC", primary.tac),
             infoLine("PCI", primary.pci)
         )
         is CellLte -> {
             lines += listOfNotNull(
-                infoLine("Ch", primary.band?.channelNumber),
+                infoLine("EARFCN", primary.band?.channelNumber),
                 infoLine("CI", primary.eci),
                 infoLine("eNB", primary.enb),
                 infoLine("CID", primary.cid),
@@ -121,7 +125,7 @@ private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
                 val nrLines = listOfNotNull(
                     infoLine("TAC", nr.tac),
                     infoLine("PCI", nr.pci),
-                    infoLine("Ch", nr.getEuBand()?.channelNumber)
+                    infoLine("NR-ARFCN", nr.getEuBand()?.channelNumber)
                 )
                 if (nrLines.isNotEmpty()) {
                     lines += "5G NR"
@@ -129,6 +133,30 @@ private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
                 }
             }
         }
+        is CellWcdma -> lines += listOfNotNull( // 3G UMTS
+            infoLine("UARFCN", primary.band?.channelNumber),
+            infoLine("CID", primary.cid),
+            infoLine("LAC", primary.lac),
+            infoLine("RNC", primary.rnc),
+            infoLine("PSC", primary.psc)
+        )
+        is CellTdscdma -> lines += listOfNotNull( // 3G TD-SCDMA
+            infoLine("UARFCN", primary.band?.channelNumber),
+            infoLine("CID", primary.cid),
+            infoLine("LAC", primary.lac),
+            infoLine("RNC", primary.rnc)
+        )
+        is CellGsm -> lines += listOfNotNull( // 2G GSM
+            infoLine("ARFCN", primary.band?.channelNumber),
+            infoLine("CID", primary.cid),
+            infoLine("LAC", primary.lac),
+            infoLine("BSIC", primary.bsic)
+        )
+        is CellCdma -> lines += listOfNotNull( // 2G/3G CDMA
+            infoLine("SID", primary.sid),
+            infoLine("NID", primary.nid),
+            infoLine("BID", primary.bid)
+        )
         else -> return null
     }
     return lines.joinToString("\n").takeIf { it.isNotEmpty() }
