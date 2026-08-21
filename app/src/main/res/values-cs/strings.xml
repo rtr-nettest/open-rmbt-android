@@ -366,6 +366,7 @@
     <string name="more_sims_active_dialog_title">Aktivní dual SIM</string>
     <string name="more_sims_active_dialog_text">Měření pokrytí podporuje pouze jednu SIM. Deaktivujte prosím druhou SIM.</string>
     <string name="confirm">Potvrdit</string>
+    <string name="home_speed">Pohyb</string>
     <string name="loop_mode_completed_message">Měření byla dokončena.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Nejste na mobilní síti</string>

@@ -379,6 +379,7 @@
     <string name="more_sims_active_dialog_title">Dual SIM activa</string>
     <string name="more_sims_active_dialog_text">La medición de señal solo admite una SIM. Por favor, desactiva la segunda SIM.</string>
     <string name="confirm">Confirmar</string>
+    <string name="home_speed">Movimiento</string>
     <string name="loop_mode_completed_message">Las mediciones han finalizado.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Sin conexión móvil</string>
