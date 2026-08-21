@@ -366,6 +366,8 @@
     <string name="more_sims_active_dialog_title">شريحتا SIM نشطتان</string>
     <string name="more_sims_active_dialog_text">قياس التغطية يدعم شريحة SIM واحدة فقط. يرجى تعطيل الشريحة الثانية.</string>
     <string name="confirm">تأكيد</string>
+    <string name="loop_mode_completed_message">اكتملت القياسات.</string>
+    <string name="loop_mode_completed_ok">حسناً</string>
     <string name="wrong_network_type_active_dialog_title">لست على شبكة جوال</string>
     <string name="wrong_network_type_active_dialog_text">يرجى تعطيل Wi-Fi (أو أي اتصال غير جوال آخر)</string>
     <string name="signal_measurement_not_possible_dialog_title">قياس الإشارة غير ممكن</string>

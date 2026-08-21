@@ -17,6 +17,7 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.app.PictureInPictureParams
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -42,12 +43,15 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
+import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
 import kotlin.math.max
 
 private const val CODE_CANCEL = 0
 private const val CODE_ERROR = 1
+private const val CODE_LOOP_FINISHED = 2
+private const val TAG_LOOP_FINISHED = "LOOP_FINISHED_DIALOG"
 
 /** Only show the GPS speed once it exceeds this (km/h); at or below it the readout is hidden. */
 private const val SPEED_MIN_KMH = 0.99f
@@ -238,13 +242,27 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     }
 
 
+    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+    private var loopFinishedHandled = false
+
+    /** Loop mode finished: show a completion overlay on the test screen; OK -> history overview. */
+    private fun showLoopFinishedDialog() {
+        if (loopFinishedHandled) return
+        loopFinishedHandled = true
+        SimpleDialog.Builder()
+            .messageText(R.string.loop_mode_completed_message)
+            .positiveText(R.string.loop_mode_completed_ok)
+            .cancelable(false)
+            .show(supportFragmentManager, CODE_LOOP_FINISHED, TAG_LOOP_FINISHED)
+    }
+
     private fun finishActivity(measurementFinished: Boolean) {
         Timber.d("Finish activity with measurement finished: $measurementFinished, testUUID: ${viewModel.testUUID}, measurementState: ${viewModel.state.measurementState.get()}, LoopModeActive: ${viewModel.state.isLoopModeActive.get()}, LoopModeState: ${viewModel.state.loopModeRecord.get()?.status}")
         if (measurementFinished) {
             if (viewModel.state.isLoopModeActive.get()) {
                 if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED) {
-                    LoopFinishedActivity.start(this)
-                    this.finish()
+                    // Stay on the test screen and show the completion overlay on top of it.
+                    showLoopFinishedDialog()
                 }
             } else {
                 // When the measurement finishes while the app is in the background, the running
@@ -267,7 +285,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     private fun cancelMeasurement() {
         if (viewModel.state.isLoopModeActive.get()) {
             finish()
-            LoopFinishedActivity.start(this)
+            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
         } else {
             finish()
         }
@@ -312,6 +330,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     }
 
     override fun onDialogPositiveClicked(code: Int) {
+        if (code == CODE_LOOP_FINISHED) {
+            // Loop mode is done: clear the finished notification and switch to the history overview.
+            notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
+            notificationManager.cancel(MeasurementService.NOTIFICATION_ID)
+            finish()
+            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+            return
+        }
         if (code == CODE_CANCEL) {
             viewModel.cancelMeasurement()
         }

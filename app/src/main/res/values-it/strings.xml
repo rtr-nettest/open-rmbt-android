@@ -379,6 +379,8 @@
     <string name="more_sims_active_dialog_title">Dual SIM attiva</string>
     <string name="more_sims_active_dialog_text">La misurazione del segnale supporta solo una SIM. Si prega di disattivare la seconda SIM.</string>
     <string name="confirm">Conferma</string>
+    <string name="loop_mode_completed_message">Le misurazioni sono state completate.</string>
+    <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Non su rete mobile</string>
     <string name="wrong_network_type_active_dialog_text">Si prega di disattivare il Wifi (o un\'altra connessione non mobile)</string>
     <string name="signal_measurement_not_possible_dialog_title">Misurazione del segnale non possibile</string>
