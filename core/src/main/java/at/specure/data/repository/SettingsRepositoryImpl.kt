@@ -96,6 +96,15 @@ class SettingsRepositoryImpl(
         controlServerSettings.filterDevices = settingsResponse.settings.first().history?.devices ?: listOf()
         controlServerSettings.filterNetworkTypes = settingsResponse.settings.first().history?.networks ?: listOf()
 
+        // Show/hide the signal-measurement icon from the settings response, persisted the same way
+        // the code does (developerModeIsEnabled gates the icon) - but without any popup. Only an
+        // explicit "true"/"false" changes it; a missing key or any other value (e.g. null) keeps the
+        // previous setting. Default stays disabled on a clean install (config default unchanged).
+        when (settingsResponse.settings.first().signalMeasurementAvailable) {
+            "true" -> config.developerModeIsEnabled = true
+            "false" -> config.developerModeIsEnabled = false
+        }
+
         val urls = settingsResponse.settings.first().urls
         if (urls != null) {
             controlServerSettings.controlServerV4Url = urls.ipv4OnlyControlServerUrl.removeProtocol()

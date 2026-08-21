@@ -536,7 +536,14 @@ data class SettingItem(
     val history: HistoryFilterSettings?,
     val uuid: String?,
     @SerializedName("map_server")
-    val mapServerSettings: MapServerSettings?
+    val mapServerSettings: MapServerSettings?,
+    /**
+     * Whether the signal (coverage) measurement is available. Sent by the control server as
+     * "true"/"false" (string or JSON boolean; Gson coerces both to this String). Null when the
+     * key is absent - in which case the current app setting is kept.
+     */
+    @SerializedName("signal_measurement_available")
+    val signalMeasurementAvailable: String? = null
 )
 
 @Keep
