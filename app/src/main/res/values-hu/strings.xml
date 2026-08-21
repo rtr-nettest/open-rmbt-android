@@ -379,6 +379,7 @@
     <string name="more_sims_active_dialog_title">Kettős SIM aktív</string>
     <string name="more_sims_active_dialog_text">A jelszintmérés csak egy SIM-kártyát támogat. Kérjük, kapcsolja ki a második SIM-kártyát.</string>
     <string name="confirm">Megerősítés</string>
+    <string name="history_loading_failed">A betöltés sikertelen</string>
     <string name="home_speed">Mozgás</string>
     <string name="loop_mode_completed_message">A mérések befejeződtek.</string>
     <string name="loop_mode_completed_ok">OK</string>

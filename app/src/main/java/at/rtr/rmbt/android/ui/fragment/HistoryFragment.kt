@@ -10,6 +10,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
@@ -31,6 +33,9 @@ import kotlin.math.max
 
 private const val CODE_FILTERS = 13
 private const val CODE_DOWNLOAD = 14
+
+// Trigger loading the next history page when the user scrolls this close to the end.
+private const val LOAD_MORE_THRESHOLD = 15
 
 class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFiltersDialog.Callback {
 
@@ -85,14 +90,42 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             binding.recyclerViewHistoryItems.addItemDecoration(itemDecoration)
         }
 
+        // Lazy loading: fetch the next page only when the user scrolls near the end.
+        binding.recyclerViewHistoryItems.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy <= 0) return
+                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                if (lastVisibleItem >= layoutManager.itemCount - LOAD_MORE_THRESHOLD) {
+                    historyViewModel.loadNextPage()
+                }
+            }
+        })
+
         historyViewModel.historyLiveData.listen(this) {
             historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
-            adapter.submitList(it)
+            adapter.submitList(it) {
+                // A server page is 100 raw records, but loop measurements collapse into a
+                // single grouped row, so one page can underfill the screen. When that
+                // happens the list can't be scrolled, so keep fetching until it fills the
+                // viewport (or the end is reached); after that, paging is purely on scroll.
+                binding.recyclerViewHistoryItems.post {
+                    if (isAdded && !binding.recyclerViewHistoryItems.canScrollVertically(1)) {
+                        historyViewModel.loadNextPage()
+                    }
+                }
+            }
         }
 
 
-        historyViewModel.isLoadingLiveData.listen(this) {
+        // Placeholder text is driven by the immediate load state (not the debounced spinner
+        // signal) so "No data available" never flashes while a load is in progress.
+        historyViewModel.initialLoadingLiveData.listen(this) {
             historyViewModel.state.isLoadingLiveData.set(it)
+        }
+
+        historyViewModel.loadFailedLiveData.listen(this) {
+            historyViewModel.state.isLoadingFailed.set(it)
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
@@ -133,7 +166,9 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = it
         }
 
-        refreshHistory()
+        // Show cached history instantly on (re)open; only load from the network when the
+        // cache is empty. Avoids reloading the whole list every time History is reopened.
+        historyViewModel.loadHistoryIfNeeded()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -153,5 +188,11 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     override fun onDevicesSynced() {
         refreshHistory()
+    }
+
+    override fun onSyncCodeRequested() {
+        // The sync can change the history on the backend later (when another device enters
+        // the code), so mark the cache stale; it is reloaded next time History is opened.
+        historyViewModel.invalidateHistoryCache()
     }
 }

@@ -55,6 +55,12 @@ interface Config {
     var canManageLocationSettings: Boolean
 
     /**
+     * Marks the locally cached history as invalid (e.g. after a device sync was requested),
+     * so the next time History is opened it is fully reloaded from the backend.
+     */
+    var historyCacheInvalidated: Boolean
+
+    /**
      * Loop mode is enabled
      */
     var loopModeEnabled: Boolean

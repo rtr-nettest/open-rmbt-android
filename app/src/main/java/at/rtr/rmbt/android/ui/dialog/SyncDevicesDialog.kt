@@ -135,6 +135,9 @@ class SyncDevicesDialog : FullscreenDialog() {
         viewModel.getSyncCodeLiveData.listen(this) { syncCode ->
             viewModel.state.currentDeviceSyncCode.set(syncCode)
             viewModel.state.visibilityState.set(SyncDeviceViewState.VisibilityState.SHOW_CODE)
+            // Requesting a code lets another device link to this one, which can change the
+            // history on the backend later, so the local cache must be reloaded next time.
+            callback?.onSyncCodeRequested()
         }
 
         viewModel.syncDevicesLiveData.listen(this) {
@@ -199,5 +202,8 @@ class SyncDevicesDialog : FullscreenDialog() {
     interface Callback {
 
         fun onDevicesSynced()
+
+        /** Called when this device requested a sync code (history may change on the backend). */
+        fun onSyncCodeRequested()
     }
 }

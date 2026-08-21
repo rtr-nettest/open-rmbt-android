@@ -120,6 +120,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS)
         set(value) = setBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS, value)
 
+    override var historyCacheInvalidated: Boolean
+        get() = preferences.getBoolean(KEY_HISTORY_CACHE_INVALIDATED, false)
+        set(value) = preferences.edit()
+            .putBoolean(KEY_HISTORY_CACHE_INVALIDATED, value)
+            .apply()
+
     override var loopModeEnabled: Boolean
         get() = getBoolean(BuildConfig.LOOP_MODE_ENABLED)
         set(value) = setBoolean(BuildConfig.LOOP_MODE_ENABLED, value)
