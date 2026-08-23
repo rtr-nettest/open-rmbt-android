@@ -528,6 +528,14 @@ class CoverageResultViewModel @Inject constructor(
         rtrCoverageMeasurementProcessor.cleanData()
     }
 
+    /**
+     * Called once the user has left the result page of a finished measurement. From now on the loop
+     * is historic and its data (fences, sessions) may be purged by the retention sweep.
+     */
+    fun onFinishedResultLeft() {
+        coverageMeasurementSettings.clearProtectedCoverageLoopId()
+    }
+
     fun onCoverageSessionLoaded(sessionId: String?) {
         coverageSessionId = sessionId
         sessionId?.let {

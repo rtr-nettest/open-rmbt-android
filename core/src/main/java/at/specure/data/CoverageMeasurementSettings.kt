@@ -11,6 +11,7 @@ private const val KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION = "KEY_SIGNAL_MEA
 private const val KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_ID = "KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID"
 private const val KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_LOOP_ID = "KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_LOOP_ID"
 private const val KEY_HAS_UNSYNCED_COVERAGE = "KEY_HAS_UNSYNCED_COVERAGE"
+private const val KEY_PROTECTED_COVERAGE_LOOP_ID = "KEY_PROTECTED_COVERAGE_LOOP_ID"
 
 @Singleton
 class CoverageMeasurementSettings @Inject constructor(context: Context) {
@@ -70,6 +71,21 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
             preferences.edit { putBoolean(KEY_HAS_UNSYNCED_COVERAGE, value) }
         }
 
+    /**
+     * Loop id of the coverage measurement that is currently running OR whose result is still being
+     * displayed to the user. Sessions belonging to this loop must never be purged from the database:
+     * a coverage loop submits several segments (sessions/fences) while running, and the already
+     * submitted ones are needed to draw the full measurement map. It is set when a measurement
+     * session starts (see [onStartMeasurementSession]) and only cleared once the user has left the
+     * result page (see [clearProtectedCoverageLoopId]); a purge deletes only historic loops.
+     */
+    var protectedCoverageLoopId: String?
+        get() = preferences.getString(KEY_PROTECTED_COVERAGE_LOOP_ID, null)
+        set(value) {
+            Timber.d("Protected coverage loop ID set to: $value")
+            preferences.edit { putString(KEY_PROTECTED_COVERAGE_LOOP_ID, value) }
+        }
+
     val baseMinimalDistanceBetweenFenceCentersMeters = 10
 
     fun onStopMeasurementSession() {
@@ -82,7 +98,19 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
     fun onStartMeasurementSession(lastMeasurementId: String, lastMeasurementLoopId: String) {
         signalMeasurementLastMeasurementId = lastMeasurementId
         signalMeasurementLastMeasurementLoopId = lastMeasurementLoopId
+        // Protect the whole loop's data from the purge for as long as it is being measured or shown.
+        // Every session in the loop shares the same loop id, so this stays stable across the loop and
+        // is only replaced once the next loop starts.
+        protectedCoverageLoopId = lastMeasurementLoopId
         signalMeasurementShouldContinueInLastSession = true
         signalMeasurementIsRunning = true
+    }
+
+    /**
+     * Releases the current loop for purging. Call this once the user has left the result page of the
+     * finished measurement - from that point on the loop is historic and may be deleted.
+     */
+    fun clearProtectedCoverageLoopId() {
+        protectedCoverageLoopId = null
     }
 }

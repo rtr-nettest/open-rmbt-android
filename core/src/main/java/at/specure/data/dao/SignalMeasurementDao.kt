@@ -208,7 +208,8 @@ interface SignalMeasurementDao {
      * Retires (marks synced so [deleteSyncedOrFailedSessions] purges them) coverage sessions that can
      * never be submitted: their measurement window has ended AND they either have no fences to send
      * or are older than [staleBeforeMillis]. The window check guarantees the currently running
-     * measurement is never touched.
+     * measurement is never touched; [protectedLoopId] additionally spares every session of the loop
+     * whose result is still being shown to the user (its submitted segments are needed for the map).
      */
     @Query(
         """
@@ -217,25 +218,45 @@ interface SignalMeasurementDao {
         WHERE synced = 0
           AND maxCoverageMeasurementSeconds IS NOT NULL
           AND (startMeasurementResponseReceivedMillis + maxCoverageMeasurementSeconds * 1000) < :nowMillis
+          AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
           AND (
                 localMeasurementId NOT IN (SELECT DISTINCT sessionId FROM ${Tables.COVERAGE_MEASUREMENT_FENCE})
                 OR startMeasurementResponseReceivedMillis < :staleBeforeMillis
               )
     """
     )
-    suspend fun retireUnsendableOrStaleCoverageSessions(nowMillis: Long, staleBeforeMillis: Long)
+    suspend fun retireUnsendableOrStaleCoverageSessions(nowMillis: Long, staleBeforeMillis: Long, protectedLoopId: String?)
 
+    /**
+     * Purges coverage sessions that are synced or have exhausted their retries.
+     *
+     * Two levels of purging:
+     *  - The heavy, per-fence submission payload (signal samples, cell info, geolocations, ...) is
+     *    dropped for EVERY submitted/failed session, including those of [protectedLoopId]. Once a
+     *    session has been submitted this data is no longer needed - neither for a resubmission nor
+     *    for the map - so keeping it only inflates the DB and the heap during queries.
+     *  - The lightweight fence summaries and the session rows themselves are kept for
+     *    [protectedLoopId] (the loop currently running or still shown on the result page) because the
+     *    map is drawn from them; they are only deleted once the loop has become historic. Pass null
+     *    to purge every deletable loop entirely.
+     */
     @Transaction
-    suspend fun deleteSyncedOrFailedSessions(maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT) {
-        deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount)
-        deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount)
-        deleteCellLocationsForDeletableCoverageSessions(maxRetryCount)
-        deleteCellInfosForDeletableCoverageSessions(maxRetryCount)
-        deleteGeolocationsForDeletableCoverageSessions(maxRetryCount)
-        deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount)
-        deleteSignalsForDeletableCoverageSessions(maxRetryCount)
-        deleteFencesForDeletableSessions(maxRetryCount)
-        deleteDeletableSessions(maxRetryCount)
+    suspend fun deleteSyncedOrFailedSessions(
+        maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT,
+        protectedLoopId: String?
+    ) {
+        // Heavy submission payload: drop for all deletable sessions (null = ignore the loop guard),
+        // so already-submitted fence information cannot pile up even for the current loop.
+        deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount, null)
+        deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount, null)
+        deleteCellLocationsForDeletableCoverageSessions(maxRetryCount, null)
+        deleteCellInfosForDeletableCoverageSessions(maxRetryCount, null)
+        deleteGeolocationsForDeletableCoverageSessions(maxRetryCount, null)
+        deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount, null)
+        deleteSignalsForDeletableCoverageSessions(maxRetryCount, null)
+        // Map data: keep fences + sessions of the protected loop, delete only historic loops.
+        deleteFencesForDeletableSessions(maxRetryCount, protectedLoopId)
+        deleteDeletableSessions(maxRetryCount, protectedLoopId)
     }
 
     @Query(
@@ -243,96 +264,105 @@ interface SignalMeasurementDao {
         DELETE FROM ${Tables.PERMISSIONS_STATUS}
             WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.CAPABILITIES}
             WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.CELL_LOCATION}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteCellLocationsForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deleteCellLocationsForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.CELL_INFO}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteCellInfosForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deleteCellInfosForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.GEO_LOCATION}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteGeolocationsForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deleteGeolocationsForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.TEST_TELEPHONY_RECORD}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.SIGNAL}
         WHERE testUUID IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteSignalsForDeletableCoverageSessions(maxRetryCount: Int)
+    suspend fun deleteSignalsForDeletableCoverageSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.COVERAGE_MEASUREMENT_FENCE}
         WHERE sessionId IN (
             SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-            WHERE synced = 1 OR retryCount >= :maxRetryCount
+            WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+              AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
         )
     """
     )
-    suspend fun deleteFencesForDeletableSessions(maxRetryCount: Int)
+    suspend fun deleteFencesForDeletableSessions(maxRetryCount: Int, protectedLoopId: String?)
 
     @Query(
         """
         DELETE FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
-        WHERE synced = 1 OR retryCount >= :maxRetryCount
+        WHERE (synced = 1 OR retryCount >= :maxRetryCount)
+          AND (:protectedLoopId IS NULL OR localLoopId <> :protectedLoopId)
     """
     )
-    suspend fun deleteDeletableSessions(maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT)
+    suspend fun deleteDeletableSessions(maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT, protectedLoopId: String?)
 
     suspend fun getSignalRecordNullable(id: String?): SignalRecord? {
         return if (id == null) {

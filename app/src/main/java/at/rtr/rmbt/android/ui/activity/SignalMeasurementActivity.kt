@@ -149,6 +149,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             if (coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 showStopDialog()
             } else {
+                coverageViewModel.onFinishedResultLeft()
                 coverageViewModel.clearMeasurementData()
                 coverageViewModel.clearPerformanceImprovementLists(map)
                 finish()
@@ -392,6 +393,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             ) {
                 viewModel.stopSignalMeasurement()?.listen(this) {
                     if (!it) {
+                        coverageViewModel.onFinishedResultLeft()
                         coverageViewModel.clearMeasurementData()
                         coverageViewModel.clearPerformanceImprovementLists(map)
                         finish()
@@ -478,7 +480,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
 
     private fun updateCurrentLocation(location: LocationInfo?) {
-        binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
+        "${location?.provider} ${location?.accuracy}m".also { binding.textSource.text = it }
         val startTime =
             coverageViewModel.coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeMeasurementMillis
                 ?: 0L
@@ -698,6 +700,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         // (shouldRunCoverageMeasurement() only returns true once the finished state is cleared).
         // A still-running measurement is left untouched, so re-selecting just returns to it.
         if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            coverageViewModel.onFinishedResultLeft()
             coverageViewModel.clearMeasurementData()
             coverageViewModel.clearPerformanceImprovementLists(map)
         }

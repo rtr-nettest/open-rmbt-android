@@ -541,8 +541,11 @@ class SignalMeasurementRepositoryImpl(
         // Retire sessions that can never be submitted (window ended + no fences) or that are simply
         // too old to keep, so unsendable coverage data can never accumulate; then purge everything
         // that is synced or has exhausted its retries.
-        dao.retireUnsendableOrStaleCoverageSessions(now, now - COVERAGE_UNSENT_SESSION_MAX_AGE_MILLIS)
-        dao.deleteSyncedOrFailedSessions()
+        // Never purge the loop that is currently running or still shown on the result page: its
+        // already-submitted segments are needed to draw the full measurement map.
+        val protectedLoopId = coverageSettings.protectedCoverageLoopId
+        dao.retireUnsendableOrStaleCoverageSessions(now, now - COVERAGE_UNSENT_SESSION_MAX_AGE_MILLIS, protectedLoopId)
+        dao.deleteSyncedOrFailedSessions(protectedLoopId = protectedLoopId)
     }
 
     override suspend fun registerNotRegisteredMeasurementsWithSomeFences() {
