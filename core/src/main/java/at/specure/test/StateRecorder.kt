@@ -203,7 +203,7 @@ class StateRecorder @Inject constructor(
             testTag = config.measurementTag,
             coverage = config.coverageModeEnabled,
             developerModeEnabled = config.developerModeIsEnabled,
-            serverSelectionEnabled = config.expertModeEnabled,
+            serverSelectionEnabled = config.developerModeIsEnabled,
             loopModeEnabled = config.loopModeEnabled,
             transportType = networkInfo?.type,
             networkCapabilitiesRaw = networkInfo?.capabilitiesRaw ?: "networkInfo: null",

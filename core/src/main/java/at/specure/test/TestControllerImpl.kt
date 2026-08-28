@@ -186,7 +186,9 @@ class TestControllerImpl(
                 additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
             }
 
-            if (config.expertModeEnabled) {
+            // Server selection is offered whenever developer mode is on (see the settings screen),
+            // so it must also take effect under developer mode - not only when expert mode is on.
+            if (config.developerModeIsEnabled) {
                 additionalValues.put(KEY_SERVER_SELECTION_ENABLED, true)
                 measurementServer.selectedMeasurementServer?.let {
                     additionalValues.put(KEY_SERVER_PREFERRED, it.uuid)

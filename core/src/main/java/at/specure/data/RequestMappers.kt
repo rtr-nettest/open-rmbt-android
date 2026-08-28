@@ -84,7 +84,7 @@ fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, clientUUIDLegacy: Clien
         versionName = clientVersionName,
         versionCode = clientVersionCode.toString(),
         uuid = clientUUID.value ?: "",
-        userServerSelectionEnabled = config.expertModeEnabled,
+        userServerSelectionEnabled = config.developerModeIsEnabled,
         tacVersion = tac.tacVersion ?: 0,
         tacAccepted = tac.tacAccepted,
         capabilities = config.toCapabilitiesBody(),
