@@ -9,6 +9,13 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Android 17 (API 37) Local Network Protection: needed only to reach a measurement server on
+         the local network (lab setups). Declared here so it CAN be requested, but it is a runtime
+         permission - it is only ever requested (see HomeFragment) when developer mode is enabled, so
+         normal users are never prompted. -->
+    <uses-permission
+        android:name="android.permission.LOCAL_NETWORK_ACCESS"
+        android:minSdkVersion="37" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"

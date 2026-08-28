@@ -601,6 +601,7 @@ class HomeFragment : BaseFragment() {
             homeViewModel.permissionsWereAsked()
         } else {
             homeViewModel.getNews()
+            maybeRequestLocalNetworkAccess()
         }
     }
 
@@ -611,7 +612,34 @@ class HomeFragment : BaseFragment() {
                 locationViewModel.updateLocationPermissions()
             }
             homeViewModel.getNews() // displaying news after permissions were/were not granted
+            // Requested after the standard batch (not alongside it) so the two dialogs don't overlap.
+            maybeRequestLocalNetworkAccess()
         }
+
+    private var localNetworkAccessRequested = false
+
+    private val resultRequestLocalNetworkAccess =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            // Nothing else to do: if granted, lab measurements against a local server work; if not,
+            // only such local measurements fail - normal (public-server) measurements are unaffected.
+        }
+
+    /**
+     * Android 17 (API 37) "Local Network Protection" gates access to servers on the local network
+     * behind a runtime permission. A lab measurement server lives on the local network, and only
+     * developer-mode users ever point the app at such a server - so the permission is requested
+     * ONLY when developer mode is enabled. Normal users are never prompted.
+     */
+    private fun maybeRequestLocalNetworkAccess() {
+        if (localNetworkAccessRequested) return
+        if (!homeViewModel.isDeveloperModeOn) return
+        if (Build.VERSION.SDK_INT < 37) return // Local Network Protection applies from Android 17
+        val permission = "android.permission.LOCAL_NETWORK_ACCESS"
+        if (checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+            localNetworkAccessRequested = true
+            resultRequestLocalNetworkAccess.launch(permission)
+        }
+    }
 
     override fun onStop() {
         super.onStop()

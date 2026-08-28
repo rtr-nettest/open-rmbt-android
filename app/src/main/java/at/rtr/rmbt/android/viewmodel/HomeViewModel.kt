@@ -103,6 +103,9 @@ class HomeViewModel @Inject constructor(
     val isExpertModeOn: Boolean
         get() = appConfig.expertModeEnabled
 
+    val isDeveloperModeOn: Boolean
+        get() = appConfig.developerModeIsEnabled
+
     val isalwaysAllowCellInfosOn: Boolean
         get() = appConfig.alwaysAllowCellInfos
 
