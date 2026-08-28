@@ -19,6 +19,8 @@ private const val KEY_PROGRESS = "KEY_PROGRESS"
 private const val KEY_DOWNLOAD_UPLOAD_PROGRESS = "KEY_DOWNLOAD_UPLOAD_PROGRESS"
 private const val KEY_DOWNLOAD = "KEY_DOWNLOAD"
 private const val KEY_UPLOAD = "KEY_UPLOAD"
+private const val KEY_DOWNLOAD_FINAL = "KEY_DOWNLOAD_FINAL"
+private const val KEY_UPLOAD_FINAL = "KEY_UPLOAD_FINAL"
 private const val KEY_PING = "KEY_PING"
 private const val KEY_QOS_ENABLED = "KEY_QOS_ENABLED"
 private const val KEY_QOS_TASK_PROGRESS = "QOS_PROGRESS"
@@ -40,6 +42,10 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val measurementDownloadUploadProgress = ObservableInt()
     val downloadSpeedBps = ObservableLong()
     val uploadSpeedBps = ObservableLong()
+    // Final-algorithm values for the displayed numbers (downloadSpeedBps/uploadSpeedBps above stay
+    // the sliding-window values used for the throughput graph).
+    val downloadSpeedBpsFinal = ObservableLong()
+    val uploadSpeedBpsFinal = ObservableLong()
     val pingNanos = ObservableLong()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val signalStrengthInfoResult = ObservableField<SignalStrengthInfo?>()
@@ -108,6 +114,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             measurementDownloadUploadProgress.set(bundle.getInt(KEY_DOWNLOAD_UPLOAD_PROGRESS, 0))
             downloadSpeedBps.set(bundle.getLong(KEY_DOWNLOAD, 0))
             uploadSpeedBps.set(bundle.getLong(KEY_UPLOAD, 0))
+            downloadSpeedBpsFinal.set(bundle.getLong(KEY_DOWNLOAD_FINAL, 0))
+            uploadSpeedBpsFinal.set(bundle.getLong(KEY_UPLOAD_FINAL, 0))
             pingNanos.set(bundle.getLong(KEY_PING, 0))
             qosEnabled.set(bundle.getBoolean(KEY_QOS_ENABLED, false))
             qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
@@ -129,6 +137,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putInt(KEY_DOWNLOAD_UPLOAD_PROGRESS, measurementDownloadUploadProgress.get())
             putLong(KEY_DOWNLOAD, downloadSpeedBps.get())
             putLong(KEY_UPLOAD, uploadSpeedBps.get())
+            putLong(KEY_DOWNLOAD_FINAL, downloadSpeedBpsFinal.get())
+            putLong(KEY_UPLOAD_FINAL, uploadSpeedBpsFinal.get())
             putLong(KEY_PING, pingNanos.get())
             putBoolean(KEY_QOS_ENABLED, qosEnabled.get())
             putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())

@@ -887,6 +887,11 @@ fun MeasurementCurveLayout.setSpeed(speed: Long) {
     setBottomProgress(speed)
 }
 
+@BindingAdapter("speedNumber")
+fun MeasurementCurveLayout.setSpeedNumber(speed: Long) {
+    setBottomSpeedValue(speed)
+}
+
 @BindingAdapter("percentage")
 fun MeasurementCurveLayout.setPercents(percentage: Int) {
     setTopProgress(percentage)

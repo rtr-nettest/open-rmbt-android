@@ -153,6 +153,8 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private var packetLossPercent = 0
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
+    private var downloadSpeedBpsFinal = 0L
+    private var uploadSpeedBpsFinal = 0L
     private var hasErrors = false
     private var startNetwork: Network? = null
     private val lastMeasurementSignal: SignalStrengthInfo?
@@ -259,6 +261,16 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             uploadSpeedBps = speedBitPerSec
             stateRecorder.onUploadSpeedChanged(progress, speedBitPerSec)
             clientAggregator.onUploadSpeedChanged(progress, speedBitPerSec)
+        }
+
+        override fun onDownloadSpeedFinalChanged(speedBitPerSec: Long) {
+            downloadSpeedBpsFinal = speedBitPerSec
+            clientAggregator.onDownloadSpeedFinalChanged(speedBitPerSec)
+        }
+
+        override fun onUploadSpeedFinalChanged(speedBitPerSec: Long) {
+            uploadSpeedBpsFinal = speedBitPerSec
+            clientAggregator.onUploadSpeedFinalChanged(speedBitPerSec)
         }
 
         override fun onFinish() {
@@ -736,6 +748,8 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0, 0)
         testListener.onUploadSpeedChanged(0, 0)
+        testListener.onDownloadSpeedFinalChanged(0)
+        testListener.onUploadSpeedFinalChanged(0)
     }
 
     private fun lock() {
@@ -815,6 +829,8 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
+                onDownloadSpeedFinalChanged(downloadSpeedBpsFinal)
+                onUploadSpeedFinalChanged(uploadSpeedBpsFinal)
                 isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
                     Timber.d("TRS sending result adding client inner class")
@@ -913,6 +929,18 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
                 it.onUploadSpeedChanged(progress, speedBps)
+            }
+        }
+
+        override fun onDownloadSpeedFinalChanged(speedBps: Long) {
+            clients.forEach {
+                it.onDownloadSpeedFinalChanged(speedBps)
+            }
+        }
+
+        override fun onUploadSpeedFinalChanged(speedBps: Long) {
+            clients.forEach {
+                it.onUploadSpeedFinalChanged(speedBps)
             }
         }
 

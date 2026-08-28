@@ -78,6 +78,9 @@ class RMBTClient private constructor(
     private val pingNano = AtomicLong(-1)
     private val downBitPerSec = AtomicLong(-1)
     private val upBitPerSec = AtomicLong(-1)
+    // Final-algorithm counterparts for the displayed numbers (see IntermediateResult).
+    private val downBitPerSecFinal = AtomicLong(-1)
+    private val upBitPerSecFinal = AtomicLong(-1)
     private val jitter = AtomicLong(-1)
     private val jitterStartTime = AtomicLong(-1)
     private val packetLossUp = AtomicLong(-1)
@@ -87,10 +90,6 @@ class RMBTClient private constructor(
     private val pingTsStart = AtomicLong(-1)
     private val pingNumDome = AtomicInteger(-1)
     private val pingTsLastPing = AtomicLong(-1)
-
-    private var lastCounter = 0
-    private val lastTransfer: Array<LongArray>
-    private val lastTime: Array<LongArray>
 
     private val testThreadPool: ExecutorService?
 
@@ -150,9 +149,6 @@ class RMBTClient private constructor(
 
         durationDownNano = params.duration * 1000000000L
         durationUpNano = params.duration * 1000000000L
-
-        lastTransfer = Array(params.numThreads) { LongArray(KEEP_LAST_ENTRIES) }
-        lastTime = Array(params.numThreads) { LongArray(KEEP_LAST_ENTRIES) }
 
         taskDescList = controlConnection?.v2TaskDesc
     }
@@ -251,6 +247,8 @@ class RMBTClient private constructor(
             resetSpeed()
             downBitPerSec.set(-1)
             upBitPerSec.set(-1)
+            downBitPerSecFinal.set(-1)
+            upBitPerSecFinal.set(-1)
             pingNano.set(-1)
 
             val waitTime = params.startTime - System.currentTimeMillis()
@@ -405,6 +403,8 @@ class RMBTClient private constructor(
 
                 downBitPerSec.set(Math.round(result.getDownloadSpeedBitPerSec()))
                 upBitPerSec.set(Math.round(result.getUploadSpeedBitPerSec()))
+                downBitPerSecFinal.set(Math.round(result.getDownloadSpeedBitPerSec()))
+                upBitPerSecFinal.set(Math.round(result.getUploadSpeedBitPerSec()))
 
                 log("end.")
                 status = TestStatus.SPEEDTEST_END
@@ -535,71 +535,50 @@ class RMBTClient private constructor(
     }
 
     private fun resetSpeed() {
-        lastCounter = 0
-    }
-
-    private fun getTotalSpeed(): Float {
-        var sumTrans: Long = 0
-        var maxTime: Long = 0
-
-        val currentSpeed = CurrentSpeed()
-
-        for (i in 0 until params.numThreads) {
-            testTasks!![i]?.let {
-                it.getCurrentSpeed(currentSpeed)
-
-                if (currentSpeed.time > maxTime) {
-                    maxTime = currentSpeed.time
-                }
-                sumTrans += currentSpeed.trans
-            }
-        }
-
-        return if (maxTime == 0L) 0f else sumTrans.toFloat() / maxTime.toFloat() * 1e9f * 8.0f
+        // Start a fresh sample set per phase so the intermediate value is computed only from the
+        // current phase's samples (download, then upload).
+        speedMap.clear()
     }
 
     private val speedMap = HashMap<Int, MutableList<SpeedItem>>()
 
-    private fun getAvgSpeed(): Float {
-        var sumDiffTrans: Long = 0
-        var maxDiffTime: Long = 0
-
+    /** Appends the current per-thread cumulative (time, bytes) sample of the running phase. */
+    private fun collectSpeedSample() {
         val currentSpeed = CurrentSpeed()
-
-        val currentIndex = lastCounter % KEEP_LAST_ENTRIES
-        var diffReferenceIndex = (lastCounter - KEEP_LAST_ENTRIES + 1) % KEEP_LAST_ENTRIES
-        if (diffReferenceIndex < 0) {
-            diffReferenceIndex = 0
-        }
-
-        lastCounter++
-
         for (i in 0 until params.numThreads) {
             testTasks!![i]?.let {
                 it.getCurrentSpeed(currentSpeed)
-
-                lastTime[i][currentIndex] = currentSpeed.time
-                lastTransfer[i][currentIndex] = currentSpeed.trans
-
-                var speedList = speedMap[i]
-                if (speedList == null) {
-                    speedList = ArrayList()
-                    speedMap[i] = speedList
-                }
-
+                val speedList = speedMap.getOrPut(i) { ArrayList() }
                 speedList.add(SpeedItem(false, i, currentSpeed.time, currentSpeed.trans))
-
-                val diffTime = currentSpeed.time - lastTime[i][diffReferenceIndex]
-                val diffTrans = currentSpeed.trans - lastTransfer[i][diffReferenceIndex]
-
-                if (diffTime > maxDiffTime) {
-                    maxDiffTime = diffTime
-                }
-                sumDiffTrans += diffTrans
             }
         }
+    }
 
-        return if (maxDiffTime == 0L) 0f else sumDiffTrans.toFloat() / maxDiffTime.toFloat() * 1e9f * 8.0f
+    /**
+     * Displayed NUMBER value: the FINAL algorithm (TotalTestResult, common-window) applied to all
+     * samples of the current phase so far, so the number converges smoothly to the final result.
+     */
+    private fun getFinalPhaseSpeedBitPerSec(): Double =
+        TotalTestResult.calculateAndGet(speedMap).getDownloadSpeedBitPerSec()
+
+    /**
+     * GRAPH value: the old sliding-window estimate (summed byte delta over the last
+     * [SLIDING_WINDOW_ENTRIES] samples divided by the largest per-thread time delta), so the graph
+     * keeps showing how throughput changes over time.
+     */
+    private fun getSlidingWindowSpeedBitPerSec(): Double {
+        var sumDiffTrans = 0L
+        var maxDiffTime = 0L
+        for ((_, list) in speedMap) {
+            if (list.isEmpty()) continue
+            val last = list[list.size - 1]
+            val ref = list[maxOf(0, list.size - SLIDING_WINDOW_ENTRIES)]
+            val diffTime = last.time - ref.time
+            val diffTrans = last.bytes - ref.bytes
+            if (diffTime > maxDiffTime) maxDiffTime = diffTime
+            sumDiffTrans += diffTrans
+        }
+        return if (maxDiffTime == 0L) 0.0 else sumDiffTrans.toDouble() / maxDiffTime.toDouble() * 1e9 * 8.0
     }
 
     fun getIntermediateResult(iResult: IntermediateResult?): IntermediateResult {
@@ -630,12 +609,16 @@ class RMBTClient private constructor(
             }
             TestStatus.DOWN -> {
                 r.progress = diffTime.toFloat() / durationDownNano
-                downBitPerSec.set(Math.round(getAvgSpeed()).toLong())
+                collectSpeedSample()
+                downBitPerSec.set(Math.round(getSlidingWindowSpeedBitPerSec()))       // graph
+                downBitPerSecFinal.set(Math.round(getFinalPhaseSpeedBitPerSec()))      // number
             }
             TestStatus.INIT_UP -> r.progress = 0f
             TestStatus.UP -> {
                 r.progress = diffTime.toFloat() / durationUpNano
-                upBitPerSec.set(Math.round(getAvgSpeed()).toLong())
+                collectSpeedSample()
+                upBitPerSec.set(Math.round(getSlidingWindowSpeedBitPerSec()))          // graph
+                upBitPerSecFinal.set(Math.round(getFinalPhaseSpeedBitPerSec()))        // number
             }
             TestStatus.SPEEDTEST_END -> r.progress = 1f
             TestStatus.ERROR, TestStatus.ABORTED -> r.progress = 0f
@@ -649,6 +632,8 @@ class RMBTClient private constructor(
         r.pingNano = pingNano.get()
         r.downBitPerSec = downBitPerSec.get()
         r.upBitPerSec = upBitPerSec.get()
+        r.downBitPerSecFinal = downBitPerSecFinal.get()
+        r.upBitPerSecFinal = upBitPerSecFinal.get()
         r.jitter = jitter.get()
         r.packetLossUp = packetLossUp.get()
         r.packetLossDown = packetLossDown.get()
@@ -681,8 +666,11 @@ class RMBTClient private constructor(
             testStatus.set(value)
             statusChangeTime.set(System.nanoTime())
             if (value == TestStatus.INIT_UP) {
-                // DOWN is finished
-                downBitPerSec.set(Math.round(getTotalSpeed()).toLong())
+                // DOWN is finished: fix the displayed download NUMBER to the final-algorithm value
+                // over the whole download phase (matches the final result). The graph value
+                // (downBitPerSec) is left at its last sliding-window sample.
+                val finalDownBitPerSec = TotalTestResult.calculateAndGet(speedMap).getDownloadSpeedBitPerSec()
+                downBitPerSecFinal.set(Math.round(finalDownBitPerSec))
                 resetSpeed()
             }
 
@@ -884,7 +872,9 @@ class RMBTClient private constructor(
 
         private const val MIN_DIFF_TIME = 100000000L // 100 ms
 
-        private const val KEEP_LAST_ENTRIES = 20
+        // Number of recent samples the graph's sliding-window speed is averaged over
+        // (halved from 20 to make the graph react faster to throughput changes).
+        private const val SLIDING_WINDOW_ENTRIES = 10
 
         /*------------------------------------ V2 tests --------------------------------------*/
         const val TASK_UDP = "udp"

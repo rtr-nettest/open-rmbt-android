@@ -156,6 +156,16 @@ abstract class CurvePart {
     }
 
     /**
+     * When true, the static background (sections + labels) is rendered once into [staticBitmap] and
+     * only blitted per frame in updateProgress, instead of being redrawn every frame. Enabled for the
+     * bottom (speed) curve, which animates at up to 60 fps and whose background never changes.
+     */
+    protected open val cachesStaticLayer: Boolean = false
+
+    /** Cached static background (sections + labels), see [cachesStaticLayer]. */
+    protected var staticBitmap: Bitmap? = null
+
+    /**
      * Creates the bitmap with curve background and labels
      */
     private fun createBitmap(size: Int) {
@@ -166,6 +176,15 @@ abstract class CurvePart {
             currentCanvas = canvas
             drawSections(canvas)
             drawText(canvas)
+        }
+
+        if (cachesStaticLayer) {
+            staticBitmap?.recycle()
+            staticBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also { sb ->
+                val staticCanvas = Canvas(sb)
+                drawSections(staticCanvas)
+                drawText(staticCanvas)
+            }
         }
     }
 

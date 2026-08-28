@@ -184,6 +184,7 @@
                 app:percentage="@{state.measurementProgress}"
                 app:qosEnabled="@{state.qosEnabled}"
                 app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
+                app:speedNumber="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBpsFinal : state.downloadSpeedBpsFinal}"
                 app:strength="@{state.signalStrengthInfo}">
 
 

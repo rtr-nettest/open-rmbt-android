@@ -38,6 +38,10 @@ class BottomCurvePart(context: Context) : CurvePart() {
 
     override var phase: MeasurementState = MeasurementState.IDLE
 
+    // The speed scale/labels never change, so cache them and only redraw the moving progress arcs
+    // each frame - drawing the full background (incl. slow drawTextOnPath) at 60 fps caused jitter.
+    override val cachesStaticLayer: Boolean = true
+
     override lateinit var bitmap: Bitmap
 
     /**
@@ -184,8 +188,15 @@ class BottomCurvePart(context: Context) : CurvePart() {
                 PorterDuff.Mode.CLEAR
             )
 
-            drawSections(currentCanvas)
-            drawText(currentCanvas)
+            // Blit the cached static background instead of re-rendering the sections + labels every
+            // frame (the latter includes the slow drawTextOnPath and caused the animation jitter).
+            val cached = staticBitmap
+            if (cached != null) {
+                currentCanvas.drawBitmap(cached, 0f, 0f, null)
+            } else {
+                drawSections(currentCanvas)
+                drawText(currentCanvas)
+            }
 
             currentCanvas.drawArc(
                 cX - largeRadius,

@@ -82,9 +82,14 @@ fun Paint.calcTextHeight(demoText: String): Float {
 }
 
 /**
- * This function is used for format value up-to 2 decimal
+ * Central speed-rounding used for the "normal" (non-expert) display everywhere (measurement screen
+ * bottom values, the S-curve center value, and the non-expert result screen). Values above
+ * 10 Mbit/s are rounded to a whole number (e.g. 123.456 -> "123") so large speeds keep their
+ * magnitude instead of being cut to 2 significant figures (e.g. "120"); values up to 10 keep the
+ * 2-significant-figure format (e.g. 5.678 -> "5.7").
  */
-fun Float.format(): String = DecimalFormat("@@").format(this)
+fun Float.format(): String =
+    if (this > 10f) DecimalFormat("0").format(this) else DecimalFormat("@@").format(this)
 
 /**
  * This function is used for format for experts

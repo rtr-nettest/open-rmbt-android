@@ -23,6 +23,13 @@ class IntermediateResult {
 
     var upBitPerSec: Long = 0
 
+    // "Final-algorithm" values (TotalTestResult common-window over the whole phase so far), used for
+    // the displayed numbers. downBitPerSec/upBitPerSec above stay the sliding-window values used for
+    // the throughput graph.
+    var downBitPerSecFinal: Long = 0
+
+    var upBitPerSecFinal: Long = 0
+
     var status: TestStatus? = null
 
     var progress = 0f

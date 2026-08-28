@@ -213,6 +213,15 @@ class MeasurementViewModel @Inject constructor(
         }
     }
 
+    // Final-algorithm values drive the displayed numbers; the graph keeps the sliding values above.
+    override fun onDownloadSpeedFinalChanged(speedBps: Long) {
+        state.downloadSpeedBpsFinal.set(speedBps)
+    }
+
+    override fun onUploadSpeedFinalChanged(speedBps: Long) {
+        state.uploadSpeedBpsFinal.set(speedBps)
+    }
+
 //    fun setMeasurementResultsShown() {
 //        _measurementResultShownLiveData.value = true
 //    }

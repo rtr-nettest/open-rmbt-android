@@ -267,6 +267,7 @@ class TestControllerImpl(
                 if (!finalUploadValuePosted) {
                     val speed = floor(client.totalTestResult.speed_upload + 0.5).toLong() * 1000
                     _listener?.onUploadSpeedChanged(-1, speed)
+                    _listener?.onUploadSpeedFinalChanged(speed)
                     finalUploadValuePosted = true
                 }
 
@@ -384,6 +385,7 @@ class TestControllerImpl(
                 }
                 val value = result.downBitPerSec
                 _listener?.onDownloadSpeedChanged(progress, value)
+                _listener?.onDownloadSpeedFinalChanged(result.downBitPerSecFinal)
                 previousDownloadProgress = progress
             }
         }
@@ -414,6 +416,7 @@ class TestControllerImpl(
                 }
                 val value = result.downBitPerSec
                 _listener?.onDownloadSpeedChanged(progress, value)
+                _listener?.onDownloadSpeedFinalChanged(result.downBitPerSecFinal)
                 previousJitterProgress = progress
             }
         }
@@ -434,6 +437,7 @@ class TestControllerImpl(
             val value = result.upBitPerSec
             Timber.e("Progressy2: ${result.upBitPerSec} - $value")
             _listener?.onUploadSpeedChanged(progress, value)
+            _listener?.onUploadSpeedFinalChanged(result.upBitPerSecFinal)
             previousUploadProgress = progress
         }
 
@@ -441,6 +445,7 @@ class TestControllerImpl(
             val value = result.downBitPerSec
             Timber.w("Progressy2: ${result.upBitPerSec} - $value")
             _listener?.onDownloadSpeedChanged(-1, value)
+            _listener?.onDownloadSpeedFinalChanged(result.downBitPerSecFinal)
             finalDownloadValuePosted = true
         }
     }

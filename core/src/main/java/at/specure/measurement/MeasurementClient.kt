@@ -13,6 +13,12 @@ interface MeasurementClient {
 
     fun onUploadSpeedChanged(progress: Int, speedBps: Long)
 
+    /** Final-algorithm value for the displayed download number (graph keeps the sliding value). */
+    fun onDownloadSpeedFinalChanged(speedBps: Long) {}
+
+    /** Final-algorithm value for the displayed upload number (graph keeps the sliding value). */
+    fun onUploadSpeedFinalChanged(speedBps: Long) {}
+
     fun onPingChanged(pingNanos: Long)
 
     fun onJitterChanged(jitterNanos: Long)

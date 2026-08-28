@@ -17,6 +17,12 @@ interface TestProgressListener {
 
     fun onUploadSpeedChanged(progress: Int, speedBitPerSec: Long)
 
+    /** Final-algorithm value for the displayed download number (graph keeps the sliding value). */
+    fun onDownloadSpeedFinalChanged(speedBitPerSec: Long) {}
+
+    /** Final-algorithm value for the displayed upload number (graph keeps the sliding value). */
+    fun onUploadSpeedFinalChanged(speedBitPerSec: Long) {}
+
     fun onFinish()
 
     /**

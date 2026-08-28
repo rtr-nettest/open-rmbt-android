@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.Choreographer
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -42,7 +43,16 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var isQoSEnabled = false
 
     private var currentTopProgress = 0
+    // Displayed (eased) arc value; chases [targetBottomProgress] frame-by-frame.
     private var currentBottomProgress = 0L
+    // Latest sliding-window value from the ~100ms poll; the poll only writes this (no animator churn).
+    private var targetBottomProgress = 0L
+    // Final-algorithm value shown as the numeric speed in the middle of the curve (not animated),
+    // so it matches the bottom-view numbers instead of the sliding value driving the arc.
+    private var currentBottomSpeedValue = 0L
+    // Frame-synced ticker that eases the arc toward the target, decoupled from the data poll so the
+    // animation setup never collides with the measurement work on the main thread. Display-only.
+    private var bottomTickerRunning = false
 
     private var loopState: LoopModeState = LoopModeState.RUNNING
 
@@ -175,6 +185,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             }
 
             setBottomProgress(currentBottomProgress)
+            setBottomSpeedValue(currentBottomSpeedValue)
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
@@ -205,6 +216,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         updateLoopRelatedData()
         setTopProgress(currentTopProgress)
         setBottomProgress(currentBottomProgress)
+        setBottomSpeedValue(currentBottomSpeedValue)
     }
 
     /**
@@ -272,21 +284,88 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     }
 
     /**
-     * Update the bottom part UI according to progress changing
+     * Entry point for a new speed value (called ~every 100 ms from the data poll). It only records
+     * the target and makes sure the frame ticker is running - it does NOT create/cancel an animator
+     * per call, so the animation no longer contends with the measurement work on the main thread.
+     * A frame-synced ticker ([bottomTickerCallback]) then eases the arc toward the target.
+     * Non-speed phases apply immediately.
      */
     fun setBottomProgress(progress: Long) {
+        targetBottomProgress = progress
+        val isSpeedPhase = phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD
+        if (!isSpeedPhase) {
+            stopBottomTicker()
+            currentBottomProgress = progress
+            applyBottomProgress(progress)
+            return
+        }
+        if (!bottomTickerRunning && currentBottomProgress != targetBottomProgress) {
+            bottomTickerRunning = true
+            Choreographer.getInstance().postFrameCallback(bottomTickerCallback)
+        }
+    }
+
+    /**
+     * Runs once per display frame while the arc is catching up to [targetBottomProgress]. Uses simple
+     * exponential easing so a jumping target produces smooth motion; stops itself once the arc reaches
+     * the target (idle), and is restarted by [setBottomProgress] when a new, different value arrives.
+     */
+    private val bottomTickerCallback = object : Choreographer.FrameCallback {
+        override fun doFrame(frameTimeNanos: Long) {
+            val diff = targetBottomProgress - currentBottomProgress
+            val step = (diff * BOTTOM_PROGRESS_SMOOTHING).toLong()
+            val next = if (step == 0L) targetBottomProgress else currentBottomProgress + step
+            if (next != currentBottomProgress) {
+                currentBottomProgress = next
+                applyBottomProgress(currentBottomProgress)
+            }
+            if (bottomTickerRunning && currentBottomProgress != targetBottomProgress) {
+                Choreographer.getInstance().postFrameCallback(this)
+            } else {
+                bottomTickerRunning = false
+            }
+        }
+    }
+
+    private fun stopBottomTicker() {
+        if (bottomTickerRunning) {
+            Choreographer.getInstance().removeFrameCallback(bottomTickerCallback)
+            bottomTickerRunning = false
+        }
+    }
+
+    /**
+     * Moves the arc of the bottom "S"-curve. Driven by the sliding-window value and animated, so the
+     * arc shows how throughput changes over time. The numeric speed is set separately (and unanimated)
+     * via [setBottomSpeedValue] so the two "current speed" numbers on screen agree.
+     */
+    private fun applyBottomProgress(progress: Long) {
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
             currentBottomProgress = progress
             curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
-            val progressInMbps: Float = progress / 1000000.0f
+        } else {
+            currentBottomProgress = 0
+            curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
+        }
+    }
+
+    /**
+     * Sets the numeric speed shown in the middle of the bottom "S"-curve. Uses the FINAL-algorithm
+     * value (like the bottom-view numbers) rather than the sliding value driving the arc, so both
+     * "current speed" numbers agree. Not animated - it is a stable number.
+     */
+    fun setBottomSpeedValue(value: Long) {
+        currentBottomSpeedValue = value
+        if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
+            val speedInMbps: Float = value / 1000000.0f
             speedLayout.icon.setImageResource(
                 if (phase == MeasurementState.DOWNLOAD)
-                    getDownloadSpeedIconOrUnknown(progressInMbps)
+                    getDownloadSpeedIconOrUnknown(speedInMbps)
                 else {
-                    getUploadSpeedIconOrUnknown(progressInMbps)
+                    getUploadSpeedIconOrUnknown(speedInMbps)
                 }
             )
-            speedLayout.value.text = progressInMbps.format()
+            speedLayout.value.text = speedInMbps.format()
             speedLayout.units.text = context.getString(R.string.speed_progress_units)
             // In landscape, re-center the speed value on the bottom loop center as its width
             // changes with the value (portrait keeps its fixed position from the size callback).
@@ -299,14 +378,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                     speedLayout.root.requestLayout()
                 }
             }
-            if (progress != 0L) {
+            if (value != 0L) {
                 speedLayout.root.visibility = View.VISIBLE
                 updateLoopRelatedData()
             }
         } else {
-            currentBottomProgress = 0
             speedLayout.units.text = ""
-            curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
         }
     }
 
@@ -338,6 +415,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     }
 
     fun setMeasurementState(state: MeasurementState) {
+        // Leaving a speed phase: stop the arc ticker so it can't keep running against a stale target.
+        if (state != MeasurementState.DOWNLOAD && state != MeasurementState.UPLOAD) {
+            stopBottomTicker()
+        }
         phase = state
         curveBinding.curveView.setMeasurementState(state)
     }
@@ -367,6 +448,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         if (loopState == LoopModeState.IDLE) {
             setTopProgress(0)
             setBottomProgress(0)
+            setBottomSpeedValue(0)
             percentageLayout.root.visibility = View.INVISIBLE
             speedLayout.root.visibility = View.INVISIBLE
             dashBottomLayout.root.visibility = View.VISIBLE
@@ -381,7 +463,16 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         }
     }
 
+    override fun onDetachedFromWindow() {
+        stopBottomTicker()
+        super.onDetachedFromWindow()
+    }
+
     companion object {
+        // Per-frame easing factor for the arc chasing the latest value: at ~60 fps the arc reaches a
+        // new target in ~150-200 ms, smooth without lagging noticeably behind the ~100 ms samples.
+        private const val BOTTOM_PROGRESS_SMOOTHING = 0.25f
+
         private const val LEFT_MARGIN_DIVIDER = 2
         private const val TOP_MARGIN_DIVIDER = 8
 
