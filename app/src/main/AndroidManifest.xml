@@ -14,7 +14,7 @@
          permission - it is only ever requested (see HomeFragment) when developer mode is enabled, so
          normal users are never prompted. -->
     <uses-permission
-        android:name="android.permission.LOCAL_NETWORK_ACCESS"
+        android:name="android.permission.ACCESS_LOCAL_NETWORK"
         android:minSdkVersion="37" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission

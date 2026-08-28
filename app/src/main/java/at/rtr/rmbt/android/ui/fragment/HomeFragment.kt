@@ -634,7 +634,7 @@ class HomeFragment : BaseFragment() {
         if (localNetworkAccessRequested) return
         if (!homeViewModel.isDeveloperModeOn) return
         if (Build.VERSION.SDK_INT < 37) return // Local Network Protection applies from Android 17
-        val permission = "android.permission.LOCAL_NETWORK_ACCESS"
+        val permission = "android.permission.ACCESS_LOCAL_NETWORK"
         if (checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
             localNetworkAccessRequested = true
             resultRequestLocalNetworkAccess.launch(permission)
