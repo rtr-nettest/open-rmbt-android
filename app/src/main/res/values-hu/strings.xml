@@ -399,7 +399,6 @@
     <string name="coverage_measurement_error_title">Jelszintmérés hiba</string>
     <string name="coverage_measurement_error_unknown">Hiba történt a jelszintmérés során. Kérjük, próbálja újra.</string>
     <string name="dismiss">Bezárás</string>
-    <string name="wrong_network_message">Jelenleg %1$s hálózatot használ. Kérjük, váltson mobiladat-kapcsolatra.</string>
     <string name="signal_result_title">Jelszintmérés eredménye</string>
     <string name="text_fence_radius">Pont sugarának tényezője:</string>
     <string name="text_meters">%1$dm</string>

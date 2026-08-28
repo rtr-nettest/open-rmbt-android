@@ -386,7 +386,6 @@
     <string name="coverage_measurement_error_title">Erreur de mesure de signal</string>
     <string name="coverage_measurement_error_unknown">Une erreur s\'est produite lors de la mesure de signal. Veuillez réessayer.</string>
     <string name="dismiss">Ignorer</string>
-    <string name="wrong_network_message">Vous êtes actuellement sur %1$s. Veuillez passer à une connexion de données mobiles.</string>
     <string name="signal_result_title">Résultat de la mesure de signal</string>
     <string name="text_fence_radius">Facteur de rayon de point :</string>
     <string name="text_meters">%1$dm</string>

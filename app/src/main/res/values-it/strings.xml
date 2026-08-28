@@ -399,7 +399,6 @@
     <string name="coverage_measurement_error_title">Errore di misurazione del segnale</string>
     <string name="coverage_measurement_error_unknown">Si è verificato un errore durante la misurazione del segnale. Si prega di riprovare.</string>
     <string name="dismiss">Ignora</string>
-    <string name="wrong_network_message">Sei connesso a %1$s. Si prega di passare a una connessione dati mobile.</string>
     <string name="signal_result_title">Risultato misurazione segnale</string>
     <string name="text_fence_radius">Fattore raggio punto:</string>
     <string name="text_meters">%1$dm</string>

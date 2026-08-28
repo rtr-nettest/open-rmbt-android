@@ -386,7 +386,6 @@
     <string name="coverage_measurement_error_title">خطأ في قياس الإشارة</string>
     <string name="coverage_measurement_error_unknown">حدث خطأ أثناء قياس الإشارة. يرجى المحاولة مرة أخرى.</string>
     <string name="dismiss">رفض</string>
-    <string name="wrong_network_message">أنت الآن على %1$s. يرجى التبديل إلى اتصال بيانات الجوال.</string>
     <string name="signal_result_title">نتيجة قياس الإشارة</string>
     <string name="text_fence_radius">عامل نصف قطر النقطة:</string>
     <string name="text_meters">%1$dm</string>

@@ -81,10 +81,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     private lateinit var binding: ActivitySignalMeasurementBinding
     private var map: GoogleMap? = null
     private var infoWindowMarker: Marker? = null
-    private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
     private var showMeasurementResultsJob: Job? = null
     private var updateUnfinishedMeasurementJob: Job? = null
+    private var wrongNetworkAlertActive = false
     private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
@@ -244,7 +244,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         hideWarningButton()
         hideDialog()
         setMyPositionAndButtonVisible(false)
-        hideNetworkWarningSnackbar()
+        clearWrongNetworkAlert()
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
@@ -262,13 +262,36 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
         setSettingsButtonVisible(true)
-        checkNetwork(coverageMeasurementData?.currentNetworkInfo)
-        setInfoVisible(true)
         setResultTitleVisible(false)
+        updateSendingResultsInfo(coverageMeasurementData?.sendingResults ?: false)
+
+        val onMobileNetwork =
+            networkValidator.isNetworkToBeLogged(coverageMeasurementData?.currentNetworkInfo)
+        if (!onMobileNetwork) {
+            // Not on a mobile network (e.g. WiFi on): the measurement can't run. Remove all the
+            // (now meaningless) measurement info at the top and show an alert - the same overlay as
+            // the "No GPS" alert. The GPS warning handling is skipped so the two alerts don't fight
+            // over the shared overlay.
+            setInfoVisible(false)
+            hideWarningButton()
+            showWrongNetworkAlert()
+            updateUnfinishedMeasurementJob?.cancel()
+            updateUnfinishedMeasurementJob = lifecycleScope.launch {
+                coverageViewModel.updateMapPoints(
+                    map,
+                    coverageMeasurementData?.fences.toCoverageResultItemRecords(),
+                    coverageMeasurementData?.state
+                )
+            }
+            return
+        }
+
+        // On a mobile network: show the usual measurement info and dismiss the wrong-network alert.
+        clearWrongNetworkAlert()
+        setInfoVisible(true)
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
-        updateSendingResultsInfo(coverageMeasurementData?.sendingResults ?: false)
         // Launch a coroutine to safely update the map
         updateUnfinishedMeasurementJob?.cancel()
         updateUnfinishedMeasurementJob = lifecycleScope.launch {
@@ -525,41 +548,30 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 //            centerMapOnLocation()
     }
 
-    private fun checkNetwork(networkInfo: NetworkInfo?) {
-        if (!networkValidator.isNetworkToBeLogged(networkInfo = networkInfo)) {
-            val message = getString(
-                R.string.wrong_network_message,
-                coverageViewModel.getCurrentNetworkTypeName(networkInfo)
-            )
-            showNetworkWarningIfNotSilenced(binding.root, message)
-        } else {
-            hideNetworkWarningSnackbar()
+    /**
+     * Shows the "please switch off WiFi" alert, reusing the same overlay as the No-GPS alert. Kept
+     * idempotent (via [wrongNetworkAlertActive]) so it isn't re-shown on every data update, which
+     * would also override a dismissal by the user.
+     */
+    private fun showWrongNetworkAlert() {
+        if (wrongNetworkAlertActive) return
+        wrongNetworkAlertActive = true
+        binding.warningMessageTitle.text =
+            ContextCompat.getString(this, R.string.wrong_network_type_active_dialog_title)
+        binding.warningMessageContent.text =
+            ContextCompat.getString(this, R.string.wrong_network_type_active_dialog_text)
+        binding.warningMessageAction.visibility = View.GONE
+        binding.warningMessageCancel.text = ContextCompat.getString(this, R.string.confirm)
+        binding.warningMessageCancel.setOnClickListener {
+            binding.warningMessage.visibility = View.GONE
         }
+        binding.warningMessage.visibility = View.VISIBLE
     }
 
-    fun showNetworkWarningIfNotSilenced(view: View, message: String) {
-        if (!viewModel.state.networkWarningDialogSilenced.get()) {
-            showNetworkWarningSnackbar(view, message)
-        }
-    }
-
-    fun showNetworkWarningSnackbar(view: View, message: String) {
-        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) return
-        if (warningSnackbar?.isShownOrQueued == true) return
-
-        warningSnackbar = createErrorSnackbar(
-            message,
-            R.string.dismiss,
-            {
-                viewModel.silenceNetworkWarning()
-            }
-        )
-
-        warningSnackbar?.show()
-    }
-
-    fun hideNetworkWarningSnackbar() {
-        warningSnackbar?.dismiss()
+    private fun clearWrongNetworkAlert() {
+        if (!wrongNetworkAlertActive) return
+        wrongNetworkAlertActive = false
+        binding.warningMessage.visibility = View.GONE
     }
 
     private fun showWarningButton() {
