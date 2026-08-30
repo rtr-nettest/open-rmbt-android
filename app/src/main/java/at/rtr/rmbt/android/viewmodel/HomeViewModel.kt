@@ -12,6 +12,7 @@ import at.rmbt.client.control.ControlServerModule
 import at.rmbt.client.control.IpProtocol
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
+import at.rtr.rmbt.android.location.LocationModule
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
@@ -41,12 +42,16 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.time.Duration.Companion.milliseconds
 
 const val LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS = 60_000L
 
 class HomeViewModel @Inject constructor(
     private val locationWatcher: LocationWatcher,
+    // GNSS-only watcher (reported source "gps"). The signal (coverage) measurement uses GPS only,
+    // so its start precheck must be evaluated against this watcher, never the combined one.
+    @Named(LocationModule.GPS_LOCATION) private val gpsLocationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -80,6 +85,13 @@ class HomeViewModel @Inject constructor(
 
     val locationLiveData: LiveData<LocationInfo?>
         get() = locationWatcher.liveData
+
+    /**
+     * GNSS-only location. Observing this (e.g. from the home screen) keeps the GPS source warm so the
+     * signal-measurement start precheck can be evaluated against a real "gps" fix.
+     */
+    val gpsLocationLiveData: LiveData<LocationInfo?>
+        get() = gpsLocationWatcher.liveData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -316,12 +328,19 @@ class HomeViewModel @Inject constructor(
      * Uses exactly the same minimum quality that is required for a fix to be usable DURING the
      * measurement: not older than [Config.maxAgeOfLocationInformationForSignalMeasurementMillis] and
      * accuracy better than [Config.minLocationAccuracyMetersDuringSignalMeasurement].
+     *
+     * The signal measurement uses GNSS only, so this is evaluated against the GPS-only watcher - never
+     * the combined one, which could otherwise green-light a start on a network/fused fix.
      */
     fun isGpsQualitySufficientForSignalMeasurement(): Boolean {
-        val location = locationLiveData.value ?: return false
+        val location = currentGpsLocation() ?: return false
         if (!location.hasAccuracy) return false
         val ageMillis = location.ageNanos / 1_000_000L
         return location.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement &&
             ageMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
     }
+
+    /** Latest GNSS-only fix, or null. Prefers the observed LiveData value, falling back to the hot one. */
+    fun currentGpsLocation(): LocationInfo? =
+        gpsLocationLiveData.value ?: gpsLocationWatcher.latestLocation
 }

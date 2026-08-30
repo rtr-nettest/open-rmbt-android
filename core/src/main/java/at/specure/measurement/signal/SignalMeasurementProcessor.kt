@@ -29,6 +29,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 const val MAXIMUM_TIME_NETWORK_KEEP_MILLS = 3000
@@ -37,7 +38,8 @@ const val MAXIMUM_TIME_LOCATION_KEEP_MILLS = 3000
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
     private val context: Context,
-    private val locationWatcher: LocationWatcher,
+    // The signal measurement must use GNSS only (reported source "gps"), not the combined watcher.
+    @Named("gps-location") private val locationWatcher: LocationWatcher,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
 ) : Binder(), SignalMeasurementProducer, CoroutineScope {

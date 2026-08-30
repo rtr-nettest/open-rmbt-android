@@ -99,4 +99,5 @@
     <color name="location_button_red">#cf0c0c</color>
     <color name="location_button_grey">#AEACAC</color>
     <color name="location_button_green">#45C317</color>
+    <color name="location_button_yellow">#ffbe0d</color>
 </resources>

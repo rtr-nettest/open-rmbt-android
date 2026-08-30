@@ -139,6 +139,13 @@ class HomeFragment : BaseFragment() {
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
+        // Observing the GPS-only watcher keeps its GNSS source warm on the home screen so the
+        // signal-measurement start precheck (which must not use the combined fix) has a fresh value.
+        homeViewModel.gpsLocationLiveData.listen(this) {
+            dismissSignalNotPossibleDialogIfConditionsMet()
+            evaluateCoverageMeasurementStartingConditionsForButton()
+        }
+
         homeViewModel.signalStrengthLiveData.listen(this) { newNetworkInfo ->
             val networkInfo = newNetworkInfo?.copy()
             Timber.d("Signal strength changed 1")
@@ -391,7 +398,8 @@ class HomeFragment : BaseFragment() {
     private fun evaluateCoverageMeasurementStartingConditionsForButton(): Boolean {
         updateLocationButtonState()
         val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
-        val locationAccuracy = homeViewModel.locationLiveData.value?.accuracy
+        // Signal measurement is GNSS-only: gate the green start button on the GPS-only fix.
+        val locationAccuracy = homeViewModel.currentGpsLocation()?.accuracy
         val isPassed = locationAccuracy?.let { accuracy ->
             accuracy < COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON && prechecksFulfilled
         } ?: false
@@ -400,19 +408,21 @@ class HomeFragment : BaseFragment() {
     }
 
     /**
-     * Colours the location button:
-     *  - RED   : the fine-location permission is not granted
-     *  - GREY  : permission granted but there is no GPS fix good enough for a signal measurement
-     *            (same accuracy/age limit as the signal measurement)
-     *  - GREEN : a fix meeting the signal-measurement accuracy/age limit is available
+     * Colours the location button according to the (combined) location currently reported:
+     *  - RED    : the fine-location permission is not granted
+     *  - GREEN  : a GPS (GNSS) fix is available (combined location reports "gps")
+     *  - YELLOW : only a network / fused fix is available
+     *  - GREY   : permission granted but no location available at all
      */
     private fun updateLocationButtonState() {
         val ctx = context ?: return
         val hasFineLocation = ctx.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        val provider = homeViewModel.locationLiveData.value?.provider
         val colorRes = when {
             !hasFineLocation -> R.color.location_button_red
-            !homeViewModel.isGpsQualitySufficientForSignalMeasurement() -> R.color.location_button_grey
-            else -> R.color.location_button_green
+            provider == null -> R.color.location_button_grey
+            provider.equals("gps", ignoreCase = true) -> R.color.location_button_green
+            else -> R.color.location_button_yellow // network or fused
         }
         binding.btnLocation.imageTintList =
             ColorStateList.valueOf(ContextCompat.getColor(ctx, colorRes))
