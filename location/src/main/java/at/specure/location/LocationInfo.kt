@@ -4,6 +4,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import androidx.core.location.LocationCompat
 import at.specure.location.LocationInfo.LocationCardinalDirections.EAST
 import at.specure.location.LocationInfo.LocationCardinalDirections.NORTH
 import at.specure.location.LocationInfo.LocationCardinalDirections.SOUTH
@@ -158,8 +159,17 @@ class LocationInfo {
         providerRaw = location.provider ?: "UNKNOWN"
         locationIsMocked = location.isFromMockProvider
 
-        hasAltitude = location.hasAltitude()
-        altitude = location.altitude
+        // Prefer the orthometric height (Mean Sea Level altitude) over the WGS84 ellipsoidal height
+        // returned by Location.getAltitude(). LocationCompat.getMslAltitudeMeters() surfaces the native
+        // value on Android 14+ and the value written by AltitudeConverter (via AltitudeEnricher) on
+        // older devices; fall back to the ellipsoidal altitude when no MSL value is available.
+        if (LocationCompat.hasMslAltitude(location)) {
+            hasAltitude = true
+            altitude = LocationCompat.getMslAltitudeMeters(location)
+        } else {
+            hasAltitude = location.hasAltitude()
+            altitude = location.altitude
+        }
 
         hasBearing = location.hasBearing()
         bearing = location.bearing

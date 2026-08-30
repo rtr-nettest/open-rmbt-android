@@ -20,6 +20,7 @@ class GPSLocationSource(val context: Context) : LocationSource {
 
     private val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var listener: LocationSource.Listener? = null
+    private val altitudeEnricher = AltitudeEnricher(context)
     private var _satellitesCount = 0
 
     override val satellitesCount: Int
@@ -63,7 +64,11 @@ class GPSLocationSource(val context: Context) : LocationSource {
     private val locationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
-            listener?.onLocationChanged(location?.let { LocationInfo(it) })
+            listener?.onLocationChanged(LocationInfo(location))
+            // Re-deliver with the orthometric (MSL) height once converted (pre-Android-14 devices).
+            altitudeEnricher.enrich(location) { enriched ->
+                listener?.onLocationChanged(LocationInfo(enriched))
+            }
         }
 
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
