@@ -151,9 +151,15 @@ class HomeActivity : BaseActivity() {
         // If a regular measurement finished while the app was in the background, the measurement
         // screen may have been stopped or cleared (HomeActivity is singleTask, so resuming via the
         // launcher icon brings us here directly). Open the results that are still waiting to be shown.
-        viewModel.config.pendingResultTestUUID?.let { testUUID ->
+        val pendingResult = viewModel.config.pendingResultTestUUID
+        if (pendingResult != null) {
             viewModel.config.pendingResultTestUUID = null
-            ResultsActivity.start(this, testUUID, ResultsActivity.ReturnPoint.HOME)
+            ResultsActivity.start(this, pendingResult, ResultsActivity.ReturnPoint.HOME)
+        } else if (viewModel.shouldRestoreSignalMeasurementScreen()) {
+            // Same singleTask situation for the signal (coverage) measurement: it is running or its
+            // finished result is still being shown, so re-open that screen instead of leaving the
+            // user on Home (bug: the result/session was lost on resume).
+            SignalMeasurementActivity.startForRestore(this)
         }
     }
 

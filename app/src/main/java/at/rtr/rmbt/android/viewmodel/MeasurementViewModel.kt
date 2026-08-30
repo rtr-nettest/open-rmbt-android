@@ -13,6 +13,8 @@ import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.android.util.timeString
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
+import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
+import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
@@ -33,8 +35,18 @@ class MeasurementViewModel @Inject constructor(
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val config: AppConfig,
-    private val tac: TermsAndConditions
+    private val tac: TermsAndConditions,
+    private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor
 ) : BaseViewModel(), MeasurementClient {
+
+    /**
+     * True while a dedicated signal measurement is running or its finished result is still being
+     * shown (not dismissed). HomeActivity uses it to re-open the signal measurement screen after
+     * resuming via the launcher (HomeActivity is singleTask, so that resume lands on Home and clears
+     * the signal screen).
+     */
+    fun shouldRestoreSignalMeasurementScreen(): Boolean =
+        rtrCoverageMeasurementProcessor.stateManager.state.value.state != CoverageMeasurementState.IDLE
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _measurementCancelledLiveData = MutableLiveData<Boolean>()

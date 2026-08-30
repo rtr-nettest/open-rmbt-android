@@ -550,6 +550,13 @@ class CoverageResultViewModel @Inject constructor(
         Timber.d("Current last state of data: ${coverageMeasurementDataLiveData.value?.state}")
         return measurementNotFinishedOrNotStarted
     }
+
+    /**
+     * Reads the current coverage-measurement state synchronously from the (hot) processor state flow.
+     * Unlike [coverageMeasurementDataLiveData] (cold until observed) this is safe to call in onCreate.
+     */
+    fun currentMeasurementState(): CoverageMeasurementState =
+        rtrCoverageMeasurementProcessor.stateManager.state.value.state
 }
 
 fun FencesResultItemRecord.toLatLng(): LatLng? {
