@@ -93,4 +93,10 @@
 
     <color name="snackbar_error_background">#EEF2F3F5</color>
     <color name="snackbar_error_text">#cf0c0c</color>
+
+    <!-- Location button states: red = no fine-location permission, grey = permission but no
+         sufficiently accurate GPS fix, green = accurate fix (signal-measurement accuracy limit). -->
+    <color name="location_button_red">#cf0c0c</color>
+    <color name="location_button_grey">#AEACAC</color>
+    <color name="location_button_green">#45C317</color>
 </resources>

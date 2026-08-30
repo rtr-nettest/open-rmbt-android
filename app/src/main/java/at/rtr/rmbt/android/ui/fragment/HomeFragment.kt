@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
+import android.content.res.ColorStateList
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
@@ -204,6 +205,12 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnLocation.setOnClickListener {
+            if (context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) != true) {
+                // RED state: no fine-location permission - reuse the existing permission dialog
+                // (leads to the app settings) instead of a plain message.
+                OpenLocationPermissionDialog.instance().show(activity)
+                return@setOnClickListener
+            }
 
             val action = {
                 LocationInfoDialog.instance().show(activity)
@@ -382,6 +389,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun evaluateCoverageMeasurementStartingConditionsForButton(): Boolean {
+        updateLocationButtonState()
         val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
         val locationAccuracy = homeViewModel.locationLiveData.value?.accuracy
         val isPassed = locationAccuracy?.let { accuracy ->
@@ -389,6 +397,25 @@ class HomeFragment : BaseFragment() {
         } ?: false
         homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
         return isPassed
+    }
+
+    /**
+     * Colours the location button:
+     *  - RED   : the fine-location permission is not granted
+     *  - GREY  : permission granted but there is no GPS fix good enough for a signal measurement
+     *            (same accuracy/age limit as the signal measurement)
+     *  - GREEN : a fix meeting the signal-measurement accuracy/age limit is available
+     */
+    private fun updateLocationButtonState() {
+        val ctx = context ?: return
+        val hasFineLocation = ctx.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        val colorRes = when {
+            !hasFineLocation -> R.color.location_button_red
+            !homeViewModel.isGpsQualitySufficientForSignalMeasurement() -> R.color.location_button_grey
+            else -> R.color.location_button_green
+        }
+        binding.btnLocation.imageTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(ctx, colorRes))
     }
 
     private fun isSignalMeasurementPrechecksPassed(showDialogs: Boolean = true): Boolean {
