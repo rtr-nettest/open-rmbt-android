@@ -12,9 +12,11 @@ import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.android.util.timeString
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.TermsAndConditions
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
+import at.specure.worker.WorkLauncher
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
@@ -36,7 +38,8 @@ class MeasurementViewModel @Inject constructor(
     val signalStrengthLiveData: SignalStrengthLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions,
-    private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor
+    private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
+    private val coverageMeasurementSettings: CoverageMeasurementSettings
 ) : BaseViewModel(), MeasurementClient {
 
     /**
@@ -47,6 +50,33 @@ class MeasurementViewModel @Inject constructor(
      */
     fun shouldRestoreSignalMeasurementScreen(): Boolean =
         rtrCoverageMeasurementProcessor.stateManager.state.value.state != CoverageMeasurementState.IDLE
+
+    /**
+     * Recovers a dedicated signal (coverage) measurement that was interrupted by process death - a
+     * crash, force-stop, app reinstall, or an OS low-memory kill - rather than a clean in-app stop.
+     *
+     * Such a kill never runs the normal finish path ([RtrCoverageMeasurementProcessor] `finally` →
+     * `onStopMeasurementSession()`), and the service is `START_NOT_STICKY`, so nothing finalizes the
+     * loop. The persisted flags in [CoverageMeasurementSettings] still say a measurement is running,
+     * which (a) makes [CoverageSyncWorker] skip forever (it early-returns while `signalMeasurementIsRunning`
+     * is true), leaving the recorded fences unsent, and (b) makes the next start continue the dead
+     * loop (wrong, e.g. "1h", duration).
+     *
+     * The in-memory checks from the earlier lifecycle fix cannot see this: after the kill the recreated
+     * processor is [CoverageMeasurementState.IDLE]. The tell-tale is the mismatch: persisted "running"
+     * is true while the live processor is IDLE. When detected, clear the stale flags and enqueue the
+     * sync worker to submit the orphaned fences. Safe to call on every resume: during a genuinely live
+     * measurement the processor is not IDLE, so this is a no-op, and once reconciled the flag is false.
+     */
+    fun reconcileInterruptedSignalMeasurement(context: Context) {
+        val processorIsIdle =
+            rtrCoverageMeasurementProcessor.stateManager.state.value.state == CoverageMeasurementState.IDLE
+        if (coverageMeasurementSettings.signalMeasurementIsRunning && processorIsIdle) {
+            Timber.w("Signal measurement was interrupted by process death - reconciling: clearing stale run/continue flags and syncing orphaned fences")
+            coverageMeasurementSettings.onStopMeasurementSession()
+            WorkLauncher.enqueueCoverageSyncRequest(context)
+        }
+    }
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _measurementCancelledLiveData = MutableLiveData<Boolean>()

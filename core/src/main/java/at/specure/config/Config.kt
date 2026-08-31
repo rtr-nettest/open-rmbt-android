@@ -489,9 +489,21 @@ interface Config {
     var minDistanceFactorCoverageMeasurement: Int
 
     /**
-     * Minimum location accuracy during signal measurement in meters
+     * Minimum location accuracy during signal measurement in meters.
+     *
+     * This is a per-session tuning value only: it is deliberately NOT persisted, so a value the user
+     * tightened during one measurement (e.g. an unreachable 3 m) can never carry over and block the
+     * start of the next one. It starts from, and can be restored to, the build default via
+     * [resetMinLocationAccuracyMetersDuringSignalMeasurementToDefault].
      */
     var minLocationAccuracyMetersDuringSignalMeasurement: Int
+
+    /**
+     * Restores [minLocationAccuracyMetersDuringSignalMeasurement] to its built-in (BuildConfig)
+     * default. Called at measurement start and end so each session begins from the default and the
+     * start screen always evaluates against the default.
+     */
+    fun resetMinLocationAccuracyMetersDuringSignalMeasurementToDefault()
 
     /**
      * Maximum age of the location information for signal measurement in milliseconds to take it into processing

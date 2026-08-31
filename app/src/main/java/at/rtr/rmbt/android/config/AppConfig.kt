@@ -51,9 +51,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     }
 
     private fun setInt(configValue: ConfigValue, value: Int) {
-        preferences.edit()
-            .putInt(configValue.name, value)
-            .apply()
+        preferences.edit { putInt(configValue.name, value) }
     }
 
     private fun getLong(configValue: ConfigValue, serverValue: Long? = null): Long {
@@ -61,9 +59,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     }
 
     private fun setLong(configValue: ConfigValue, value: Long) {
-        preferences.edit()
-            .putLong(configValue.name, value)
-            .apply()
+        preferences.edit { putLong(configValue.name, value) }
     }
 
     private fun getString(configValue: ConfigValue, serverValue: String? = null): String {
@@ -71,9 +67,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     }
 
     private fun setString(configValue: ConfigValue, value: String) {
-        preferences.edit()
-            .putString(configValue.name, value)
-            .apply()
+        preferences.edit { putString(configValue.name, value) }
     }
 
     private fun getBoolean(configValue: ConfigValue, serverValue: Boolean? = null): Boolean {
@@ -81,9 +75,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     }
 
     private fun setBoolean(configValue: ConfigValue, value: Boolean) {
-        preferences.edit()
-            .putBoolean(configValue.name, value)
-            .apply()
+        preferences.edit { putBoolean(configValue.name, value) }
     }
 
     override var NDTEnabled: Boolean
@@ -108,9 +100,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var lastQosTestExecutionTimestampMillis: Long
         get() = preferences.getLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, 0)
-        set(value) = preferences.edit()
-            .putLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, value)
-            .apply()
+        set(value) = preferences.edit { putLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, value) }
 
     override var shouldRunQosTest: Boolean
         get() = (!skipQoSTests && (!skipQoSTestsForPeriod || (skipQoSTestsForPeriod && (System.currentTimeMillis() - lastQosTestExecutionTimestampMillis >= skipQoSTestsPeriodMinutes * 60 * 1000))))
@@ -122,9 +112,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var historyCacheInvalidated: Boolean
         get() = preferences.getBoolean(KEY_HISTORY_CACHE_INVALIDATED, false)
-        set(value) = preferences.edit()
-            .putBoolean(KEY_HISTORY_CACHE_INVALIDATED, value)
-            .apply()
+        set(value) = preferences.edit { putBoolean(KEY_HISTORY_CACHE_INVALIDATED, value) }
 
     override var loopModeEnabled: Boolean
         get() = getBoolean(BuildConfig.LOOP_MODE_ENABLED)
@@ -188,9 +176,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var expertModeUseIpV6Only: Boolean
         get() = preferences.getBoolean(KEY_EXPERT_MODE_IPV6_ONLY, false)
-        set(value) = preferences.edit()
-            .putBoolean(KEY_EXPERT_MODE_IPV6_ONLY, value)
-            .apply()
+        set(value) = preferences.edit { putBoolean(KEY_EXPERT_MODE_IPV6_ONLY, value) }
 
     override var controlServerUseSSL: Boolean
         get() = getBoolean(BuildConfig.CONTROL_SERVER_USE_SSL)
@@ -218,9 +204,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var measurementTag: String?
         get() = preferences.getString(KEY_MEASUREMENT_TAG, null)
-        set(value) = preferences.edit()
-            .putString(KEY_MEASUREMENT_TAG, value)
-            .apply()
+        set(value) = preferences.edit { putString(KEY_MEASUREMENT_TAG, value) }
 
     override var controlServerCheckPrivateIPv4Host: String
         get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST, serverSettings.controlServerV4Url)
@@ -284,21 +268,15 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
-        set(value) = preferences.edit()
-            .putInt(KEY_TEST_COUNTER, value)
-            .apply()
+        set(value) = preferences.edit { putInt(KEY_TEST_COUNTER, value) }
 
     override var previousTestStatus: String? // can be null before first test
         get() = preferences.getString(KEY_PREVIOUS_TEST_STATUS, null)
-        set(value) = preferences.edit()
-            .putString(KEY_PREVIOUS_TEST_STATUS, value)
-            .apply()
+        set(value) = preferences.edit { putString(KEY_PREVIOUS_TEST_STATUS, value) }
 
     override var pendingResultTestUUID: String? // null when there is no result waiting to be shown
         get() = preferences.getString(KEY_PENDING_RESULT_TEST_UUID, null)
-        set(value) = preferences.edit()
-            .putString(KEY_PENDING_RESULT_TEST_UUID, value)
-            .apply()
+        set(value) = preferences.edit { putString(KEY_PENDING_RESULT_TEST_UUID, value) }
 
     override var capabilitiesRmbtHttp: Boolean
         get() = getBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP)
@@ -456,32 +434,22 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var lastPermissionAskedTimestampMillis: Long
         get() = preferences.getLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
-        set(value) = preferences.edit()
-            .putLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
-            .apply()
+        set(value) = preferences.edit { putLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value) }
     override var lastNotificationPermissionAskedTimestampMillis: Long
         get() = preferences.getLong(KEY_LAST_NOTIFICATION_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
-        set(value) = preferences.edit()
-            .putLong(KEY_LAST_NOTIFICATION_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
-            .apply()
+        set(value) = preferences.edit { putLong(KEY_LAST_NOTIFICATION_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value) }
 
     override var lastBackgroundPermissionAskedTimestampMillis: Long
         get() = preferences.getLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
-        set(value) = preferences.edit()
-            .putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
-            .apply()
+        set(value) = preferences.edit { putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value) }
 
     override var persistentClientUUIDEnabled: Boolean
         get() = preferences.getBoolean(KEY_PERSISTENT_CLIENT_UUID_ENABLED, true)
-        set(value) = preferences.edit()
-            .putBoolean(KEY_PERSISTENT_CLIENT_UUID_ENABLED, value)
-            .apply()
+        set(value) = preferences.edit { putBoolean(KEY_PERSISTENT_CLIENT_UUID_ENABLED, value) }
 
     override var analyticsEnabled: Boolean
         get() = preferences.getBoolean(KEY_ANALYTICS_ENABLED, false)
-        set(value) = preferences.edit()
-            .putBoolean(KEY_ANALYTICS_ENABLED, value)
-            .apply()
+        set(value) = preferences.edit { putBoolean(KEY_ANALYTICS_ENABLED, value) }
 
     override var headerValue: String
         get() = getString(BuildConfig.REQUEST_HEADER_VALUE)
@@ -517,9 +485,20 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             putInt(KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR, value)
         }
 
+    /** Built-in default location accuracy for signal measurement, from BuildConfig. */
+    private val defaultMinLocationAccuracyMetersDuringSignalMeasurement: Int
+        get() = BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT.value.toInt()
+
     override var minLocationAccuracyMetersDuringSignalMeasurement: Int
-        get() = getInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT)
-        set(value) = setInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT, value)
+        get() = sessionMinLocationAccuracyMetersOverride
+            ?: defaultMinLocationAccuracyMetersDuringSignalMeasurement
+        set(value) {
+            sessionMinLocationAccuracyMetersOverride = value
+        }
+
+    override fun resetMinLocationAccuracyMetersDuringSignalMeasurementToDefault() {
+        sessionMinLocationAccuracyMetersOverride = null
+    }
 
     override var maxAgeOfLocationInformationForSignalMeasurementMillis: Long
         get() = getLong(BuildConfig.MAX_LOCATION_AGE_MILLIS_SIGNAL_MEASUREMENT)
@@ -536,4 +515,20 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var shouldRequestBackgroundLocation: Boolean
         get() = getBoolean(BuildConfig.SHOULD_REQUEST_BACKGROUND_LOCATION)
         set(value) = setBoolean(BuildConfig.SHOULD_REQUEST_BACKGROUND_LOCATION, value)
+
+    companion object {
+        /**
+         * Per-session, process-wide override for [minLocationAccuracyMetersDuringSignalMeasurement].
+         *
+         * Held here (class level) rather than per instance because the concrete [AppConfig] type is
+         * injected in several places and is NOT a DI singleton - each injection is a distinct object.
+         * A shared field keeps the settings dialog, the start-screen prechecks, the during-measurement
+         * validators and the accuracy highlight all reading the same value. It is in-memory only
+         * (never persisted): null means "use the build default", it resets to null on process restart,
+         * and is reset to null at the start-screen boundary so a too-strict value can never block a
+         * future start.
+         */
+        @Volatile
+        private var sessionMinLocationAccuracyMetersOverride: Int? = null
+    }
 }

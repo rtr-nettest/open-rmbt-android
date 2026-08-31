@@ -222,6 +222,17 @@ class HomeViewModel @Inject constructor(
         return producer?.activeStateLiveData
     }
 
+    /**
+     * Drops any in-session location-accuracy tuning so the start screen always evaluates against the
+     * build default. The value is per-session and in-memory only; because [AppConfig] is an
+     * app-scoped singleton it would otherwise linger from one measurement to the next within the same
+     * process and could re-block the next start (e.g. a user-set, unreachable 3 m). Called from the
+     * start screen's onResume.
+     */
+    fun resetSignalMeasurementAccuracyToDefault() {
+        appConfig.resetMinLocationAccuracyMetersDuringSignalMeasurementToDefault()
+    }
+
     fun attach(context: Context) {
         context.bindService(SignalMeasurementService.intent(context), serviceConnection, Context.BIND_AUTO_CREATE)
     }
@@ -290,6 +301,17 @@ class HomeViewModel @Inject constructor(
 
     fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
         coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
+    }
+
+    /**
+     * Clears the "continue in last session" state so the next measurement starts a brand-new loop
+     * (with its own start time / duration) instead of continuing a previous one. Used when the user
+     * explicitly starts a new dedicated measurement; a still-running measurement is resumed through a
+     * different path and is not affected.
+     */
+    fun startFreshSignalMeasurementSession() {
+        coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = false
+        coverageMeasurementSettings.signalMeasurementLastMeasurementId = null
     }
 
     fun syncCoverageOnRequests(context: Context) {

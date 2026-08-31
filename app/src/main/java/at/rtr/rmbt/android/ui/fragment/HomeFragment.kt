@@ -43,8 +43,6 @@ import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
 import kotlin.math.max
 
-private const val COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON = 20
-
 class HomeFragment : BaseFragment() {
 
     private val homeViewModel: HomeViewModel by viewModelLazy()
@@ -276,6 +274,11 @@ class HomeFragment : BaseFragment() {
                 if (!active) {
                     val checksPassed = isSignalMeasurementPrechecksPassed()
                     if (checksPassed) {
+                        // This is a brand-new measurement (no measurement is active). Never continue a
+                        // previous loop - a stale continue-flag from an earlier loop that did not end
+                        // cleanly would otherwise reuse its old loop start time and show a wrong
+                        // (e.g. "1h") duration. A fresh loop starts its own clock.
+                        homeViewModel.startFreshSignalMeasurementSession()
                         openSignalMeasurementTermsActivity()
                     }
                 }
@@ -382,6 +385,9 @@ class HomeFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
+        // Start screen always uses the build-default accuracy limit: clear any per-session override
+        // left over from a previous measurement so a too-strict value can never block a new start.
+        homeViewModel.resetSignalMeasurementAccuracyToDefault()
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
 
@@ -397,12 +403,10 @@ class HomeFragment : BaseFragment() {
 
     private fun evaluateCoverageMeasurementStartingConditionsForButton(): Boolean {
         updateLocationButtonState()
-        val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
-        // Signal measurement is GNSS-only: gate the green start button on the GPS-only fix.
-        val locationAccuracy = homeViewModel.currentGpsLocation()?.accuracy
-        val isPassed = locationAccuracy?.let { accuracy ->
-            accuracy < COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON && prechecksFulfilled
-        } ?: false
+        // The prechecks already require the GNSS-only fix to meet the build-config accuracy limit
+        // (minLocationAccuracyMetersDuringSignalMeasurement) - the single source of truth - so no
+        // separate hardcoded accuracy gate is needed here.
+        val isPassed = isSignalMeasurementPrechecksPassed(false)
         homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
         return isPassed
     }
