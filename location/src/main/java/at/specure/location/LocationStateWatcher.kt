@@ -69,8 +69,8 @@ class LocationStateWatcher(private val context: Context) : DeviceLocationStateWa
 
     fun addListener(listener: Listener) {
         synchronized(monitor) {
-            listeners.add(listener)
-            if (listeners.size == 1) {
+            // Attach to the device watcher only on the genuine 0 -> 1 transition.
+            if (listeners.add(listener) && listeners.size == 1) {
                 deviceStateWatcher.addListener(this)
             }
             listener.onLocationStateChanged(state)
@@ -79,8 +79,9 @@ class LocationStateWatcher(private val context: Context) : DeviceLocationStateWa
 
     fun removeListener(listener: Listener) {
         synchronized(monitor) {
-            listeners.remove(listener)
-            if (listeners.isEmpty()) {
+            // Detach only when this call actually emptied the set, so a repeated removal does not
+            // propagate a second unregister down to the device watcher.
+            if (listeners.remove(listener) && listeners.isEmpty()) {
                 deviceStateWatcher.removeListener(this)
             }
         }
