@@ -54,7 +54,7 @@ private const val CODE_LOOP_FINISHED = 2
 private const val TAG_LOOP_FINISHED = "LOOP_FINISHED_DIALOG"
 
 /** Only show the GPS speed once it exceeds this (km/h); at or below it the readout is hidden. */
-private const val SPEED_MIN_KMH = 0.99f
+private const val SPEED_MIN_KMH = 1.9f
 
 /** Hide the GPS speed once its fix is older than this (15 s). */
 private const val SPEED_MAX_AGE_NANOS = 15_000_000_000L
