@@ -128,7 +128,7 @@ private fun buildPrimaryCellInfo(info: DetailedNetworkInfo?): String? {
                     infoLine("NR-ARFCN", nr.getEuBand()?.channelNumber)
                 )
                 if (nrLines.isNotEmpty()) {
-                    lines += "5G NR"
+                    lines += "5G NR:"
                     lines += nrLines
                 }
             }
