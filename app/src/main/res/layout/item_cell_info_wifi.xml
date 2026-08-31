@@ -18,6 +18,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="wifiSignal"
             type="Integer" />
@@ -156,6 +158,7 @@
             android:gravity="end|center_vertical"
             android:text="@string/measurement_down"
             android:textColor="@color/text_gray_transparency_60"
+            android:visibility="@{wifiRxLinkSpeed == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
@@ -171,6 +174,7 @@
             android:gravity="end|center_vertical"
             android:text="@string/measurement_up"
             android:textColor="@color/text_gray_transparency_60"
+            android:visibility="@{wifiTxLinkSpeed == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
@@ -267,6 +271,7 @@
             android:gravity="start|center_vertical"
             android:text="@{wifiRxLinkSpeed}"
             android:textColor="@color/text_black_transparency_60"
+            android:visibility="@{wifiRxLinkSpeed == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintBaseline_toBaselineOf="@+id/labelrxlinkspeed"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="7"
@@ -283,6 +288,7 @@
             android:gravity="start|center_vertical"
             android:text="@{wifiTxLinkSpeed}"
             android:textColor="@color/text_black_transparency_60"
+            android:visibility="@{wifiTxLinkSpeed == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintBaseline_toBaselineOf="@+id/labeltxlinkspeed"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="7"
