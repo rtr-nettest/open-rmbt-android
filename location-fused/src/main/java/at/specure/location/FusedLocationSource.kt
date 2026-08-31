@@ -50,7 +50,10 @@ class FusedLocationSource(context: Context) : LocationSource {
                 }
             }
             Timber.e("location update: GET FETCHED SOURCE!")
-            return location?.let { LocationInfo(it) }
+            return location?.let {
+                altitudeEnricher.enrichBlocking(it)
+                LocationInfo(it)
+            }
         }
 
     private val locationRequest = LocationRequest().apply {
@@ -62,18 +65,18 @@ class FusedLocationSource(context: Context) : LocationSource {
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
-            val rawLocation = result.lastLocation
-            latestLocation = rawLocation?.let { LocationInfo(it) }
-
             Timber.d("location update: fused location result ${result.toString()}")
-            listener?.onLocationChanged(latestLocation)
-
-            rawLocation?.let { raw ->
-                altitudeEnricher.enrich(raw) { enriched ->
-                    val enrichedInfo = LocationInfo(enriched)
-                    latestLocation = enrichedInfo
-                    listener?.onLocationChanged(enrichedInfo)
-                }
+            val rawLocation = result.lastLocation
+            if (rawLocation == null) {
+                latestLocation = null
+                listener?.onLocationChanged(null)
+                return
+            }
+            // Deliver once, with the orthometric (MSL) height already applied when convertible.
+            altitudeEnricher.enrich(rawLocation) { finalLocation ->
+                val info = LocationInfo(finalLocation)
+                latestLocation = info
+                listener?.onLocationChanged(info)
             }
         }
     }

@@ -38,7 +38,10 @@ class NetworkLocationSource(val context: Context) : LocationSource {
                 null
             } else {
                 val location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                location?.let { LocationInfo(it) }
+                location?.let {
+                    altitudeEnricher.enrichBlocking(it)
+                    LocationInfo(it)
+                }
             }
         } catch (ex: Exception) {
             Timber.e(ex, "Failed to get last known network location")
@@ -51,9 +54,9 @@ class NetworkLocationSource(val context: Context) : LocationSource {
     private val locationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
-            listener?.onLocationChanged(LocationInfo(location))
-            altitudeEnricher.enrich(location) { enriched ->
-                listener?.onLocationChanged(LocationInfo(enriched))
+            // Deliver once, with the orthometric (MSL) height already applied when convertible.
+            altitudeEnricher.enrich(location) { finalLocation ->
+                listener?.onLocationChanged(LocationInfo(finalLocation))
             }
         }
 

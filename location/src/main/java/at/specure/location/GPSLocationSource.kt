@@ -94,7 +94,10 @@ class GPSLocationSource(val context: Context) : LocationSource {
                 null
             } else {
                 val location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                location?.let { LocationInfo(it, latestGnssSignals) }
+                location?.let {
+                    altitudeEnricher.enrichBlocking(it)
+                    LocationInfo(it, latestGnssSignals)
+                }
             }
         } catch (ex: Exception) {
             if (ex is CancellationException) {
@@ -107,10 +110,10 @@ class GPSLocationSource(val context: Context) : LocationSource {
     private val locationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
-            listener?.onLocationChanged(LocationInfo(location, latestGnssSignals))
-            // Re-deliver with the orthometric (MSL) height once converted (pre-Android-14 devices).
-            altitudeEnricher.enrich(location) { enriched ->
-                listener?.onLocationChanged(LocationInfo(enriched, latestGnssSignals))
+            // Deliver once, with the orthometric (MSL) height already applied (native on Android 14+,
+            // converted on older devices).
+            altitudeEnricher.enrich(location) { finalLocation ->
+                listener?.onLocationChanged(LocationInfo(finalLocation, latestGnssSignals))
             }
         }
 
