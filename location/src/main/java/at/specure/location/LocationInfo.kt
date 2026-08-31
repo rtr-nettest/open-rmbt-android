@@ -140,7 +140,14 @@ class LocationInfo {
      */
     val time: Long
 
-    constructor(location: Location) {
+    /**
+     * Per-GNSS-constellation baseband C/N0 summary (5th-highest reading per system, best first), or
+     * null when not available (non-GPS sources, or before any GnssStatus was received).
+     */
+    val gnssSignals: List<GnssConstellationSignal>?
+
+    constructor(location: Location, gnssSignals: List<GnssConstellationSignal>? = null) {
+        this.gnssSignals = gnssSignals
         latitudeDirection = assignLatitudeDirection(location.latitude)
         longitudeDirection = assignLongitudeDirection(location.longitude)
 
@@ -265,6 +272,8 @@ class LocationInfo {
         this.systemMillisTime = System.currentTimeMillis()
 
         this.time = time
+
+        this.gnssSignals = null
     }
 
     private fun formatSatellites(extras: Bundle?): Int {

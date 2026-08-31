@@ -109,12 +109,15 @@
     <string name="label_server_selection">Serverauswahl</string>
     <string name="preferences_tag">Kennzeichen</string>
     <string name="location_dialog_label_title">Standort</string>
-    <string name="location_dialog_label_position">Standort</string>
+    <string name="location_dialog_label_latitude">Breite</string>
+    <string name="location_dialog_label_longitude">Länge</string>
     <string name="location_dialog_label_accuracy">Genauigkeit</string>
     <string name="location_dialog_label_age">Aktualität</string>
     <string name="location_dialog_label_source">Quelle</string>
     <string name="location_dialog_label_altitude">Höhe</string>
     <string name="location_dialog_label_speed">Geschwindigkeit</string>
+    <string name="location_dialog_label_signal">Signal (%1$s)</string>
+    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
     <string name="location_dialog_label_satellites">Satelliten</string>
     <string name="location_dialog_label_location_progress_message">Der Standort wird bestimmt, bitte warten…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Standort nicht verfügbar. Möchten Sie die Standorteinstellungen ändern?</string>

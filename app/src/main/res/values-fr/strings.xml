@@ -95,12 +95,15 @@
     <string name="label_server_selection">Sélection du serveur</string>
     <string name="preferences_tag">Étiquette</string>
     <string name="location_dialog_label_title">Localisation</string>
-    <string name="location_dialog_label_position">Position</string>
+    <string name="location_dialog_label_latitude">Latitude</string>
+    <string name="location_dialog_label_longitude">Longitude</string>
     <string name="location_dialog_label_accuracy">Précision</string>
     <string name="location_dialog_label_age">Âge</string>
     <string name="location_dialog_label_source">Source</string>
     <string name="location_dialog_label_altitude">Altitude</string>
     <string name="location_dialog_label_speed">Vitesse</string>
+    <string name="location_dialog_label_signal">Signal (%1$s)</string>
+    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
     <string name="location_dialog_label_satellites">Satellites</string>
     <string name="location_dialog_label_location_progress_message">Détermination de la localisation, veuillez patienter…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Les services de localisation ne sont pas activés. Souhaitez-vous modifier les paramètres de localisation ?</string>

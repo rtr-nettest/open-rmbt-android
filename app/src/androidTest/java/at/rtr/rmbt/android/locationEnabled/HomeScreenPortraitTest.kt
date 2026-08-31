@@ -51,6 +51,6 @@ open class HomeScreenPortraitTest : BaseHomeActivityTest() {
     fun checkLocationDialogIsDisplayed() {
         Espresso.onView(ViewMatchers.withId(R.id.btnLocation)).perform(click())
         Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_title)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_position)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_latitude)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 }

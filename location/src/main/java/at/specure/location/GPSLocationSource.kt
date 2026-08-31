@@ -8,10 +8,15 @@ import android.location.GnssStatus
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import timber.log.Timber
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.roundToInt
+
+/** Minimum satellites a constellation must report before its C/N0 is shown (5th-highest is used). */
+private const val MIN_SATELLITES_PER_CONSTELLATION = 5
 
 /**
  * [LocationSource] that is used to provide location changes using GPS Provider
@@ -23,19 +28,57 @@ class GPSLocationSource(val context: Context) : LocationSource {
     private val altitudeEnricher = AltitudeEnricher(context)
     private var _satellitesCount = 0
 
+    @Volatile
+    private var latestGnssSignals: List<GnssConstellationSignal>? = null
+
     override val satellitesCount: Int
         get() = _satellitesCount
 
     private val gnssStatusCallback = object : GnssStatus.Callback() {
         override fun onSatelliteStatusChanged(status: GnssStatus) {
             var count = 0
+            // Collect the baseband C/N0 of every satellite, grouped by constellation.
+            val cn0ByConstellation = HashMap<Int, MutableList<Float>>()
             for (i in 0 until status.satelliteCount) {
                 if (status.usedInFix(i)) {
                     count++
                 }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && status.hasBasebandCn0DbHz(i)) {
+                    cn0ByConstellation.getOrPut(status.getConstellationType(i)) { mutableListOf() }
+                        .add(status.getBasebandCn0DbHz(i).toFloat())
+                }
             }
             _satellitesCount = count
+            latestGnssSignals = computeConstellationSignals(cn0ByConstellation)
         }
+    }
+
+    /**
+     * For each constellation with at least [MIN_SATELLITES_PER_CONSTELLATION] satellites, takes the
+     * 5th-highest baseband C/N0 as its representative value. Constellations whose representative value
+     * rounds to 0 dB-Hz are dropped; the result is sorted best (highest) first.
+     */
+    private fun computeConstellationSignals(
+        cn0ByConstellation: Map<Int, List<Float>>
+    ): List<GnssConstellationSignal> =
+        cn0ByConstellation
+            .filterValues { it.size >= MIN_SATELLITES_PER_CONSTELLATION }
+            .map { (type, values) ->
+                val fifthHighest = values.sortedDescending()[MIN_SATELLITES_PER_CONSTELLATION - 1]
+                GnssConstellationSignal(constellationName(type), fifthHighest.roundToInt())
+            }
+            .filter { it.cn0DbHz > 0 }
+            .sortedByDescending { it.cn0DbHz }
+
+    private fun constellationName(type: Int): String = when (type) {
+        GnssStatus.CONSTELLATION_GPS -> "GPS"
+        GnssStatus.CONSTELLATION_GLONASS -> "GLONASS"
+        GnssStatus.CONSTELLATION_GALILEO -> "Galileo"
+        GnssStatus.CONSTELLATION_BEIDOU -> "BeiDou"
+        GnssStatus.CONSTELLATION_QZSS -> "QZSS"
+        GnssStatus.CONSTELLATION_SBAS -> "SBAS"
+        GnssStatus.CONSTELLATION_IRNSS -> "NavIC"
+        else -> "Unknown"
     }
 
     override val location: LocationInfo?
@@ -51,7 +94,7 @@ class GPSLocationSource(val context: Context) : LocationSource {
                 null
             } else {
                 val location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                location?.let { LocationInfo(it) }
+                location?.let { LocationInfo(it, latestGnssSignals) }
             }
         } catch (ex: Exception) {
             if (ex is CancellationException) {
@@ -64,10 +107,10 @@ class GPSLocationSource(val context: Context) : LocationSource {
     private val locationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
-            listener?.onLocationChanged(LocationInfo(location))
+            listener?.onLocationChanged(LocationInfo(location, latestGnssSignals))
             // Re-deliver with the orthometric (MSL) height once converted (pre-Android-14 devices).
             altitudeEnricher.enrich(location) { enriched ->
-                listener?.onLocationChanged(LocationInfo(enriched))
+                listener?.onLocationChanged(LocationInfo(enriched, latestGnssSignals))
             }
         }
 
