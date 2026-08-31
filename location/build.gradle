@@ -48,6 +48,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
     implementation "com.jakewharton.timber:timber:$versions.timber"
     implementation "androidx.appcompat:appcompat:$versions.appcompat"
+    // LocationCompat (getMslAltitudeMeters, native on API 34+) + coroutines for the MSL converter.
+    implementation "androidx.core:core-ktx:$versions.androidx_core"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
+    // Orthometric height (MSL) conversion on devices before Android 14.
+    implementation "androidx.core:core-location-altitude:$versions.core_location_altitude"
     implementation "androidx.test.ext:junit-ktx:$versions.kotlin_junit"
     implementation "com.google.android.gms:play-services-maps:$versions.google_services"
 }

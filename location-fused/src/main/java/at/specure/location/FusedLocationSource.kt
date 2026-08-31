@@ -19,6 +19,7 @@ private const val LATEST_LOCATION_MAX_AGE_SEC = 30L
 class FusedLocationSource(context: Context) : LocationSource {
 
     private val manager = LocationServices.getFusedLocationProviderClient(context)
+    private val altitudeEnricher = AltitudeEnricher(context)
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private val monitor: java.lang.Object = Any() as java.lang.Object
@@ -61,11 +62,19 @@ class FusedLocationSource(context: Context) : LocationSource {
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
-            val location = result.lastLocation?.let { LocationInfo(it) }
-            latestLocation = location
+            val rawLocation = result.lastLocation
+            latestLocation = rawLocation?.let { LocationInfo(it) }
 
             Timber.d("location update: fused location result ${result.toString()}")
             listener?.onLocationChanged(latestLocation)
+
+            rawLocation?.let { raw ->
+                altitudeEnricher.enrich(raw) { enriched ->
+                    val enrichedInfo = LocationInfo(enriched)
+                    latestLocation = enrichedInfo
+                    listener?.onLocationChanged(enrichedInfo)
+                }
+            }
         }
     }
 

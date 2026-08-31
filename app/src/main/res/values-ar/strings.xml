@@ -95,12 +95,15 @@
     <string name="label_server_selection">اختيار الخادم</string>
     <string name="preferences_tag">وسم</string>
     <string name="location_dialog_label_title">الموقع</string>
-    <string name="location_dialog_label_position">الموضع</string>
+    <string name="location_dialog_label_latitude">خط العرض</string>
+    <string name="location_dialog_label_longitude">خط الطول</string>
     <string name="location_dialog_label_accuracy">الدقة</string>
     <string name="location_dialog_label_age">العمر</string>
     <string name="location_dialog_label_source">المصدر</string>
     <string name="location_dialog_label_altitude">الارتفاع</string>
     <string name="location_dialog_label_speed">السرعة</string>
+    <string name="location_dialog_label_signal">الإشارة (%1$s)</string>
+    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
     <string name="location_dialog_label_satellites">الأقمار الاصطناعية</string>
     <string name="location_dialog_label_location_progress_message">جارٍ تحديد الموقع، يرجى الانتظار…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">خدمات الموقع غير مفعّلة. هل تريد تعديل إعدادات الموقع؟</string>

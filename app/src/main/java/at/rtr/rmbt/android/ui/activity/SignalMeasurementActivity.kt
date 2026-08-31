@@ -103,6 +103,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         binding.isActive = false
         binding.isPaused = false
 
+        // If this instance was freshly created (e.g. the previous one was cleared by the singleTask
+        // resume) and the user re-selected signal measurement, discard the old finished result before
+        // the state is observed below so a new measurement starts. A restore launch keeps the result.
+        discardFinishedResultUnlessRestoring(intent)
+
         setFullscreen()
         updateMeasurementInfoCardMargin()
 
@@ -705,13 +710,24 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        // The activity is singleTask, so re-selecting "signal measurement" returns to this same
-        // (possibly finished) instance instead of creating a new one. If the previous measurement
-        // has already finished and is only being displayed, the user explicitly asked for a new
-        // measurement: discard the shown result so the following onStart() starts a fresh one
-        // (shouldRunCoverageMeasurement() only returns true once the finished state is cleared).
-        // A still-running measurement is left untouched, so re-selecting just returns to it.
-        if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+        discardFinishedResultUnlessRestoring(intent)
+    }
+
+    /**
+     * When the screen is (re-)entered while a finished result is shown, decide whether to keep it or
+     * start fresh:
+     *  - A restore launch from HomeActivity (after the singleTask resume cleared this screen) keeps
+     *    the finished result on screen.
+     *  - Any other launch means the user re-selected "signal measurement" to run a NEW one, so the
+     *    finished result is discarded and the following onStart() starts a fresh measurement
+     *    (shouldRunCoverageMeasurement() only returns true once the finished state is cleared).
+     * A still-running measurement is never touched. Uses the synchronous state (safe in onCreate).
+     */
+    private fun discardFinishedResultUnlessRestoring(intent: Intent) {
+        val isRestore = intent.getBooleanExtra(EXTRA_RESTORE_RESULT, false)
+        if (!isRestore &&
+            coverageViewModel.currentMeasurementState() == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        ) {
             coverageViewModel.onFinishedResultLeft()
             coverageViewModel.clearMeasurementData()
             coverageViewModel.clearPerformanceImprovementLists(map)
@@ -892,8 +908,18 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
     companion object {
 
+        // Marks a launch as "restore the currently shown result/session" (from HomeActivity after a
+        // singleTask resume) rather than "the user wants a new measurement".
+        private const val EXTRA_RESTORE_RESULT = "EXTRA_RESTORE_RESULT"
+
         fun start(context: Context) =
             context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
+
+        fun startForRestore(context: Context) =
+            context.startActivity(
+                Intent(context, SignalMeasurementActivity::class.java)
+                    .putExtra(EXTRA_RESTORE_RESULT, true)
+            )
     }
 }
 

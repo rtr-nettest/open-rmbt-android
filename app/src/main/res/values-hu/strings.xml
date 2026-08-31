@@ -108,12 +108,15 @@
     <string name="label_server_selection">Szerver kiválasztás</string>
     <string name="preferences_tag">Címke</string>
     <string name="location_dialog_label_title">Helyszín</string>
-    <string name="location_dialog_label_position">Pozíció</string>
+    <string name="location_dialog_label_latitude">Szélesség</string>
+    <string name="location_dialog_label_longitude">Hosszúság</string>
     <string name="location_dialog_label_accuracy">Pontosság</string>
     <string name="location_dialog_label_age">Adatrögzítés ideje</string>
     <string name="location_dialog_label_source">Forrás</string>
     <string name="location_dialog_label_altitude">Magasság</string>
     <string name="location_dialog_label_speed">Sebesség</string>
+    <string name="location_dialog_label_signal">Jel (%1$s)</string>
+    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
     <string name="location_dialog_label_satellites">Műholdak</string>
     <string name="location_dialog_label_location_progress_message">Helymeghatározás folyamatban, kérem, várjon!</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Helymeghatározási szolgáltatás nem elérhető, kívánja engedélyezni?</string>

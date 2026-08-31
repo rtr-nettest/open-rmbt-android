@@ -25,6 +25,7 @@ buildscript {
                 appcompat           : '1.7.1',           // latest stable; rel. 2025-04 (~1.2y)
                 // Latest compatible with AGP 8.13.2. core 1.17.0+ require AGP 9.1+ (1.19.0 = latest, rel. 2026-06).
                 androidx_core       : '1.16.0',          // rel. 2025-03 (~1.2y) — capped by AGP, not age
+                core_location_altitude : '1.0.0-alpha01', // MSL (orthometric) altitude converter; only release, rel. 2024-09
                 androidx_preference : '1.2.1',           // latest (no newer release); rel. 2023-04 (~3y) — aging but current
                 material            : '1.14.0',          // latest stable; rel. ~2026 (<0.5y) — fresh
                 constraint_layout   : '2.2.1',           // latest stable; rel. ~2025-01 (~1.4y)

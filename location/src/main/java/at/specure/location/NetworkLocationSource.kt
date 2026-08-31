@@ -19,6 +19,7 @@ class NetworkLocationSource(val context: Context) : LocationSource {
 
     private val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var listener: LocationSource.Listener? = null
+    private val altitudeEnricher = AltitudeEnricher(context)
 
     override val satellitesCount: Int
         get() = 0
@@ -51,6 +52,9 @@ class NetworkLocationSource(val context: Context) : LocationSource {
 
         override fun onLocationChanged(location: Location) {
             listener?.onLocationChanged(LocationInfo(location))
+            altitudeEnricher.enrich(location) { enriched ->
+                listener?.onLocationChanged(LocationInfo(enriched))
+            }
         }
 
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}

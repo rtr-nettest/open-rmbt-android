@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
+import android.content.res.ColorStateList
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
@@ -138,6 +139,13 @@ class HomeFragment : BaseFragment() {
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
+        // Observing the GPS-only watcher keeps its GNSS source warm on the home screen so the
+        // signal-measurement start precheck (which must not use the combined fix) has a fresh value.
+        homeViewModel.gpsLocationLiveData.listen(this) {
+            dismissSignalNotPossibleDialogIfConditionsMet()
+            evaluateCoverageMeasurementStartingConditionsForButton()
+        }
+
         homeViewModel.signalStrengthLiveData.listen(this) { newNetworkInfo ->
             val networkInfo = newNetworkInfo?.copy()
             Timber.d("Signal strength changed 1")
@@ -204,6 +212,12 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnLocation.setOnClickListener {
+            if (context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) != true) {
+                // RED state: no fine-location permission - reuse the existing permission dialog
+                // (leads to the app settings) instead of a plain message.
+                OpenLocationPermissionDialog.instance().show(activity)
+                return@setOnClickListener
+            }
 
             val action = {
                 LocationInfoDialog.instance().show(activity)
@@ -382,13 +396,36 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun evaluateCoverageMeasurementStartingConditionsForButton(): Boolean {
+        updateLocationButtonState()
         val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
-        val locationAccuracy = homeViewModel.locationLiveData.value?.accuracy
+        // Signal measurement is GNSS-only: gate the green start button on the GPS-only fix.
+        val locationAccuracy = homeViewModel.currentGpsLocation()?.accuracy
         val isPassed = locationAccuracy?.let { accuracy ->
             accuracy < COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON && prechecksFulfilled
         } ?: false
         homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
         return isPassed
+    }
+
+    /**
+     * Colours the location button according to the (combined) location currently reported:
+     *  - RED    : the fine-location permission is not granted
+     *  - GREEN  : a GPS (GNSS) fix is available (combined location reports "gps")
+     *  - YELLOW : only a network / fused fix is available
+     *  - GREY   : permission granted but no location available at all
+     */
+    private fun updateLocationButtonState() {
+        val ctx = context ?: return
+        val hasFineLocation = ctx.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        val provider = homeViewModel.locationLiveData.value?.provider
+        val colorRes = when {
+            !hasFineLocation -> R.color.location_button_red
+            provider == null -> R.color.location_button_grey
+            provider.equals("gps", ignoreCase = true) -> R.color.location_button_green
+            else -> R.color.location_button_yellow // network or fused
+        }
+        binding.btnLocation.imageTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(ctx, colorRes))
     }
 
     private fun isSignalMeasurementPrechecksPassed(showDialogs: Boolean = true): Boolean {
