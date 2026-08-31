@@ -109,10 +109,12 @@ class CoverageMeasurementDataStateManager @Inject constructor(
             data: CoverageMeasurementData,
             location: LocationInfo?,
             networkInfo: NetworkInfo?,
+            secondaryNetworkInfo: NetworkInfo? = null,
         ) = update {
         copy(
             currentLocation = location,
             currentNetworkInfo = networkInfo,
+            currentSecondaryNetworkInfo = secondaryNetworkInfo,
             technologyMinSignalMapForCurrentFence = data.technologyMinSignalMapForCurrentFence
         )
     }

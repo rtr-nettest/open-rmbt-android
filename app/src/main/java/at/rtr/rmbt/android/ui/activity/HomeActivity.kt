@@ -148,6 +148,10 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Recover a signal (coverage) measurement that was interrupted by process death (crash,
+        // force-stop, reinstall, OS kill): finalize the orphaned loop and clear the stale "running"
+        // flag so its fences get synced and the next start is fresh. No-op in the normal case.
+        viewModel.reconcileInterruptedSignalMeasurement(this)
         // If a regular measurement finished while the app was in the background, the measurement
         // screen may have been stopped or cleared (HomeActivity is singleTask, so resuming via the
         // launcher icon brings us here directly). Open the results that are still waiting to be shown.

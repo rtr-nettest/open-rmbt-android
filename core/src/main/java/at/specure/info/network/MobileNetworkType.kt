@@ -16,6 +16,7 @@ package at.specure.info.network
 
 import android.telephony.TelephonyManager
 import at.specure.data.ServerNetworkType
+import at.specure.info.cell.CellTechnology
 import cz.mroczis.netmonster.core.db.model.NetworkType
 import timber.log.Timber
 
@@ -143,6 +144,25 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
      * Current network is LTE with 5G signalling
      */
     NR_AVAILABLE(40, "LTE+(NR)"); // made up number because of no support in current android version fot this type
+
+    /**
+     * Display label that leads with the mobile generation (2G/3G/4G/5G) rather than the radio-access
+     * technology name — e.g. "4G" instead of "LTE" or "2G" instead of "EDGE". Falls back to
+     * [displayName] for types [CellTechnology] does not map (UNKNOWN/IWLAN). The wire/[displayName]
+     * value is left untouched.
+     *
+     * @param nrFlavor when true, 5G keeps the NR standalone/non-standalone distinction as a suffix
+     *   ("5G SA"/"5G NSA"); when false both NR flavours collapse to plain "5G".
+     */
+    fun generationDisplayName(nrFlavor: Boolean = false): String {
+        val generation = CellTechnology.fromMobileNetworkType(this)?.displayName ?: displayName
+        if (!nrFlavor) return generation
+        return when (this) {
+            NR_NSA -> "$generation NSA"
+            NR_SA -> "$generation SA"
+            else -> generation
+        }
+    }
 
     companion object {
 

@@ -496,7 +496,8 @@ class CoverageResultViewModel @Inject constructor(
 
     fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String? {
         return when (networkInfo?.type) {
-            TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
+            TransportType.CELLULAR ->
+                (networkInfo as CellNetworkInfo).networkType.generationDisplayName(nrFlavor = true)
             TransportType.WIFI,
             TransportType.BLUETOOTH,
             TransportType.ETHERNET,
@@ -514,6 +515,10 @@ class CoverageResultViewModel @Inject constructor(
         // alpha: 0..255, 128 = 50% transparency
         return (color and 0x00FFFFFF) or (alpha shl 24)
     }
+
+    /** Accuracy (in meters) at/below which a fix is precise enough for signal measurement. */
+    val minLocationAccuracyMetersDuringSignalMeasurement: Int
+        get() = appConfig.minLocationAccuracyMetersDuringSignalMeasurement
 
     fun isLocationInfoMeetingQualityCriteria(location: DeviceInfo.Location?): Boolean {
         val isNotNull = location != null

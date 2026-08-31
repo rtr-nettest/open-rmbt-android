@@ -116,7 +116,7 @@
     <string name="location_dialog_label_altitude">Magasság</string>
     <string name="location_dialog_label_speed">Sebesség</string>
     <string name="location_dialog_label_signal">Jel (%1$s)</string>
-    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
+    <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Műholdak</string>
     <string name="location_dialog_label_location_progress_message">Helymeghatározás folyamatban, kérem, várjon!</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Helymeghatározási szolgáltatás nem elérhető, kívánja engedélyezni?</string>
@@ -283,6 +283,9 @@
     <string name="accept_risk">Elfogadom a kockázatot</string>
     <string name="preferences_connection_details_not_supported">Részletes kapcsolati jellemzők megjelenítését nem támogatja a készülék</string>
     <string name="dialog_signal_info_band">Sáv</string>
+    <string name="dialog_signal_info_standard">Szabvány</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Le</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Fel</string>
     <string name="dialog_signal_info_channel">Csatorna</string>
     <string name="text_local_results">Csak helyi eredmények</string>
     <string name="signal_measurement_terms_title">Jelszintmérés</string>
@@ -384,6 +387,7 @@
     <string name="confirm">Megerősítés</string>
     <string name="history_loading_failed">A betöltés sikertelen</string>
     <string name="home_speed">Mozgás</string>
+    <string name="label_speed">Sebesség</string>
     <string name="loop_mode_completed_message">A mérések befejeződtek.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Nem mobilhálózaton</string>

@@ -18,5 +18,21 @@ class SignalStrengthInfoWiFi(
     /**
      * The current link speed in Mbps.
      */
-    val linkSpeed: Int
+    val linkSpeed: Int,
+
+    /**
+     * Current downlink (Rx) link speed in Mbps, or null when the device does not report it.
+     */
+    val rxLinkSpeed: Int? = null,
+
+    /**
+     * Current uplink (Tx) link speed in Mbps, or null when the device does not report it.
+     */
+    val txLinkSpeed: Int? = null,
+
+    /**
+     * Wi-Fi standard as an android ScanResult.WIFI_STANDARD_* value (WifiInfo.getWifiStandard(),
+     * API 30+), or null when unknown / not available.
+     */
+    val wifiStandard: Int? = null
 ) : SignalStrengthInfo(), Parcelable

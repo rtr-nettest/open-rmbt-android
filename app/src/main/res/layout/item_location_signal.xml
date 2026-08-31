@@ -39,6 +39,6 @@
         android:layout_weight="5"
         android:layout_marginStart="@dimen/margin_small"
         android:textColor="@color/text_black_transparency_60"
-        tools:text="35 dB-Hz" />
+        tools:text="35 dB Hz" />
 
 </LinearLayout>

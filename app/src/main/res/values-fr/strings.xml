@@ -103,7 +103,7 @@
     <string name="location_dialog_label_altitude">Altitude</string>
     <string name="location_dialog_label_speed">Vitesse</string>
     <string name="location_dialog_label_signal">Signal (%1$s)</string>
-    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
+    <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Satellites</string>
     <string name="location_dialog_label_location_progress_message">Détermination de la localisation, veuillez patienter…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Les services de localisation ne sont pas activés. Souhaitez-vous modifier les paramètres de localisation ?</string>
@@ -270,6 +270,9 @@
     <string name="accept_risk">J\'accepte le risque</string>
     <string name="preferences_connection_details_not_supported">Les détails de connexion étendus ne sont pas pris en charge sur cet appareil</string>
     <string name="dialog_signal_info_band">Bande</string>
+    <string name="dialog_signal_info_standard">Norme</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Desc</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Mont</string>
     <string name="dialog_signal_info_channel">Canal</string>
     <string name="text_local_results">Résultats locaux uniquement</string>
     <string name="signal_measurement_terms_title">Mesure de signal</string>
@@ -371,6 +374,7 @@
     <string name="confirm">Confirmer</string>
     <string name="history_loading_failed">Échec du chargement</string>
     <string name="home_speed">Mouvement</string>
+    <string name="label_speed">Vitesse</string>
     <string name="loop_mode_completed_message">Les mesures sont terminées.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Pas sur mobile</string>

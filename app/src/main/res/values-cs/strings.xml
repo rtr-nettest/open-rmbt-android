@@ -103,7 +103,7 @@
     <string name="location_dialog_label_altitude">Nadmořská výška</string>
     <string name="location_dialog_label_speed">Rychlost</string>
     <string name="location_dialog_label_signal">Signál (%1$s)</string>
-    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
+    <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Satelity</string>
     <string name="location_dialog_label_location_progress_message">Určování polohy, prosím čekejte…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Služby určování polohy jsou zakázány. Přejete si toto nastavení změnit?</string>
@@ -270,6 +270,9 @@
     <string name="accept_risk">Přijímám riziko</string>
     <string name="preferences_connection_details_not_supported">Rozšířené podrobnosti připojení nejsou na tomto zařízení podporovány</string>
     <string name="dialog_signal_info_band">Pásmo</string>
+    <string name="dialog_signal_info_standard">Standard</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Dolů</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Nahoru</string>
     <string name="dialog_signal_info_channel">Kanál</string>
     <string name="text_local_results">Pouze místní výsledky</string>
     <string name="signal_measurement_terms_title">Měření signálu</string>
@@ -371,6 +374,7 @@
     <string name="confirm">Potvrdit</string>
     <string name="history_loading_failed">Načítání se nezdařilo</string>
     <string name="home_speed">Pohyb</string>
+    <string name="label_speed">Rychlost</string>
     <string name="loop_mode_completed_message">Měření byla dokončena.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Nejste na mobilní síti</string>

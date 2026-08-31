@@ -56,8 +56,8 @@ import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.data.NetworkTypeCompat
 import at.specure.info.cell.CellTechnology
 import at.specure.measurement.coverage.data.getFrequencyBand
+import at.specure.measurement.coverage.data.getCombinedSignalStrengthValue
 import at.specure.measurement.coverage.data.getMobileNetworkType
-import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.map.colorInt
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -434,7 +434,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     private fun showCurrentNetworkType(coverageMeasurementData: CoverageMeasurementData?) {
         val networkType =
             coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
-        val frequencyBand = coverageMeasurementData?.currentNetworkInfo?.getFrequencyBand()
+        val frequencyBand = coverageMeasurementData?.currentNetworkInfo
+            ?.getFrequencyBand(coverageMeasurementData.currentSecondaryNetworkInfo)
         val networkStringRaw = listOfNotNull(networkType, frequencyBand).joinToString(" | ")
         val networkString = networkStringRaw.ifEmpty {
             ""
@@ -460,7 +461,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
     private fun updateSignalIndicator(coverageMeasurementData: CoverageMeasurementData?) {
         val networkInfo = coverageMeasurementData?.currentNetworkInfo
-        val signal = networkInfo?.getSignalStrengthValue()
+        // For 5G NSA combine the LTE anchor and NR secondary signals (minimum when both are present,
+        // otherwise whichever one is reported) - the same value recorded for the fences.
+        val signal = networkInfo.getCombinedSignalStrengthValue(coverageMeasurementData?.currentSecondaryNetworkInfo)
         binding.signalValue.text = signal?.let { getString(R.string.home_signal_value, it) }
             ?: getString(R.string.measurement_dash)
 
@@ -527,6 +530,24 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         binding.accuracyValue.text = location?.formatAccuracy()?.let { formattedAccuracy ->
             this.getString(R.string.location_dialog_accuracy, formattedAccuracy)
         } ?: getString(R.string.no_gps_value)
+
+        // Highlight the accuracy in red when it is worse (larger) than the signal-measurement limit.
+        val accuracyWorseThanLimit = location?.hasAccuracy == true &&
+            location.accuracy > coverageViewModel.minLocationAccuracyMetersDuringSignalMeasurement
+        binding.accuracyValue.setTextColor(
+            if (accuracyWorseThanLimit) {
+                ContextCompat.getColor(this, R.color.classification_red)
+            } else {
+                binding.accuracyLabel.textColors.defaultColor
+            }
+        )
+
+        // Speed in km/h (m/s * 3.6), one decimal; dash when no valid GPS speed is available.
+        binding.speedValue.text = if (location?.hasSpeed == true) {
+            getString(R.string.home_speed_value, location.speed * 3.6f)
+        } else {
+            getString(R.string.no_gps_value)
+        }
 
         map?.let { gMap ->
             location?.let { latestLocation ->

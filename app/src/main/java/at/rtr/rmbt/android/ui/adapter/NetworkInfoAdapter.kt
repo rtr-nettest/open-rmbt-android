@@ -16,6 +16,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
+import at.specure.info.network.wifiStandardDisplayName
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
 import cz.mroczis.netmonster.core.model.cell.CellLte
@@ -232,17 +233,15 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                 binding.wifiBssid = item.bssid
                 binding.wifiSsid = item.ssid
 
-                if (item.rxlinkSpeed != null) {
-                    binding.wifiRxLinkSpeed = item.rxlinkSpeed.toString() + " MBit/s"
-                }
-                else
-                    binding.wifiRxLinkSpeed = null
+                // Some (older) devices do not report the Rx/Tx link speed and return -1. Treat any
+                // non-positive value as "not available" and pass null, so the layout hides both the
+                // label and the value instead of showing "-1 MBit/s".
+                binding.wifiRxLinkSpeed =
+                    if (item.rxlinkSpeed > 0) "${item.rxlinkSpeed} MBit/s" else null
+                binding.wifiTxLinkSpeed =
+                    if (item.txlinkSpeed > 0) "${item.txlinkSpeed} MBit/s" else null
 
-                if (item.txlinkSpeed != null) {
-                    binding.wifiTxLinkSpeed = item.txlinkSpeed.toString() + " MBit/s"
-                }
-                else
-                    binding.wifiTxLinkSpeed = null
+                binding.wifiStandard = wifiStandardDisplayName(item.wifiStandard)
             }
         }
     }

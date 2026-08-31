@@ -52,6 +52,7 @@ import at.specure.data.entity.getPacketLoss
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
+import at.specure.info.network.wifiStandardDisplayName
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
@@ -122,6 +123,10 @@ fun SignalStrengthInfo.toRequest(): SignalItemBody? = when (this) {
         time = timestampNanos,
         networkTypeId = transport.toRequestIntValue(null),
         wifiLinkSpeed = linkSpeed,
+        // Report null (not the -1 "unavailable" sentinel) when Rx/Tx is unknown.
+        wifiLinkSpeedRx = rxLinkSpeed?.takeIf { it > 0 },
+        wifiLinkSpeedTx = txLinkSpeed?.takeIf { it > 0 },
+        wifiStandard = wifiStandardDisplayName(wifiStandard),
         wifiRssi = value
     )
     is SignalStrengthInfoLte -> SignalItemBody(
@@ -417,6 +422,10 @@ fun SignalRecord.toRequest(cellUUID: String, signalMeasurementStartTimeNs: Long?
     signal = if (lteRsrp == null && nrCsiRsrp == null && nrSsRsrp == null) signal.checkSignalValue() else null,
     bitErrorRate = bitErrorRate.checkSignalValue(),
     wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
+    // Report null (not the -1 "unavailable" sentinel some devices return) when Rx/Tx is unknown.
+    wifiLinkSpeedRx = wifiLinkSpeedRx?.takeIf { it > 0 },
+    wifiLinkSpeedTx = wifiLinkSpeedTx?.takeIf { it > 0 },
+    wifiStandard = wifiStandardDisplayName(wifiStandard),
     lteRsrp = lteRsrp.checkSignalValue(),
     lteRsrq = lteRsrq.checkSignalValue(),
     lteRssnr = lteRssnr.checkSignalValue(),

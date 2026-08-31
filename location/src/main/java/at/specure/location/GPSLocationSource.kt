@@ -56,7 +56,7 @@ class GPSLocationSource(val context: Context) : LocationSource {
     /**
      * For each constellation with at least [MIN_SATELLITES_PER_CONSTELLATION] satellites, takes the
      * 5th-highest baseband C/N0 as its representative value. Constellations whose representative value
-     * rounds to 0 dB-Hz are dropped; the result is sorted best (highest) first.
+     * rounds to 0 dB Hz are dropped; the result is sorted best (highest) first.
      */
     private fun computeConstellationSignals(
         cn0ByConstellation: Map<Int, List<Float>>

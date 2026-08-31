@@ -31,8 +31,9 @@ class DeviceLocationStateWatcher(private val context: Context) {
 
     fun addListener(listener: Listener) {
         synchronized(monitor) {
-            listeners.add(listener)
-            if (listeners.size == 1) {
+            // Register only on the genuine 0 -> 1 transition; re-adding a known listener must not
+            // register the receiver a second time.
+            if (listeners.add(listener) && listeners.size == 1) {
                 context.registerReceiver(receiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
             }
         }
@@ -41,8 +42,10 @@ class DeviceLocationStateWatcher(private val context: Context) {
 
     fun removeListener(listener: Listener) {
         synchronized(monitor) {
-            listeners.remove(listener)
-            if (listeners.isEmpty()) {
+            // Unregister only when this call actually emptied the set; a double remove (e.g. two
+            // stopMeasurement() calls) would otherwise unregister an already-unregistered receiver
+            // and crash with "Receiver not registered".
+            if (listeners.remove(listener) && listeners.isEmpty()) {
                 context.unregisterReceiver(receiver)
             }
         }

@@ -140,7 +140,7 @@
     <string name="location_dialog_label_altitude">Altitude</string>
     <string name="location_dialog_label_speed">Speed</string>
     <string name="location_dialog_label_signal">Signal (%1$s)</string>
-    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
+    <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Satellites</string>
     <string name="location_dialog_label_location_progress_message">Determining location, please wait…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Location services are not enabled. Would you like to modify location settings?</string>
@@ -210,6 +210,7 @@
     <string name="label_init">Init</string>
     <string name="measurement_progress_units" translatable="false">%</string>
     <string name="label_signal_strength">Signal</string>
+    <string name="label_speed">Speed</string>
     <string name="network_label">Network</string>
     <string name="technology_label">Technology</string>
 
@@ -371,6 +372,9 @@
     <string name="preferences_unable_to_find_browser_app" translatable="false">Unable to open default browser application.</string>
 
     <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_standard">Standard</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Down</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Up</string>
     <string name="dialog_signal_info_connection_status" translatable="false">Status</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="text_local_results">Local results only</string>

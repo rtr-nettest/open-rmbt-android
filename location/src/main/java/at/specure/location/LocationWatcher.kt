@@ -84,8 +84,8 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
      */
     fun addListener(listener: Listener) {
         synchronized(monitor) {
-            listeners.add(listener)
-            if (listeners.size == 1) {
+            // Start sources / attach the state listener only on the genuine 0 -> 1 transition.
+            if (listeners.add(listener) && listeners.size == 1) {
                 if (stateWatcher.state == LocationState.ENABLED) {
                     Timber.w("location update: Add listener start managers")
                     sources.forEach { it.attach() }
@@ -103,8 +103,9 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
      */
     fun removeListener(listener: Listener) {
         synchronized(monitor) {
-            listeners.remove(listener)
-            if (listeners.isEmpty()) {
+            // Detach sources / the state listener only when this call actually emptied the set, so a
+            // repeated removal (e.g. a double stopMeasurement()) does not detach or unregister twice.
+            if (listeners.remove(listener) && listeners.isEmpty()) {
                 if (isStarted) {
                     sources.forEach { it.detach() }
                     isStarted = false
