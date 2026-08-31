@@ -690,6 +690,18 @@ data class SignalBody(
     val wifiLinkSpeed: Int?,
 
     /**
+     * Declared wifi downlink (Rx) speed in Mbps, only WIFI; null when not reported by the device
+     */
+    @SerializedName("wifi_link_speed_rx")
+    val wifiLinkSpeedRx: Int? = null,
+
+    /**
+     * Declared wifi uplink (Tx) speed in Mbps, only WIFI; null when not reported by the device
+     */
+    @SerializedName("wifi_link_speed_tx")
+    val wifiLinkSpeedTx: Int? = null,
+
+    /**
      * Only for 4G/LTE signal strength
      */
     @SerializedName("lte_rsrp")
@@ -869,6 +881,10 @@ data class SignalItemBody(
     val lteCqi: Int? = null,
     @SerializedName("wifi_link_speed")
     val wifiLinkSpeed: Int? = null,
+    @SerializedName("wifi_link_speed_rx")
+    val wifiLinkSpeedRx: Int? = null,
+    @SerializedName("wifi_link_speed_tx")
+    val wifiLinkSpeedTx: Int? = null,
     @SerializedName("wifi_rssi")
     val wifiRssi: Int? = null
 )

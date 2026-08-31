@@ -18,5 +18,15 @@ class SignalStrengthInfoWiFi(
     /**
      * The current link speed in Mbps.
      */
-    val linkSpeed: Int
+    val linkSpeed: Int,
+
+    /**
+     * Current downlink (Rx) link speed in Mbps, or null when the device does not report it.
+     */
+    val rxLinkSpeed: Int? = null,
+
+    /**
+     * Current uplink (Tx) link speed in Mbps, or null when the device does not report it.
+     */
+    val txLinkSpeed: Int? = null
 ) : SignalStrengthInfo(), Parcelable

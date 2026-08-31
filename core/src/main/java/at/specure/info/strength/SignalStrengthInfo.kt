@@ -225,7 +225,10 @@ abstract class SignalStrengthInfo : Parcelable {
             max = WIFI_MAX_SIGNAL_VALUE,
             min = WIFI_MIN_SIGNAL_VALUE,
             timestampNanos = System.nanoTime(),
-            linkSpeed = info.linkSpeed
+            linkSpeed = info.linkSpeed,
+            // Some (older) devices do not report Rx/Tx and return -1: treat non-positive as unavailable.
+            rxLinkSpeed = info.rxlinkSpeed.takeIf { it > 0 },
+            txLinkSpeed = info.txlinkSpeed.takeIf { it > 0 }
         )
 
         fun from(

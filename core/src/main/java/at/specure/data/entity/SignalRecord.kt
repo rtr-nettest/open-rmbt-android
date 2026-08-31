@@ -45,6 +45,10 @@ data class SignalRecord(
     // wifi
     val signal: Int?,
     val wifiLinkSpeed: Int?,
+    /** Downlink (Rx) WiFi link speed in Mbps, null when not reported by the device. */
+    val wifiLinkSpeedRx: Int? = null,
+    /** Uplink (Tx) WiFi link speed in Mbps, null when not reported by the device. */
+    val wifiLinkSpeedTx: Int? = null,
     // 2G/3G
     val bitErrorRate: Int?,
     // 4G
