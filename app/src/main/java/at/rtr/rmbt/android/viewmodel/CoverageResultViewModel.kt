@@ -496,7 +496,8 @@ class CoverageResultViewModel @Inject constructor(
 
     fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String? {
         return when (networkInfo?.type) {
-            TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
+            TransportType.CELLULAR ->
+                (networkInfo as CellNetworkInfo).networkType.generationDisplayName(nrFlavor = true)
             TransportType.WIFI,
             TransportType.BLUETOOTH,
             TransportType.ETHERNET,
