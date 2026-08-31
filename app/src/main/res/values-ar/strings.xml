@@ -270,6 +270,9 @@
     <string name="accept_risk">أقبل المخاطرة</string>
     <string name="preferences_connection_details_not_supported">تفاصيل الاتصال الموسّعة غير مدعومة على هذا الجهاز</string>
     <string name="dialog_signal_info_band">النطاق</string>
+    <string name="dialog_signal_info_standard">المعيار</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-نزول</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-صعود</string>
     <string name="dialog_signal_info_channel">القناة</string>
     <string name="text_local_results">النتائج المحلية فقط</string>
     <string name="signal_measurement_terms_title">قياس الإشارة</string>

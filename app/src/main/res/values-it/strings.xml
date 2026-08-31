@@ -283,6 +283,9 @@
     <string name="accept_risk">Accetto il rischio</string>
     <string name="preferences_connection_details_not_supported">I dettagli estesi di connessione non sono supportati su questo dispositivo</string>
     <string name="dialog_signal_info_band">Banda</string>
+    <string name="dialog_signal_info_standard">Standard</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Down</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Up</string>
     <string name="dialog_signal_info_channel">Canale</string>
     <string name="text_local_results">Solo risultati locali</string>
     <string name="signal_measurement_terms_title">Misurazione del segnale</string>

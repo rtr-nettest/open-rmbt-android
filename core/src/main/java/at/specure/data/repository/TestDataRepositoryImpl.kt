@@ -219,6 +219,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         var wifiLinkSpeed: Int? = null
         var wifiLinkSpeedRx: Int? = null
         var wifiLinkSpeedTx: Int? = null
+        var wifiStandard: Int? = null
         // 2G/3G
         var bitErrorRate: Int? = null
         // 4G
@@ -258,6 +259,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 wifiLinkSpeed = info.linkSpeed
                 wifiLinkSpeedRx = info.rxLinkSpeed
                 wifiLinkSpeedTx = info.txLinkSpeed
+                wifiStandard = info.wifiStandard
             }
 
             is SignalStrengthInfoGsm -> {
@@ -281,6 +283,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             wifiLinkSpeed = wifiLinkSpeed,
             wifiLinkSpeedRx = wifiLinkSpeedRx,
             wifiLinkSpeedTx = wifiLinkSpeedTx,
+            wifiStandard = wifiStandard,
             timeNanos = timeNanos,
             timeNanosLast = timeNanosLast,
             bitErrorRate = bitErrorRate,

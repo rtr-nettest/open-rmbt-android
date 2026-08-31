@@ -16,6 +16,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
+import at.specure.info.network.wifiStandardDisplayName
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
 import cz.mroczis.netmonster.core.model.cell.CellLte
@@ -239,6 +240,8 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     if (item.rxlinkSpeed > 0) "${item.rxlinkSpeed} MBit/s" else null
                 binding.wifiTxLinkSpeed =
                     if (item.txlinkSpeed > 0) "${item.txlinkSpeed} MBit/s" else null
+
+                binding.wifiStandard = wifiStandardDisplayName(item.wifiStandard)
             }
         }
     }

@@ -71,7 +71,9 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                     supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
                     supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name,
                     signal = null,
-                    capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_WIFI}"
+                    capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_WIFI}",
+                    // getWifiStandard() is API 30 (R); Q devices report no standard.
+                    wifiStandard = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) info.wifiStandard else null
                 )
             } else {
                 WifiNetworkInfo(

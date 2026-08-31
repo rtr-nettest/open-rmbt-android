@@ -14,9 +14,25 @@
 
 package at.specure.info.network
 
+import android.net.wifi.ScanResult
 import at.specure.info.TransportType
 import at.specure.info.band.WifiBand
 import java.util.UUID
+
+/**
+ * Human-readable Wi-Fi standard/generation name for a [WifiNetworkInfo.wifiStandard] value (an
+ * android [ScanResult].WIFI_STANDARD_* constant, as returned by WifiInfo.getWifiStandard()), e.g.
+ * "IEEE 802.11be (Wi-Fi 7)". Returns null when the standard is unknown or not reported by the device.
+ */
+fun wifiStandardDisplayName(standard: Int?): String? = when (standard) {
+    ScanResult.WIFI_STANDARD_11N -> "IEEE 802.11n (Wi-Fi 4)"
+    ScanResult.WIFI_STANDARD_11AC -> "IEEE 802.11ac (Wi-Fi 5)"
+    ScanResult.WIFI_STANDARD_11AX -> "IEEE 802.11ax (Wi-Fi 6)"
+    ScanResult.WIFI_STANDARD_11BE -> "IEEE 802.11be (Wi-Fi 7)"
+    ScanResult.WIFI_STANDARD_11AD -> "IEEE 802.11ad"
+    ScanResult.WIFI_STANDARD_LEGACY -> "IEEE 802.11a/b/g"
+    else -> null
+}
 
 /**
  * Data object that contains information about WiFi network
@@ -106,7 +122,13 @@ open class WifiNetworkInfo(
      */
     var signal: Int?,
 
-    override val capabilitiesRaw: String?
+    override val capabilitiesRaw: String?,
+
+    /**
+     * Wi-Fi generation/standard as an android.net.wifi ScanResult.WIFI_STANDARD_* value
+     * (from WifiInfo.getWifiStandard(), API 30+), or null when unknown / not available.
+     */
+    val wifiStandard: Int? = null
 
 ) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString(), UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw) {
 

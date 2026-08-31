@@ -372,6 +372,9 @@
     <string name="preferences_unable_to_find_browser_app" translatable="false">Unable to open default browser application.</string>
 
     <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_standard">Standard</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Down</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Up</string>
     <string name="dialog_signal_info_connection_status" translatable="false">Status</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="text_local_results">Local results only</string>

@@ -48,6 +48,10 @@
             name="wifiTxLinkSpeed"
             type="String" />
 
+        <variable
+            name="wifiStandard"
+            type="String" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -80,6 +84,7 @@
             style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_medium"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/dialog_signal_info_channel"
@@ -105,6 +110,21 @@
             app:visibleOrGone="@{wifiFrequency != null}" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelStandard"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:gravity="end|center_vertical"
+            android:text="@string/dialog_signal_info_standard"
+            android:textColor="@color/text_gray_transparency_60"
+            android:visibility="@{wifiStandard == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelBand" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelSignal"
             style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
@@ -116,7 +136,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelBand" />
+            app:layout_constraintTop_toBottomOf="@+id/labelStandard" />
 
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -156,7 +176,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="@string/measurement_down"
+            android:text="@string/dialog_signal_info_wlan_down"
             android:textColor="@color/text_gray_transparency_60"
             android:visibility="@{wifiRxLinkSpeed == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
@@ -172,7 +192,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="@string/measurement_up"
+            android:text="@string/dialog_signal_info_wlan_up"
             android:textColor="@color/text_gray_transparency_60"
             android:visibility="@{wifiTxLinkSpeed == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
@@ -212,6 +232,23 @@
             app:layout_constraintStart_toEndOf="@+id/labelBand"
             app:layout_constraintStart_toStartOf="@+id/guide_one_third"
             tools:text="5 GHz" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textStandard"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:gravity="start|center_vertical"
+            android:text="@{wifiStandard}"
+            android:textColor="@color/text_black_transparency_60"
+            android:visibility="@{wifiStandard == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelStandard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelStandard"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_third"
+            tools:text="Wi-Fi 6" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSignal"

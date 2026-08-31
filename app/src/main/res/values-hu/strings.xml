@@ -283,6 +283,9 @@
     <string name="accept_risk">Elfogadom a kockázatot</string>
     <string name="preferences_connection_details_not_supported">Részletes kapcsolati jellemzők megjelenítését nem támogatja a készülék</string>
     <string name="dialog_signal_info_band">Sáv</string>
+    <string name="dialog_signal_info_standard">Szabvány</string>
+    <string name="dialog_signal_info_wlan_down">WLAN-Le</string>
+    <string name="dialog_signal_info_wlan_up">WLAN-Fel</string>
     <string name="dialog_signal_info_channel">Csatorna</string>
     <string name="text_local_results">Csak helyi eredmények</string>
     <string name="signal_measurement_terms_title">Jelszintmérés</string>

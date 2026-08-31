@@ -228,7 +228,8 @@ abstract class SignalStrengthInfo : Parcelable {
             linkSpeed = info.linkSpeed,
             // Some (older) devices do not report Rx/Tx and return -1: treat non-positive as unavailable.
             rxLinkSpeed = info.rxlinkSpeed.takeIf { it > 0 },
-            txLinkSpeed = info.txlinkSpeed.takeIf { it > 0 }
+            txLinkSpeed = info.txlinkSpeed.takeIf { it > 0 },
+            wifiStandard = info.wifiStandard
         )
 
         fun from(
