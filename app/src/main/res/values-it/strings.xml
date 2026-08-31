@@ -116,7 +116,7 @@
     <string name="location_dialog_label_altitude">Altitudine</string>
     <string name="location_dialog_label_speed">Velocità</string>
     <string name="location_dialog_label_signal">Segnale (%1$s)</string>
-    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
+    <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Satelliti</string>
     <string name="location_dialog_label_location_progress_message">Determinazione della posizione, attendere…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">I servizi di localizzazione non sono abilitati. Modificare le impostazioni di localizzazione?</string>

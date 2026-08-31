@@ -95,7 +95,7 @@ fun AppCompatTextView.setLocationProvider(locationProvider: String?) {
 
 /**
  * Renders the per-constellation baseband C/N0 summary as one row per system (best first), each shown
- * as a "Signal (<System>)" label with a "<value> dB-Hz" value. The container is hidden when empty.
+ * as a "Signal (<System>)" label with a "<value> dB Hz" value. The container is hidden when empty.
  */
 @BindingAdapter("gnssSignals")
 fun LinearLayout.setGnssSignals(locationInfo: LocationInfo?) {

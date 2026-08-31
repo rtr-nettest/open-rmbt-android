@@ -103,7 +103,7 @@
     <string name="location_dialog_label_altitude">الارتفاع</string>
     <string name="location_dialog_label_speed">السرعة</string>
     <string name="location_dialog_label_signal">الإشارة (%1$s)</string>
-    <string name="location_dialog_signal_value">%1$d dB-Hz</string>
+    <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">الأقمار الاصطناعية</string>
     <string name="location_dialog_label_location_progress_message">جارٍ تحديد الموقع، يرجى الانتظار…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">خدمات الموقع غير مفعّلة. هل تريد تعديل إعدادات الموقع؟</string>
