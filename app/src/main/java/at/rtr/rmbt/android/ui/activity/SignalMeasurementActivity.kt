@@ -56,8 +56,8 @@ import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.data.NetworkTypeCompat
 import at.specure.info.cell.CellTechnology
 import at.specure.measurement.coverage.data.getFrequencyBand
+import at.specure.measurement.coverage.data.getCombinedSignalStrengthValue
 import at.specure.measurement.coverage.data.getMobileNetworkType
-import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.map.colorInt
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -461,7 +461,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
     private fun updateSignalIndicator(coverageMeasurementData: CoverageMeasurementData?) {
         val networkInfo = coverageMeasurementData?.currentNetworkInfo
-        val signal = networkInfo?.getSignalStrengthValue()
+        // For 5G NSA combine the LTE anchor and NR secondary signals (minimum when both are present,
+        // otherwise whichever one is reported) - the same value recorded for the fences.
+        val signal = networkInfo.getCombinedSignalStrengthValue(coverageMeasurementData?.currentSecondaryNetworkInfo)
         binding.signalValue.text = signal?.let { getString(R.string.home_signal_value, it) }
             ?: getString(R.string.measurement_dash)
 

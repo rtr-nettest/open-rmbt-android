@@ -19,6 +19,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationDistanceAndSpeedCounter
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
+import at.specure.measurement.coverage.data.getCombinedSignalStrengthValue
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.domain.CoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
@@ -488,7 +489,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
 
         val newCoverageData = processNetworkInfo(stateManager.state.value,
-            networkInfo?.networkInfo
+            networkInfo?.networkInfo,
+            networkInfo?.secondary5GActiveCellNetworks?.firstOrNull()
         )
         stateManager.updateLocationAndNetworkInfo(
             newCoverageData,
@@ -598,8 +600,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }*/
     }
 
-    private fun processNetworkInfo(data: CoverageMeasurementData, networkInfo: NetworkInfo?): CoverageMeasurementData {
-        val newTechnologySignalPair = getTechnologySignalPair(networkInfo)
+    private fun processNetworkInfo(
+        data: CoverageMeasurementData,
+        networkInfo: NetworkInfo?,
+        secondaryNetworkInfo: NetworkInfo?
+    ): CoverageMeasurementData {
+        val newTechnologySignalPair = getTechnologySignalPair(networkInfo, secondaryNetworkInfo)
         if (newTechnologySignalPair == null) {
             return data
         } else {
@@ -621,7 +627,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun getTechnologySignalPair(networkInfo: NetworkInfo?): Pair<MobileNetworkType, MobileSignalTechnologyTimestamp?>? {
+    private fun getTechnologySignalPair(
+        networkInfo: NetworkInfo?,
+        secondaryNetworkInfo: NetworkInfo?
+    ): Pair<MobileNetworkType, MobileSignalTechnologyTimestamp?>? {
         if (networkInfo == null) {
             // Return NO_CONNECTIVITY pair when network info is missing
             return Pair(
@@ -635,7 +644,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             )
         }
         if (networkInfo is CellNetworkInfo) {
-            val newSignalValueForTechnology = networkInfo.signalStrength?.value
+            // For 5G NSA this combines the LTE anchor and NR secondary carrier signals (minimum when
+            // both are present, otherwise whichever one is reported).
+            val newSignalValueForTechnology = networkInfo.getCombinedSignalStrengthValue(secondaryNetworkInfo)
             val networkType = networkInfo.networkType
             val technologySignalTimestamp = MobileSignalTechnologyTimestamp(
                 type = networkType,
