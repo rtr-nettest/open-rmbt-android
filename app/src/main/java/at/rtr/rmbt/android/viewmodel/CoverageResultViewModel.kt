@@ -516,6 +516,10 @@ class CoverageResultViewModel @Inject constructor(
         return (color and 0x00FFFFFF) or (alpha shl 24)
     }
 
+    /** Accuracy (in meters) at/below which a fix is precise enough for signal measurement. */
+    val minLocationAccuracyMetersDuringSignalMeasurement: Int
+        get() = appConfig.minLocationAccuracyMetersDuringSignalMeasurement
+
     fun isLocationInfoMeetingQualityCriteria(location: DeviceInfo.Location?): Boolean {
         val isNotNull = location != null
         return isNotNull && isLocationAccuracyGoodEnough(location)

@@ -384,6 +384,7 @@
     <string name="confirm">Megerősítés</string>
     <string name="history_loading_failed">A betöltés sikertelen</string>
     <string name="home_speed">Mozgás</string>
+    <string name="label_speed">Sebesség</string>
     <string name="loop_mode_completed_message">A mérések befejeződtek.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Nem mobilhálózaton</string>

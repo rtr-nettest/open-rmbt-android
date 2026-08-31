@@ -371,6 +371,7 @@
     <string name="confirm">تأكيد</string>
     <string name="history_loading_failed">فشل التحميل</string>
     <string name="home_speed">الحركة</string>
+    <string name="label_speed">السرعة</string>
     <string name="loop_mode_completed_message">اكتملت القياسات.</string>
     <string name="loop_mode_completed_ok">حسناً</string>
     <string name="wrong_network_type_active_dialog_title">لست على شبكة جوال</string>

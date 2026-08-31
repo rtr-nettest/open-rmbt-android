@@ -490,7 +490,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val newCoverageData = processNetworkInfo(stateManager.state.value,
             networkInfo?.networkInfo
         )
-        stateManager.updateLocationAndNetworkInfo(newCoverageData, location, networkInfo?.networkInfo)
+        stateManager.updateLocationAndNetworkInfo(
+            newCoverageData,
+            location,
+            networkInfo?.networkInfo,
+            networkInfo?.secondary5GActiveCellNetworks?.firstOrNull()
+        )
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(
             coverageMeasurementDataValue.currentNetworkInfo,
             networkInfo?.networkInfo

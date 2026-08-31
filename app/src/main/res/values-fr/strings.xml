@@ -371,6 +371,7 @@
     <string name="confirm">Confirmer</string>
     <string name="history_loading_failed">Échec du chargement</string>
     <string name="home_speed">Mouvement</string>
+    <string name="label_speed">Vitesse</string>
     <string name="loop_mode_completed_message">Les mesures sont terminées.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Pas sur mobile</string>

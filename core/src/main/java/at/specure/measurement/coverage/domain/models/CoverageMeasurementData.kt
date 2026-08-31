@@ -14,6 +14,8 @@ data class CoverageMeasurementData(
     val fences: List<CoverageMeasurementFenceRecord> = mutableListOf(),
     val signalMeasurementException: Exception? = null,
     val currentNetworkInfo: NetworkInfo? = null,
+    /** Secondary (5G NSA) cell for [currentNetworkInfo], carrying the NR band. */
+    val currentSecondaryNetworkInfo: NetworkInfo? = null,
     val currentLocation: LocationInfo? = null,
     val currentPingMs: Double? = null,
     val pingNullSkipped: Boolean = false,

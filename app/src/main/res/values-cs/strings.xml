@@ -371,6 +371,7 @@
     <string name="confirm">Potvrdit</string>
     <string name="history_loading_failed">Načítání se nezdařilo</string>
     <string name="home_speed">Pohyb</string>
+    <string name="label_speed">Rychlost</string>
     <string name="loop_mode_completed_message">Měření byla dokončena.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Nejste na mobilní síti</string>

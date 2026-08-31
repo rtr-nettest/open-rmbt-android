@@ -79,133 +79,76 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/margin_medium">
 
+                    <!-- Column guidelines for the Ping / Accuracy / (Speed) row -->
                     <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/guideline_column_1"
+                        android:id="@+id/guideline_metrics_col_1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_percent="0.45"/>
+                        app:layout_constraintGuide_percent="0.34"/>
 
                     <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/guideline_column_2"
+                        android:id="@+id/guideline_metrics_col_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_percent="0.72"/>
+                        app:layout_constraintGuide_percent="0.67"/>
 
-                    <!-- Technology -->
+                    <!-- Technology (label + value on one row) -->
                     <TextView
                         android:id="@+id/technology_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/network_label"
+                        android:text="@string/technology_label"
                         android:gravity="start"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/guideline_column_1"
-                        app:layout_constraintTop_toTopOf="parent"/>
+                        app:layout_constraintTop_toTopOf="@id/technology_value"
+                        app:layout_constraintBottom_toBottomOf="@id/technology_value"/>
 
                     <TextView
                         android:id="@+id/technology_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin_medium"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:gravity="center"
                         android:background="@drawable/bg_pill_tech_color"
                         android:paddingHorizontal="@dimen/padding_medium_large"
                         android:paddingVertical="@dimen/padding_small"
-                        tools:text="5G"
+                        tools:text="5G NSA 800/3600"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constrainedWidth="true"
-                        app:layout_constraintHorizontal_bias="0"
-                        app:layout_constraintStart_toStartOf="@id/technology_label"
-                        app:layout_constraintEnd_toEndOf="@id/technology_label"
-                        app:layout_constraintTop_toBottomOf="@id/technology_label"/>
+                        app:layout_constraintHorizontal_bias="1"
+                        app:layout_constraintStart_toEndOf="@id/technology_label"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
 
-                    <!-- Ping -->
-                    <TextView
-                        android:id="@+id/ping_label"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_ping"
-                        android:gravity="center_horizontal"
-                        style="@style/RobotoBoldStyle.Medium"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/guideline_column_1"
-                        app:layout_constraintEnd_toStartOf="@id/guideline_column_2"/>
-
-                    <TextView
-                        android:id="@+id/ping_value"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:gravity="center_horizontal"
-                        tools:text="10 ms"
-                        style="@style/RobotoBoldStyle.Medium"
-                        app:layout_constraintTop_toTopOf="@id/technology_value"
-                        app:layout_constraintBottom_toBottomOf="@id/technology_value"
-                        app:layout_constraintStart_toStartOf="@id/ping_label"
-                        app:layout_constraintEnd_toEndOf="@id/ping_label"/>
-
-                    <!-- Accuracy -->
-                    <TextView
-                        android:id="@+id/accuracy_label"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/location_dialog_label_accuracy"
-                        android:gravity="end"
-                        style="@style/RobotoBoldStyle.Medium"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/guideline_column_2"
-                        app:layout_constraintEnd_toEndOf="parent"/>
-
-                    <TextView
-                        android:id="@+id/accuracy_value"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:gravity="end"
-                        tools:text="19.6m"
-                        style="@style/RobotoBoldStyle.Medium"
-                        app:layout_constraintTop_toTopOf="@id/technology_value"
-                        app:layout_constraintBottom_toBottomOf="@id/technology_value"
-                        app:layout_constraintStart_toStartOf="@id/accuracy_label"
-                        app:layout_constraintEnd_toEndOf="@id/accuracy_label"/>
-
-                    <androidx.constraintlayout.widget.Barrier
-                        android:id="@+id/row_1_bottom_barrier"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:barrierDirection="bottom"
-                        app:constraint_referenced_ids="technology_value,ping_value,accuracy_value"/>
-
-                    <!-- Signal -->
+                    <!-- Signal (label + value on one row) -->
                     <TextView
                         android:id="@+id/signal_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginTop="@dimen/margin_medium"
                         android:gravity="start"
                         android:text="@string/label_signal_strength"
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/row_1_bottom_barrier"/>
+                        app:layout_constraintTop_toBottomOf="@id/technology_value"/>
 
                     <TextView
                         android:id="@+id/signal_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_medium"
                         android:maxLines="1"
                         android:ellipsize="end"
                         tools:text="-85 dBm"
                         style="@style/RobotoBoldStyle.Medium"
-                        app:layout_constraintStart_toStartOf="@id/signal_label"
-                        app:layout_constraintTop_toBottomOf="@id/signal_label"/>
+                        app:layout_constraintStart_toEndOf="@id/signal_label"
+                        app:layout_constraintTop_toTopOf="@id/signal_label"
+                        app:layout_constraintBottom_toBottomOf="@id/signal_label"/>
 
                     <at.rtr.rmbt.android.ui.view.SignalLevelBarsView
                         android:id="@+id/signal_bars_indicator"
@@ -215,8 +158,92 @@
                         android:translationX="10dp"
                         app:layout_constraintStart_toEndOf="@id/signal_value"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/signal_value"
-                        app:layout_constraintBottom_toBottomOf="@id/signal_value"/>
+                        app:layout_constraintTop_toTopOf="@id/signal_label"
+                        app:layout_constraintBottom_toBottomOf="@id/signal_label"/>
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/signal_row_bottom_barrier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="bottom"
+                        app:constraint_referenced_ids="signal_value,signal_bars_indicator"/>
+
+                    <!-- Ping / Accuracy / Speed row -->
+                    <!-- Ping (left) -->
+                    <TextView
+                        android:id="@+id/ping_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        android:text="@string/label_ping"
+                        android:gravity="start"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/guideline_metrics_col_1"
+                        app:layout_constraintTop_toBottomOf="@id/signal_row_bottom_barrier"/>
+
+                    <TextView
+                        android:id="@+id/ping_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="start"
+                        tools:text="10 ms"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="@id/ping_label"
+                        app:layout_constraintEnd_toEndOf="@id/ping_label"
+                        app:layout_constraintTop_toBottomOf="@id/ping_label"/>
+
+                    <!-- Accuracy (center) -->
+                    <TextView
+                        android:id="@+id/accuracy_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/location_dialog_label_accuracy"
+                        android:gravity="center_horizontal"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="@id/guideline_metrics_col_1"
+                        app:layout_constraintEnd_toStartOf="@id/guideline_metrics_col_2"
+                        app:layout_constraintTop_toTopOf="@id/ping_label"/>
+
+                    <TextView
+                        android:id="@+id/accuracy_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="center_horizontal"
+                        tools:text="19.6m"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="@id/accuracy_label"
+                        app:layout_constraintEnd_toEndOf="@id/accuracy_label"
+                        app:layout_constraintTop_toBottomOf="@id/accuracy_label"/>
+
+                    <!-- Speed (right) -->
+                    <TextView
+                        android:id="@+id/speed_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_speed"
+                        android:gravity="end"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="@id/guideline_metrics_col_2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/ping_label"/>
+
+                    <TextView
+                        android:id="@+id/speed_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="end"
+                        tools:text="123.4 km/h"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="@id/speed_label"
+                        app:layout_constraintEnd_toEndOf="@id/speed_label"
+                        app:layout_constraintTop_toBottomOf="@id/speed_label"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -243,7 +270,7 @@
                         android:id="@+id/technology_label_pip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/network_label"
+                        android:text="@string/technology_label"
                         style="@style/RobotoBoldStyle.Small"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>

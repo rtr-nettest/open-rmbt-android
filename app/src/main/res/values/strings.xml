@@ -210,6 +210,7 @@
     <string name="label_init">Init</string>
     <string name="measurement_progress_units" translatable="false">%</string>
     <string name="label_signal_strength">Signal</string>
+    <string name="label_speed">Speed</string>
     <string name="network_label">Network</string>
     <string name="technology_label">Technology</string>
 

@@ -384,6 +384,7 @@
     <string name="confirm">Conferma</string>
     <string name="history_loading_failed">Caricamento non riuscito</string>
     <string name="home_speed">Movimento</string>
+    <string name="label_speed">Velocità</string>
     <string name="loop_mode_completed_message">Le misurazioni sono state completate.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Non su rete mobile</string>

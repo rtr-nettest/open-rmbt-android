@@ -384,6 +384,7 @@
     <string name="confirm">Confirmar</string>
     <string name="history_loading_failed">Error al cargar</string>
     <string name="home_speed">Movimiento</string>
+    <string name="label_speed">Velocidad</string>
     <string name="loop_mode_completed_message">Las mediciones han finalizado.</string>
     <string name="loop_mode_completed_ok">OK</string>
     <string name="wrong_network_type_active_dialog_title">Sin conexión móvil</string>
