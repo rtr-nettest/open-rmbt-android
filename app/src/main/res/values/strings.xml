@@ -67,6 +67,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">Only after 2 hours</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">Do not perform new QoS measurements, if the last one was done less than 2 hours ago.</string>
     <string name="preferences_location">Location</string>
+    <string name="location_status_denied">Denied</string>
+    <string name="location_status_coarse">Approximate</string>
+    <string name="location_status_fine">Precise (foreground only)</string>
+    <string name="location_status_background">Precise (foreground and background)</string>
     <string name="preferences_loop_mode">Loop mode</string>
     <string name="preferences_advanced_settings">Advanced settings</string>
     <string name="preferences_loop_mode_summary">New test after waiting time or covering the distance. Max. 2 days</string>

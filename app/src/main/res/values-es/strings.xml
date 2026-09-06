@@ -48,6 +48,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">Sólo cada 2 horas</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">No realizar nuevas pruebas de QoS si hace menos de 2 horas desde la prueba anterior.</string>
     <string name="preferences_location">Localización</string>
+    <string name="location_status_denied">Denegado</string>
+    <string name="location_status_coarse">Aproximada</string>
+    <string name="location_status_fine">Precisa (solo en primer plano)</string>
+    <string name="location_status_background">Precisa (primer plano y segundo plano)</string>
     <string name="preferences_loop_mode">Modo bucle</string>
     <string name="preferences_advanced_settings">Ajustes avanzados</string>
     <string name="preferences_loop_mode_summary">Nueva prueba después de cada intervalo o después de recorrer la distancia. Máx. 2 días</string>

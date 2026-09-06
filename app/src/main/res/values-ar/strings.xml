@@ -35,6 +35,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">بعد ساعتين فقط</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">لا تجري قياسات QoS جديدة إذا كانت آخر قياس قد أُجري منذ أقل من ساعتين.</string>
     <string name="preferences_location">الموقع</string>
+    <string name="location_status_denied">مرفوض</string>
+    <string name="location_status_coarse">تقريبي</string>
+    <string name="location_status_fine">دقيق (المقدمة فقط)</string>
+    <string name="location_status_background">دقيق (المقدمة والخلفية)</string>
     <string name="preferences_loop_mode">وضع الحلقة</string>
     <string name="preferences_advanced_settings">الإعدادات المتقدمة</string>
     <string name="preferences_loop_mode_summary">اختبار جديد بعد وقت الانتظار أو قطع المسافة. الحد الأقصى يومان</string>

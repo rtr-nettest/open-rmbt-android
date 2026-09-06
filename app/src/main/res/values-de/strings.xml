@@ -50,6 +50,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">Nur alle 2 Stunden</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">Keine neue QoS-Messung, wenn die letzte vor weniger als 2 Stunden durchgeführt wurde.</string>
     <string name="preferences_location">Standort</string>
+    <string name="location_status_denied">Verweigert</string>
+    <string name="location_status_coarse">Ungefähr</string>
+    <string name="location_status_fine">Genau (nur im Vordergrund)</string>
+    <string name="location_status_background">Genau (Vordergrund und Hintergrund)</string>
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
     <string name="preferences_advanced_settings">Erweiterte Einstellungen</string>
     <string name="preferences_loop_mode_summary">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>

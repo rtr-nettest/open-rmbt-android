@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable
+            name="status"
+            type="String" />
+
+        <variable
+            name="statusColor"
+            type="int" />
+
+    </data>
+
+    <LinearLayout
+        android:id="@+id/rootView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_large">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/titleTVLoc"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:text="@{title}"
+            android:textColor="@color/text_dark_gray"
+            tools:text="Location" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/statusTVLoc"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:gravity="end"
+            android:text="@{status}"
+            android:textColor="@{statusColor}"
+            tools:text="Precise (always)"
+            tools:textColor="@color/location_button_green" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/chevronLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:contentDescription="@string/preferences_location"
+            android:src="@drawable/ic_right"
+            app:tint="@color/text_gray_transparency_60" />
+
+    </LinearLayout>
+
+</layout>

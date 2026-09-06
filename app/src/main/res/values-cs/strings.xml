@@ -35,6 +35,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">Pouze po 2 hodinách</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">Neprovádět nová měření QoS, pokud poslední bylo provedeno před méně než 2 hodinami.</string>
     <string name="preferences_location">Poloha</string>
+    <string name="location_status_denied">Zamítnuto</string>
+    <string name="location_status_coarse">Přibližná</string>
+    <string name="location_status_fine">Přesná (pouze na popředí)</string>
+    <string name="location_status_background">Přesná (popředí i pozadí)</string>
     <string name="preferences_loop_mode">Opakované měření</string>
     <string name="preferences_advanced_settings">Rozšířená nastavení</string>
     <string name="preferences_loop_mode_summary">Další test se spustí po uplynutí časové prodlevy nebo po překonání nastavené vzdálenosti (max. 2 dny).</string>

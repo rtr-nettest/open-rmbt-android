@@ -48,6 +48,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">Próbálja 2 óra múlva</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">Ne végezzen újabb QoS méréseket, ha az utolsó óta nem telt el legalább 2 óra.</string>
     <string name="preferences_location">Helyszín</string>
+    <string name="location_status_denied">Elutasítva</string>
+    <string name="location_status_coarse">Hozzávetőleges</string>
+    <string name="location_status_fine">Pontos (csak előtérben)</string>
+    <string name="location_status_background">Pontos (előtérben és háttérben)</string>
     <string name="preferences_loop_mode">Ismétlődő mérés</string>
     <string name="preferences_advanced_settings">Speciális beállítások</string>
     <string name="preferences_loop_mode_summary">Új mérés a várakozási idő elteltével vagy a megadott távolság megtételét követően. Legfeljebb 2 nap</string>

@@ -48,6 +48,10 @@
     <string name="preferences_qos_measurement_only_after_some_time">Solo dopo 2 ore</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">Non eseguire nuove misurazioni QoS, se l\'ultima è stata effettuata meno di 2 ore fa.</string>
     <string name="preferences_location">Posizione</string>
+    <string name="location_status_denied">Negato</string>
+    <string name="location_status_coarse">Approssimativa</string>
+    <string name="location_status_fine">Precisa (solo in primo piano)</string>
+    <string name="location_status_background">Precisa (primo piano e background)</string>
     <string name="preferences_loop_mode">Ciclo continuo</string>
     <string name="preferences_advanced_settings">Impostazioni avanzate</string>
     <string name="preferences_loop_mode_summary">Nuovo test dopo tempo di attesa o di distanza. Max. 2 giorni</string>

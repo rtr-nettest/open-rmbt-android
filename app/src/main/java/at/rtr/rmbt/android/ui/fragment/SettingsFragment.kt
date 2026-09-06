@@ -13,6 +13,7 @@ import android.text.InputType
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.content.ContextCompat
 import at.rmbt.client.control.IpProtocol
 import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.BuildConfig
@@ -28,6 +29,7 @@ import at.rtr.rmbt.android.ui.dialog.ServerSelectionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.locationPermissionStatus
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.specure.location.LocationState
 import at.specure.util.copyToClipboard
@@ -105,6 +107,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         settingsViewModel.locationStateLiveData.listen(this) {
             settingsViewModel.state.isLocationEnabled.set(it)
             settingsViewModel.state.canManageLocationSettings.set(it == LocationState.ENABLED)
+            updateLocationStatus()
             Timber.d("LocationStateLiveData Fragment  : $it")
         }
 
@@ -122,16 +125,16 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
-        binding.switchLocations.switchButton.isClickable = false
-        binding.switchLocations.rootView.setOnClickListener {
-            settingsViewModel.state.isLocationEnabled.get()?.let {
-                when (it) {
-                    LocationState.ENABLED -> requireContext().openAppSettings()
-                    LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance()
-                        .show(activity)
-
-                    LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
-                }
+        // The "Location" row is not a toggle: it shows the current location-access status (denied /
+        // approximate / precise / precise-always / device-off) and forwards to the relevant system
+        // screen so the user can change it there.
+        updateLocationStatus()
+        binding.locationStatus.rootView.setOnClickListener {
+            when (settingsViewModel.state.isLocationEnabled.get()) {
+                LocationState.ENABLED -> requireContext().openAppSettings()
+                LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
+                LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
+                null -> requireContext().openAppSettings()
             }
         }
 
@@ -359,6 +362,21 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
             )
                 .show(activity)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh after returning from the system settings the row forwards to (the permission
+        // granularity or the device location switch may have changed there).
+        updateLocationStatus()
+    }
+
+    /** Shows the current location-access status (label + colour) on the "Location" row. */
+    private fun updateLocationStatus() {
+        val ctx = context ?: return
+        val status = locationPermissionStatus(ctx)
+        binding.locationStatus.status = getString(status.labelRes)
+        binding.locationStatus.statusColor = ContextCompat.getColor(ctx, status.colorRes)
     }
 
     override fun onSelected(value: String, requestCode: Int) {

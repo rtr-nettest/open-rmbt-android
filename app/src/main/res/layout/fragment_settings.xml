@@ -89,16 +89,15 @@
                 bind:value="@{state.qosMeasurementSkipForPeriod}" />
 
             <include
-                android:id="@+id/switchLocations"
-                layout="@layout/item_setting_switch"
+                android:id="@+id/locationStatus"
+                layout="@layout/item_setting_location_status"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="@{BuildConfig.CAN_MANAGE_LOCATION_SETTINGS.visible ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTestsForPeriodOnly"
-                bind:title="@{@string/preferences_location}"
-                bind:value="@{state.canManageLocationSettings}" />
+                bind:title="@{@string/preferences_location}" />
 
 
             <include
@@ -108,7 +107,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchLocations"
+                app:layout_constraintTop_toBottomOf="@+id/locationStatus"
                 bind:title="@{@string/preferences_advanced_settings}" />
 
 
