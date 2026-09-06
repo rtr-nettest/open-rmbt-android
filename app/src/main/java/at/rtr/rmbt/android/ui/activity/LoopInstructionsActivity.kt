@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -70,8 +71,8 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     }
 
     override fun onSecondPageAccepted() {
-        if (viewModel.shouldAskForBackgroundPermission()) {
-            binding.title.text = getString(R.string.title_loop_instruction_3)
+        if (viewModel.shouldAskForBackgroundPermission(this)) {
+            binding.title.text = getString(R.string.title_loop_mode_background_permission)
             binding.pager.setCurrentItem(2, true)
         } else {
             onThirdPageAccepted()
@@ -83,8 +84,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
         if (isNeedToAskForNotificationPermission()) {
             checkNotificationPermission()
         } else {
-            viewModel.checkBackgroundLocationPermission(this)
-            finish()
+            requestBackgroundPermissionThenFinish()
         }
     }
 
@@ -95,7 +95,26 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_NOTIFICATION) {
-            viewModel.checkBackgroundLocationPermission(this)
+            requestBackgroundPermissionThenFinish()
+        }
+    }
+
+    // Keep this instructions screen in the foreground until the background-location permission flow
+    // has returned (on Android 11+ that flow is the system settings page), and only close it then.
+    // Firing the request and finishing immediately (the previous behaviour) left the settings page
+    // buried behind the loop measurement, so it only surfaced after the measurement was already over.
+    private val requestBackgroundLocationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            // Remember the outcome so a decline is not re-asked, but a later loss of a granted
+            // permission is offered again on the next loop activation.
+            viewModel.recordBackgroundPermissionResult(granted)
+            finish()
+        }
+
+    private fun requestBackgroundPermissionThenFinish() {
+        if (viewModel.shouldAskForBackgroundPermission(this)) {
+            requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        } else {
             finish()
         }
     }
@@ -134,8 +153,8 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
             context.getString(R.string.text_loop_instruction_1),
             context.getString(R.string.text_loop_instruction_2)
         ).apply {
-            if (viewModel.shouldAskForBackgroundPermission()) {
-                add(context.getString(R.string.text_loop_instruction_3))
+            if (viewModel.shouldAskForBackgroundPermission(context)) {
+                add(context.getString(R.string.text_loop_mode_background_permission))
             }
         }
 
@@ -146,6 +165,13 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
             val binding = ViewLoopModeInstructionBinding.inflate(LayoutInflater.from(container.context))
 
             binding.content.text = items[position]
+
+            // The third page (index 2) is the background-location permission page, and it only exists
+            // when we actually ask. Its accept button forwards to the system settings screen rather
+            // than granting anything, so label it "Continue" instead of the misleading "Accept".
+            if (position == 2) {
+                binding.accept.text = container.context.getString(R.string.text_button_continue)
+            }
 
             binding.decline.setOnClickListener { callback.onDeclined() }
             binding.accept.setOnClickListener {

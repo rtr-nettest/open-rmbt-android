@@ -242,6 +242,7 @@
     <string name="label_map_filters">Impostazioni della mappa</string>
     <string name="text_filter_confirm">Accetta</string>
     <string name="text_filter_continue">Continua</string>
+    <string name="text_button_continue">Continua</string>
     <string name="title_filters_type">Tipo di mappa</string>
     <string name="title_filters_subtype">Opzioni di tipo</string>
     <string name="about_email_subject">Richiesta di supporto</string>
@@ -257,10 +258,13 @@
     <string name="text_button_accept">Accetta</string>
     <string name="text_loop_instruction_1">La modalità loop per gli utenti tecnicamente interessati consente la ripetizione automatica di RTR-NetTest. La prima prova inizia subito dopo l\'attivazione della modalità loop; ulteriori prove sono effettuate quando è trascorso il tempo di attesa o quando è stata percorsa la distanza specificata. Le prove saranno eseguite fino al raggiungimento del numero configurato di prove. L\'intensità del segnale viene misurata continuamente, anche tra due prove. La modalità loop può essere interrotta in qualsiasi momento e si ferma comunque dopo 48 ore. Va sottolineato esplicitamente che a causa della modalità loop non si può escludere che il tester sia identificato.</string>
     <string name="text_loop_instruction_2">Nel caso di una grande domanda o di un numero molto elevato di test in un determinato settore, la modalità loop può essere rifiutata dal sistema di prova per evitare sovraccarichi. Si prega di notare che il loop-modus è (solo) destinato all\'uso all\'interno dell\'UE e del SEE. Il loop-modus consuma una grande quantità di dati. Con connessioni rapide, 10 test possono consumare 1 GB o più di dati. Si raccomanda pertanto vivamente che il loop-modus venga utilizzato solo con tariffe forfettarie reali, dove il volume di dati aggiuntivi non comporta costi aggiuntivi. Il loop-modus svuota rapidamente la batteria. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che durante la modalità stand-by. Il loop-modus dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno.</string>
-    <string name="text_loop_instruction_3">RTR-NetTest utilizza il permesso alla posizione solo durante la misurazione; il permesso per l\'esecuzione in background è necessario per consentire l\'esecuzione della modalità loop in background.\n\nRTR-NetTest raccoglie dati sulla posizione per registrare la posizione di una misurazione durante la modalità loop, anche quando l\'app è in esecuzione in background.</string>
+    <string name="text_loop_mode_background_permission">RTR-NetTest utilizza il permesso alla posizione solo durante la misurazione; il permesso per l\'esecuzione in background è necessario per consentire l\'esecuzione delle misurazioni in background.\n\nRTR-NetTest raccoglie dati sulla posizione per registrare la posizione di una misurazione durante la modalità loop, anche quando l\'app è in esecuzione in background.</string>
     <string name="title_loop_instruction_1">Attivazione</string>
     <string name="title_loop_instruction_2">Utilizzo</string>
-    <string name="title_loop_instruction_3">Autorizzazioni</string>
+    <string name="title_loop_mode_background_permission">Autorizzazione alla posizione</string>
+
+    <string name="title_signal_measurement_background_permission">Autorizzazione alla posizione</string>
+    <string name="text_signal_measurement_background_permission">RTR-NetTest utilizza il permesso alla posizione solo durante la misurazione; il permesso per l\'esecuzione in background è necessario per consentire alla misurazione del segnale di continuare a essere eseguita in background.\n\nRTR-NetTest raccoglie dati sulla posizione per registrare la posizione durante la misurazione del segnale, anche quando l\'app è in esecuzione in background.</string>
     <string name="text_filter_devices">Dispositivi</string>
     <string name="text_filter_networks">Reti</string>
     <string name="label_filter_options">Opzioni</string>

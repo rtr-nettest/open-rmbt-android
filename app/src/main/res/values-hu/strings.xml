@@ -242,6 +242,7 @@
     <string name="label_map_filters">Térkép beállítások</string>
     <string name="text_filter_confirm">Elfogadás</string>
     <string name="text_filter_continue">Tovább</string>
+    <string name="text_button_continue">Tovább</string>
     <string name="title_filters_type">Térkép típus</string>
     <string name="title_filters_subtype">Típus beállítási lehetőségek</string>
     <string name="about_email_subject">Támogatás kérése</string>
@@ -257,10 +258,13 @@
     <string name="text_button_accept">Elfogadom</string>
     <string name="text_loop_instruction_1">Az ismétlődő mérés opció a műszaki érdeklődésű felhasználók számára lehetővé teszi az RTR-NetTest mérés folyamatos megismétlését. Az első mérésre az ismétlődő mérési mód bekapcsolását követően azonnal sor kerül. A további mérések a meghatározott várakozási idő elteltét követően vagy a mérési pontnak a beállított távolságot meghaladó mértékű elmozdulása esetén kerül sor. A mérések addig ismétlődnek, amíg számuk el nem éri a beállított értéket. A jelerősség mérése folyamatosan történik, az ismétlődő mérések között is. Az ismétlődő mérés mód bármikor leállítható, de 48 óra elteltével automatikusan is leáll. Felhívjuk a figyelmet arra, hogy az ismétlődő mérési módban nem zárható ki a tesztelést végző azonosítása.</string>
     <string name="text_loop_instruction_2">Amennyiben egy területen túl sok egyidejű folyamatos mérési igény jelentkezik, a túlterhelés elkerülése érdekében a rendszer a folyamatos mérési igényeket visszautasíthatja. Kérjük, vegye figyelembe, hogy a folyamatos mérési funkció kizárólag az EU tagállamokban, illetve az EU gazdasági térség országaiban történő használatra készült. A folyamatos mérés nagy mennyiségű adatforgalmat generál. Nagy sebességű hálózat esetén 10 mérés elvégzése 1 GB vagy ennél nagyobb adatforgalmat is jelenthet. Erre tekintettel, nyomatékosan javasoljuk, hogy a folyamatos mérési mód beállítását kizárólag ténylegesen rögzített díjszabás esetén végezze el. A folyamatos mérés gyorsan az akkumulátor lemerülésével járhat. A mérések szüneteiben a GPS és a képernyő bekapcsolva marad, ami jelentős többlet energiafogyasztást eredményez. Erre tekintettel a folyamatos mérés csak külső tápegység csatlakoztatása mellett javasolt.</string>
-    <string name="text_loop_instruction_3">Az RTR-NetTest alkalmazás kizárólag a mérés ideje alatt veszi igénybe a helymeghatározási engedélyt; a háttérben futás engedélye az ismétlődő mérési mód háttérben futtatásához szükséges.\n\nAz RTR-NetTest helyadatokat gyűjt az ismétlődő mérési mód során végzett mérés helyszínének rögzítése érdekében, akkor is, ha az alkalmazás a háttérben fut.</string>
+    <string name="text_loop_mode_background_permission">Az RTR-NetTest alkalmazás kizárólag a mérés ideje alatt veszi igénybe a helymeghatározási engedélyt; a háttérben futás engedélye a mérések háttérben történő futtatásához szükséges.\n\nAz RTR-NetTest helyadatokat gyűjt az ismétlődő mérési mód során végzett mérés helyszínének rögzítése érdekében, akkor is, ha az alkalmazás a háttérben fut.</string>
     <string name="title_loop_instruction_1">Aktiválás</string>
     <string name="title_loop_instruction_2">Használat</string>
-    <string name="title_loop_instruction_3">Engedélyek</string>
+    <string name="title_loop_mode_background_permission">Helymeghatározási engedély</string>
+
+    <string name="title_signal_measurement_background_permission">Helymeghatározási engedély</string>
+    <string name="text_signal_measurement_background_permission">Az RTR-NetTest alkalmazás kizárólag a mérés ideje alatt veszi igénybe a helymeghatározási engedélyt; a háttérben futás engedélye ahhoz szükséges, hogy a jelmérés a háttérben is folytatódhasson.\n\nAz RTR-NetTest helyadatokat gyűjt a jelmérés helyszínének rögzítése érdekében, akkor is, ha az alkalmazás a háttérben fut.</string>
     <string name="text_filter_devices">Készülékek</string>
     <string name="text_filter_networks">Hálózatok</string>
     <string name="label_filter_options">Választási lehetőségek</string>

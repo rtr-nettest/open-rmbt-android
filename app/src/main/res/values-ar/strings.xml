@@ -229,6 +229,7 @@
     <string name="label_map_filters">إعدادات الخريطة</string>
     <string name="text_filter_confirm">قبول</string>
     <string name="text_filter_continue">متابعة</string>
+    <string name="text_button_continue">متابعة</string>
     <string name="title_filters_type">نوع الخريطة</string>
     <string name="title_filters_subtype">خيارات النوع</string>
     <string name="about_email_subject">طلب دعم</string>
@@ -244,10 +245,13 @@
     <string name="text_button_accept">قبول</string>
     <string name="text_loop_instruction_1">يتيح خيار وضع الحلقة للمستخدمين المهتمين تقنياً تكرار اختبار RTR-NetTest تلقائياً. يبدأ الاختبار الأول مباشرة بعد تفعيل وضع الحلقة؛ وتُجرى اختبارات إضافية عند انقضاء وقت الانتظار أو قطع المسافة المحددة. تستمر الاختبارات حتى الوصول إلى العدد المُهيَّأ من الاختبارات. تُقاس قوة الإشارة باستمرار، حتى بين الاختبارين. يمكن إيقاف وضع الحلقة في أي وقت، أو يتوقف تلقائياً بعد 48 ساعة. تجدر الإشارة صراحةً إلى أنه بسبب وضع الحلقة، لا يمكن استبعاد التعرف على المختبِر.</string>
     <string name="text_loop_instruction_2">في حالة الطلب الكبير أو العدد الكبير جداً من الاختبارات في منطقة معينة، قد يرفض نظام الاختبار وضع الحلقة لتجنب الحمل الزائد. يرجى ملاحظة أن وضع الحلقة مخصص (فقط) للاستخدام داخل الاتحاد الأوروبي والمنطقة الاقتصادية الأوروبية. يستهلك وضع الحلقة كميات كبيرة من البيانات؛ مع الاتصالات السريعة، يمكن أن تستهلك 10 اختبارات 1 جيجابايت أو أكثر. لذا يُوصى بشدة باستخدام وضع الحلقة فقط مع خطط البيانات غير المحدودة الحقيقية. يُفرغ وضع الحلقة البطارية بسرعة؛ في فترات الراحة بين الاختبارات يظل GPS والشاشة نشطَين وتستمر قياسات الإشارة، مما يعني أن الطاقة تُستنزف أسرع بكثير مما في وضع الاستعداد. لذا ينبغي استخدام وضع الحلقة فقط عند توفّر مصدر طاقة خارجي.</string>
-    <string name="text_loop_instruction_3">يستخدم RTR-NetTest إذن الموقع فقط أثناء القياس، ويُلزَم إذن الخلفية للسماح بتشغيل وضع الحلقة في الخلفية.\n\nيجمع RTR-NetTest بيانات الموقع لتسجيل مكان القياس أثناء وضع الحلقة، حتى عند تشغيل التطبيق في الخلفية.</string>
+    <string name="text_loop_mode_background_permission">يستخدم RTR-NetTest إذن الموقع فقط أثناء القياس، ويُلزَم إذن الخلفية للسماح بتشغيل القياسات في الخلفية.\n\nيجمع RTR-NetTest بيانات الموقع لتسجيل مكان القياس أثناء وضع الحلقة، حتى عند تشغيل التطبيق في الخلفية.</string>
     <string name="title_loop_instruction_1">التفعيل</string>
     <string name="title_loop_instruction_2">الاستخدام</string>
-    <string name="title_loop_instruction_3">الأذونات</string>
+    <string name="title_loop_mode_background_permission">إذن الموقع</string>
+
+    <string name="title_signal_measurement_background_permission">إذن الموقع</string>
+    <string name="text_signal_measurement_background_permission">يستخدم RTR-NetTest إذن الموقع فقط أثناء القياس، ويُلزَم إذن الخلفية للسماح لقياس الإشارة بالاستمرار في العمل في الخلفية.\n\nيجمع RTR-NetTest بيانات الموقع لتسجيل الموقع أثناء قياس الإشارة، حتى عند تشغيل التطبيق في الخلفية.</string>
     <string name="text_filter_devices">الأجهزة</string>
     <string name="text_filter_networks">الشبكات</string>
     <string name="label_filter_options">الخيارات</string>

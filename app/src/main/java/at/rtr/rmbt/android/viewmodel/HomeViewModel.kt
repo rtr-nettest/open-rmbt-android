@@ -13,6 +13,8 @@ import at.rmbt.client.control.IpProtocol
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.location.LocationModule
+import at.rtr.rmbt.android.util.recordBackgroundPermissionResult
+import at.rtr.rmbt.android.util.shouldAskForBackgroundPermission
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
@@ -257,6 +259,20 @@ class HomeViewModel @Inject constructor(
     fun permissionsWereAsked() {
         appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
     }
+
+    /**
+     * Whether to show the background-location permission info screen and request the permission.
+     * See [shouldAskForBackgroundPermission].
+     */
+    fun shouldAskForBackgroundPermission(context: Context): Boolean =
+        shouldAskForBackgroundPermission(appConfig, context)
+
+    /**
+     * Records the outcome of an in-app background-location permission request. See
+     * [recordBackgroundPermissionResult].
+     */
+    fun recordBackgroundPermissionResult(granted: Boolean) =
+        recordBackgroundPermissionResult(appConfig, granted)
 
     fun shouldDisplayNetworkDetails(): Boolean {
         // allow cell infos is expert mode is enabled or if always enabled by configuration

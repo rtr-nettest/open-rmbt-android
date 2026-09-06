@@ -242,6 +242,7 @@
     <string name="label_map_filters">Ajustes del mapa</string>
     <string name="text_filter_confirm">Confirmar</string>
     <string name="text_filter_continue">Continuar</string>
+    <string name="text_button_continue">Continuar</string>
     <string name="title_filters_type">Tipo de mapa</string>
     <string name="title_filters_subtype">Opciones de tipo</string>
     <string name="about_email_subject">Solicitud de soporte</string>
@@ -257,10 +258,13 @@
     <string name="text_button_accept">Aceptar</string>
     <string name="text_loop_instruction_1">El modo bucle permite a RTR-NetTest repetir las pruebas de forma automática.\n\nLa primera prueba comienza inmediatamente al iniciar el modo bucle. Las siguientes pruebas se iniciarán cuando se cumpla el tiempo de espera elegido (por defecto 30 minutos) o cuando se haya recorrido la distancia elegida (por defecto 250 metros). Estos valores se pueden modificar en los \"Ajustes\" del modo bucle. Las pruebas continuarán hasta que se alcance el número máximo de pruebas elegido (por defecto 10 pruebas). El modo bucle se desactiva automáticamente después de 2 días. Las pruebas se pueden detener en cualquier momento.\n\nPor favor tenga en cuenta que no se descarta la posibilidad de que debido al uso del modo bucle se pueda rastrear a la persona ejecutando las pruebas.</string>
     <string name="text_loop_instruction_2">En caso de alta demanda o de la ocurrencia de un elevado número de pruebas en un área determinada, es posible que el sistema rechace las pruebas en bucle para evitar la sobrecarga. Es importante destacar que el modo bucle está (únicamente) diseñado para su uso en los países que forman parte de la UE y el EEE.\n\nTenga en cuenta que el modo bucle puede utilizar una gran cantidad de datos. En las conexiones más rápidas, 10 pruebas pueden consumir 1 GB o más datos. Por ello, le recomendamos encarecidamente que utilice el modo bucle sólo en caso de disponer de una tarifa plana, de modo que el consumo de datos no origine costes adicionales.\n\nEl modo bucle puede consumir rápidamente la batería de su dispositivo. En los intervalos de pausa entre las pruebas del modo bucle, la pantalla y la conexión GPS permanecen activos, por lo que se utiliza mayor energía que en modo descanso. Por lo tanto, se recomienda utilizar el modo bucle cuando sea posible conectar su dispositivo a una fuente de energía.</string>
-    <string name="text_loop_instruction_3">RTR-NetTest utiliza el permiso de ubicación solo durante la medición; el permiso en segundo plano es necesario para permitir que el modo bucle se ejecute en segundo plano.\n\nRTR-NetTest recopila datos de ubicación para registrar la ubicación de una medición durante el modo bucle, incluso cuando la aplicación se ejecuta en segundo plano.</string>
+    <string name="text_loop_mode_background_permission">RTR-NetTest utiliza el permiso de ubicación solo durante la medición; el permiso en segundo plano es necesario para permitir que las mediciones se ejecuten en segundo plano.\n\nRTR-NetTest recopila datos de ubicación para registrar la ubicación de una medición durante el modo bucle, incluso cuando la aplicación se ejecuta en segundo plano.</string>
     <string name="title_loop_instruction_1">Activación</string>
     <string name="title_loop_instruction_2">Uso</string>
-    <string name="title_loop_instruction_3">Permisos</string>
+    <string name="title_loop_mode_background_permission">Permiso de ubicación</string>
+
+    <string name="title_signal_measurement_background_permission">Permiso de ubicación</string>
+    <string name="text_signal_measurement_background_permission">RTR-NetTest utiliza el permiso de ubicación solo durante la medición; el permiso en segundo plano es necesario para permitir que la medición de señal siga ejecutándose en segundo plano.\n\nRTR-NetTest recopila datos de ubicación para registrar la ubicación durante la medición de señal, incluso cuando la aplicación se ejecuta en segundo plano.</string>
     <string name="text_filter_devices">Dispositivo</string>
     <string name="text_filter_networks">Red de acceso</string>
     <string name="label_filter_options">Ajustes</string>

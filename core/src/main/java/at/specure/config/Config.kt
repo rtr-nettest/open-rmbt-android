@@ -433,9 +433,13 @@ interface Config {
     val lastNotificationPermissionAskedTimestampMillis: Long
 
     /**
-     * Timestamp of last asked for background location permission System.currentTimeMillis()
+     * True once the user was asked for the background-location permission inside the app and did NOT
+     * grant it. Used to avoid nagging: the permission is offered again whenever it is not granted,
+     * UNLESS the user already declined it in-app. A later grant (self-healed in
+     * shouldAskForBackgroundPermission) clears this, so if the permission is subsequently lost
+     * outside the app the user is offered it again.
      */
-    val lastBackgroundPermissionAskedTimestampMillis: Long
+    val backgroundLocationPermissionDeclinedInApp: Boolean
 
     /**
      * When this flag is set to true, new client UUID is generated before each test execution (no test history no synced results),

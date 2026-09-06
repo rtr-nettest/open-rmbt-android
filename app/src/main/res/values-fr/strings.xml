@@ -229,6 +229,7 @@
     <string name="label_map_filters">Paramètres de la carte</string>
     <string name="text_filter_confirm">Accepter</string>
     <string name="text_filter_continue">Continuer</string>
+    <string name="text_button_continue">Continuer</string>
     <string name="title_filters_type">Type de carte</string>
     <string name="title_filters_subtype">Options de type</string>
     <string name="about_email_subject">Demande d\'assistance</string>
@@ -244,10 +245,13 @@
     <string name="text_button_accept">Accepter</string>
     <string name="text_loop_instruction_1">L\'option mode boucle pour les utilisateurs techniquement intéressés permet la répétition automatique de RTR-NetTest. Le premier test démarre juste après l\'activation du mode boucle ; d\'autres tests sont effectués soit lorsque le délai d\'attente est écoulé, soit lorsque la distance spécifiée a été parcourue. Les tests sont effectués jusqu\'à ce que le nombre de tests configuré soit atteint. La force du signal est mesurée en continu, même entre deux tests. Le mode boucle peut être arrêté à tout moment, ou il s\'arrête après 48 heures. Il convient de souligner explicitement qu\'en raison du mode boucle, il ne peut être exclu que le testeur soit identifié.</string>
     <string name="text_loop_instruction_2">En cas de forte demande ou d\'un très grand nombre de tests dans une zone spécifique, le mode boucle peut être rejeté par le système de test pour éviter les surcharges. Veuillez noter que le mode boucle est (uniquement) destiné à être utilisé dans l\'UE et l\'EEE. Le mode boucle consomme une grande quantité de données. Avec des connexions rapides, 10 tests peuvent consommer 1 Go ou plus de données. Il est donc fortement recommandé de n\'utiliser le mode boucle qu\'avec de véritables tarifs forfaitaires, où le volume de données supplémentaire n\'entraîne pas de coûts supplémentaires. Le mode boucle décharge rapidement la batterie. Dans les pauses entre les tests, le GPS et l\'écran restent actifs et les mesures de signal continuent, ce qui signifie que l\'énergie est consommée beaucoup plus rapidement qu\'en mode veille. Le mode boucle ne doit donc être utilisé que si une alimentation externe est disponible.</string>
-    <string name="text_loop_instruction_3">RTR-NetTest n\'utilise l\'autorisation de localisation que pendant la mesure, l\'autorisation d\'arrière-plan est nécessaire pour permettre d\'exécuter le mode boucle en arrière-plan.\n\nRTR-NetTest collecte des données de localisation afin d\'enregistrer l\'emplacement d\'une mesure pendant le mode boucle, même lorsque l\'application s\'exécute en arrière-plan.</string>
+    <string name="text_loop_mode_background_permission">RTR-NetTest n\'utilise l\'autorisation de localisation que pendant la mesure, l\'autorisation d\'arrière-plan est nécessaire pour permettre d\'exécuter les mesures en arrière-plan.\n\nRTR-NetTest collecte des données de localisation afin d\'enregistrer l\'emplacement d\'une mesure pendant le mode boucle, même lorsque l\'application s\'exécute en arrière-plan.</string>
     <string name="title_loop_instruction_1">Activation</string>
     <string name="title_loop_instruction_2">Utilisation</string>
-    <string name="title_loop_instruction_3">Autorisations</string>
+    <string name="title_loop_mode_background_permission">Autorisation de localisation</string>
+
+    <string name="title_signal_measurement_background_permission">Autorisation de localisation</string>
+    <string name="text_signal_measurement_background_permission">RTR-NetTest n\'utilise l\'autorisation de localisation que pendant la mesure, l\'autorisation d\'arrière-plan est nécessaire pour permettre à la mesure du signal de continuer à s\'exécuter en arrière-plan.\n\nRTR-NetTest collecte des données de localisation afin d\'enregistrer l\'emplacement pendant la mesure du signal, même lorsque l\'application s\'exécute en arrière-plan.</string>
     <string name="text_filter_devices">Appareils</string>
     <string name="text_filter_networks">Réseaux</string>
     <string name="label_filter_options">Options</string>

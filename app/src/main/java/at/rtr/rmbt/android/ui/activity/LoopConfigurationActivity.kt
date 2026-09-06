@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -108,7 +109,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         if (isNeedToAskForNotificationPermission()) {
             checkNotificationPermission()
         } else {
-            viewModel.checkBackgroundLocationPermission(this)
+            maybeRequestBackgroundPermission()
         }
     }
 
@@ -119,7 +120,24 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_NOTIFICATION) {
-            viewModel.checkBackgroundLocationPermission(this)
+            maybeRequestBackgroundPermission()
+        }
+    }
+
+    private val requestBackgroundLocationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            // Remember the outcome so a decline is not re-asked, but a later loss of a granted
+            // permission is offered again next time the loop is (re)started.
+            viewModel.recordBackgroundPermissionResult(granted)
+        }
+
+    // Requesting here (no navigation follows until the user taps "accept" to start the measurement)
+    // means the system settings page appears at the right time - before the loop starts - and is
+    // never buried behind a running measurement. Only offered when appropriate: enabled, requestable,
+    // not already granted, and not previously declined in-app.
+    private fun maybeRequestBackgroundPermission() {
+        if (viewModel.shouldAskForBackgroundPermission(this)) {
+            requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
 

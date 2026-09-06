@@ -229,6 +229,7 @@
     <string name="label_map_filters">Nastavení mapy</string>
     <string name="text_filter_confirm">Přijmout</string>
     <string name="text_filter_continue">Pokračovat</string>
+    <string name="text_button_continue">Pokračovat</string>
     <string name="title_filters_type">Typ mapy</string>
     <string name="title_filters_subtype">Možnosti typu</string>
     <string name="about_email_subject">Požadavek na podporu</string>
@@ -244,10 +245,13 @@
     <string name="text_button_accept">Přijmout</string>
     <string name="text_loop_instruction_1">Možnost režimu smyčky pro technicky zainteresované uživatele umožňuje automatické opakování RTR-NetTest. První test začíná ihned po aktivaci režimu smyčky; další testy jsou prováděny, když uplyne čekací doba nebo je dosažena zadaná vzdálenost. Testy se provádějí, dokud není dosaženo nakonfigurovaného počtu testů. Síla signálu je měřena nepřetržitě, i mezi dvěma testy. Režim smyčky lze kdykoliv zastavit, nebo se zastaví po 48 hodinách. Je třeba výslovně upozornit, že kvůli režimu smyčky nelze vyloučit, že tester bude identifikován.</string>
     <string name="text_loop_instruction_2">V případě velké poptávky nebo velmi vysokého počtu testů v konkrétní oblasti může být režim smyčky testovacím systémem odmítnut, aby se zabránilo přetížení. Vezměte prosím na vědomí, že režim smyčky je (pouze) určen pro použití v rámci EU a EHP. Režim smyčky spotřebovává velké množství dat. Při rychlých připojeních může 10 testů spotřebovat 1 GB nebo více dat. Proto se důrazně doporučuje používat režim smyčky pouze s opravdovými paušálními tarify, kde další datový objem nezpůsobuje další náklady. Režim smyčky rychle vybíjí baterii. V pauzách mezi testy zůstávají GPS a displej aktivní a měření signálu pokračuje, což znamená, že energie se spotřebovává mnohem rychleji než v pohotovostním režimu. Režim smyčky by proto měl být používán pouze tehdy, je-li k dispozici externí napájení.</string>
-    <string name="text_loop_instruction_3">RTR-NetTest používá oprávnění polohy pouze během měření, oprávnění pro pozadí je vyžadováno pro spuštění režimu smyčky na pozadí.\n\nRTR-NetTest shromažďuje data o poloze za účelem záznamu místa měření během režimu smyčky, i když aplikace běží na pozadí.</string>
+    <string name="text_loop_mode_background_permission">RTR-NetTest používá oprávnění polohy pouze během měření, oprávnění pro pozadí je vyžadováno pro spuštění měření na pozadí.\n\nRTR-NetTest shromažďuje data o poloze za účelem záznamu místa měření během režimu smyčky, i když aplikace běží na pozadí.</string>
     <string name="title_loop_instruction_1">Aktivace</string>
     <string name="title_loop_instruction_2">Použití</string>
-    <string name="title_loop_instruction_3">Oprávnění</string>
+    <string name="title_loop_mode_background_permission">Oprávnění polohy</string>
+
+    <string name="title_signal_measurement_background_permission">Oprávnění polohy</string>
+    <string name="text_signal_measurement_background_permission">RTR-NetTest používá oprávnění polohy pouze během měření, oprávnění pro pozadí je vyžadováno k tomu, aby měření signálu mohlo pokračovat na pozadí.\n\nRTR-NetTest shromažďuje data o poloze za účelem záznamu místa během měření signálu, i když aplikace běží na pozadí.</string>
     <string name="text_filter_devices">Zařízení</string>
     <string name="text_filter_networks">Sítě</string>
     <string name="label_filter_options">Možnosti</string>
