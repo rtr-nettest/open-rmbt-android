@@ -58,6 +58,29 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
         binding.pager.adapter = InstructionsAdapter(this, this)
         binding.pager.currentItem = 0
+
+        if (viewModel.shouldShowLoopModeTerms()) {
+            // Display the instructions/terms pages and count it.
+            viewModel.loopModeTermsDisplayed()
+        } else {
+            // The instructions have already been shown enough times since installation: skip them and
+            // enable loop mode directly, still handling the (separate, once-only) permission steps.
+            skipLoopInstructions()
+        }
+    }
+
+    /**
+     * Enables loop mode without showing the instruction/terms pages: shows only the background-location
+     * permission rationale page if it still needs to be shown (its own once-only gate), otherwise
+     * finishes right away through the normal final-accept path (notification + background permission).
+     */
+    private fun skipLoopInstructions() {
+        if (viewModel.shouldAskForBackgroundPermission(this)) {
+            binding.title.text = getString(R.string.title_loop_mode_background_permission)
+            binding.pager.setCurrentItem(2, false)
+        } else {
+            onThirdPageAccepted()
+        }
     }
 
     override fun onDeclined() {

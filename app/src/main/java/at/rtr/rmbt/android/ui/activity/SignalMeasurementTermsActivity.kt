@@ -97,24 +97,7 @@ class SignalMeasurementTermsActivity : BaseActivity() {
             finish()
         }
 
-        binding.accept.setOnClickListener {
-            when {
-                !backgroundInfoShown && viewModel.shouldAskForBackgroundPermission(this) -> {
-                    // Signal (coverage) measurements keep running as a foreground service while the
-                    // app is in the background, so - exactly as in loop mode - show the
-                    // background-location permission info screen before requesting the permission.
-                    showBackgroundPermissionInfo()
-                }
-                // Reaching the info screen already guarantees the permission is requestable and not
-                // yet granted (see shouldAskForBackgroundPermission - which only returns true on
-                // Android Q+, where the separate background-location permission exists), so just
-                // launch the request and wait for the result before proceeding. The explicit SDK
-                // check keeps lint happy about the Q-only permission constant.
-                backgroundInfoShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                    requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                else -> proceedAfterConsent()
-            }
-        }
+        binding.accept.setOnClickListener { onTermsAccepted() }
 
         // Observe the GPS and network status live. Observing also keeps the GNSS source warm while
         // this full-screen consent flow is shown (the home screen's own observer is paused), so the
@@ -128,6 +111,39 @@ class SignalMeasurementTermsActivity : BaseActivity() {
             // own view model instance.
             viewModel.state.activeNetworkInfo.set(info?.copy())
             maybeStartWhenReady()
+        }
+
+        if (viewModel.shouldShowSignalMeasurementTerms()) {
+            // Display the usage-terms page (the default layout) and count it.
+            viewModel.signalMeasurementTermsDisplayed()
+        } else {
+            // The terms have already been shown enough times since installation: skip the terms page
+            // and go straight to the post-consent flow (background-permission page if still needed,
+            // then waiting-for-status / starting the measurement).
+            onTermsAccepted()
+        }
+    }
+
+    /**
+     * The usage terms were accepted (or skipped after being shown enough times). Advances the flow:
+     * background-permission info page -> permission request -> proceed to the measurement.
+     */
+    private fun onTermsAccepted() {
+        when {
+            !backgroundInfoShown && viewModel.shouldAskForBackgroundPermission(this) -> {
+                // Signal (coverage) measurements keep running as a foreground service while the app
+                // is in the background, so - exactly as in loop mode - show the background-location
+                // permission info screen before requesting the permission.
+                showBackgroundPermissionInfo()
+            }
+            // Reaching the info screen already guarantees the permission is requestable and not yet
+            // granted (see shouldAskForBackgroundPermission - which only returns true on Android Q+,
+            // where the separate background-location permission exists), so just launch the request
+            // and wait for the result before proceeding. The explicit SDK check keeps lint happy
+            // about the Q-only permission constant.
+            backgroundInfoShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            else -> proceedAfterConsent()
         }
     }
 

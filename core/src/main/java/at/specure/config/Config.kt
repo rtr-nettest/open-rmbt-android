@@ -442,6 +442,19 @@ interface Config {
     val backgroundLocationPermissionDeclinedInApp: Boolean
 
     /**
+     * How many times the signal-measurement usage-terms screen has been shown since installation.
+     * The screen is only shown up to a mode-dependent limit (once for experts, more for non-experts);
+     * the count is shared across modes so switching mode keeps the total honest.
+     */
+    var signalMeasurementTermsDisplayedCount: Int
+
+    /**
+     * How many times the loop-mode instructions/terms screen has been shown since installation.
+     * Same limiting logic as [signalMeasurementTermsDisplayedCount], with its own separate count.
+     */
+    var loopModeTermsDisplayedCount: Int
+
+    /**
      * When this flag is set to true, new client UUID is generated before each test execution (no test history no synced results),
      * when this flag is set to false, user has one permanent client uuid and ability to sync history and see results history
      */

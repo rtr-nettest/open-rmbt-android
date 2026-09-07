@@ -7,6 +7,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.LoopConfigurationViewState
 import at.rtr.rmbt.android.util.recordBackgroundPermissionResult
 import at.rtr.rmbt.android.util.shouldAskForBackgroundPermission
+import at.rtr.rmbt.android.util.termsDisplayLimit
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import javax.inject.Inject
 
@@ -64,5 +65,17 @@ class LoopConfigurationViewModel @Inject constructor(val config: AppConfig, conn
 
     fun notificationPermissionsWereAsked() {
         config.lastNotificationPermissionAskedTimestampMillis = System.currentTimeMillis()
+    }
+
+    /**
+     * Whether the loop-mode instructions/terms screen should still be shown: only up to a
+     * mode-dependent limit since installation (once for experts, more for non-experts).
+     */
+    fun shouldShowLoopModeTerms(): Boolean =
+        config.loopModeTermsDisplayedCount < termsDisplayLimit(config.expertModeEnabled)
+
+    /** Records that the loop-mode instructions/terms screen was just shown. */
+    fun loopModeTermsDisplayed() {
+        config.loopModeTermsDisplayedCount++
     }
 }

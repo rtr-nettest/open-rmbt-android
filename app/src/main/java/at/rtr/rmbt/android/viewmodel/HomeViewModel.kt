@@ -15,6 +15,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.location.LocationModule
 import at.rtr.rmbt.android.util.recordBackgroundPermissionResult
 import at.rtr.rmbt.android.util.shouldAskForBackgroundPermission
+import at.rtr.rmbt.android.util.termsDisplayLimit
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
@@ -328,6 +329,18 @@ class HomeViewModel @Inject constructor(
     fun startFreshSignalMeasurementSession() {
         coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = false
         coverageMeasurementSettings.signalMeasurementLastMeasurementId = null
+    }
+
+    /**
+     * Whether the signal-measurement usage-terms screen should still be shown: only up to a
+     * mode-dependent limit since installation (once for experts, more for non-experts).
+     */
+    fun shouldShowSignalMeasurementTerms(): Boolean =
+        appConfig.signalMeasurementTermsDisplayedCount < termsDisplayLimit(appConfig.expertModeEnabled)
+
+    /** Records that the signal-measurement terms screen was just shown. */
+    fun signalMeasurementTermsDisplayed() {
+        appConfig.signalMeasurementTermsDisplayedCount++
     }
 
     fun syncCoverageOnRequests(context: Context) {
