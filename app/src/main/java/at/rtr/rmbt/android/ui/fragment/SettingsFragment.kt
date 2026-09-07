@@ -13,7 +13,6 @@ import android.text.InputType
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.core.content.ContextCompat
 import at.rmbt.client.control.IpProtocol
 import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.BuildConfig
@@ -376,7 +375,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         val ctx = context ?: return
         val status = locationPermissionStatus(ctx)
         binding.locationStatus.status = getString(status.labelRes)
-        binding.locationStatus.statusColor = ContextCompat.getColor(ctx, status.colorRes)
     }
 
     override fun onSelected(value: String, requestCode: Int) {

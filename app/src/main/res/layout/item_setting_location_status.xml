@@ -14,10 +14,6 @@
             name="status"
             type="String" />
 
-        <variable
-            name="statusColor"
-            type="int" />
-
     </data>
 
     <LinearLayout
@@ -52,9 +48,8 @@
             android:layout_marginStart="@dimen/margin_small"
             android:gravity="end"
             android:text="@{status}"
-            android:textColor="@{statusColor}"
-            tools:text="Precise (always)"
-            tools:textColor="@color/location_button_green" />
+            android:textColor="@color/text_dark_gray"
+            tools:text="Precise (always)" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/chevronLoc"

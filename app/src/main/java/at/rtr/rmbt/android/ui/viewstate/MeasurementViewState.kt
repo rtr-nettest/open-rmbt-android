@@ -64,6 +64,12 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
     val expertModeEnabled = ObservableBoolean(config.expertModeEnabled)
 
+    /**
+     * True while the measurement screen is in Picture-in-Picture. The PiP window is tiny, so the
+     * extra expert-mode details are hidden there (they would otherwise overlap the core readout).
+     */
+    val isPipMode = ObservableBoolean(false)
+
     /** Current GPS speed in km/h, or null when no valid speed is available (GPS not used). */
     val speedKmh = ObservableField<Float?>()
 

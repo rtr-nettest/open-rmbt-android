@@ -148,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    app:visibleOrGone="@{state.expertModeEnabled}">
+                    app:visibleOrGone="@{state.expertModeEnabled &amp;&amp; !state.isPipMode}">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/speed_label"
@@ -245,7 +245,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/curve_layout"
                 app:layout_constraintEnd_toEndOf="@id/curve_layout"
                 app:primaryCellInfo="@{state.detailedNetworkInfo}"
-                app:primaryCellInfoExpert="@{state.expertModeEnabled}" />
+                app:primaryCellInfoExpert="@{state.expertModeEnabled &amp;&amp; !state.isPipMode}" />
 
             <ImageView
                 android:id="@+id/buttonCancel"

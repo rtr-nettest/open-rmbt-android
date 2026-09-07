@@ -238,7 +238,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         newConfig: Configuration
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        // TODO: adjust variable for state and adjust UI to process that state
+        // The PiP window is tiny: hide the extra expert-mode details there so they don't overlap the
+        // core readout (the layout gates them on !state.isPipMode).
+        viewModel.state.isPipMode.set(isInPictureInPictureMode)
     }
 
 
