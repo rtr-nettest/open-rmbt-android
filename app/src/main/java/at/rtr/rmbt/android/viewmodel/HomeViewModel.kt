@@ -378,7 +378,18 @@ class HomeViewModel @Inject constructor(
             ageMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
     }
 
-    /** Latest GNSS-only fix, or null. Prefers the observed LiveData value, falling back to the hot one. */
+    /**
+     * Latest GNSS-only fix, or null. Prefers the live LiveData value (what the still-observed source
+     * is actually delivering) and only falls back to the watcher's last-known "hot" value when there
+     * is no live value yet.
+     *
+     * The order matters: [gpsLocationWatcher.latestLocation] is backed by getLastKnownLocation(GPS),
+     * a system-cached fix that lingers on its own timer even after the live source has gone quiet.
+     * Preferring it made the signal-measurement start criteria stay "green" (a recent-enough cached
+     * fix) while the live location shown on the home screen had already gone yellow/grey. Any screen
+     * that needs a fresh fix therefore keeps its source observed (which keeps this LiveData current),
+     * rather than relying on the cached value.
+     */
     fun currentGpsLocation(): LocationInfo? =
         gpsLocationLiveData.value ?: gpsLocationWatcher.latestLocation
 }

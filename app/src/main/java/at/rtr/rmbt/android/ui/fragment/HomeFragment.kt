@@ -54,10 +54,8 @@ class HomeFragment : BaseFragment() {
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
-            if (it.resultCode == Activity.RESULT_OK) {
-//                homeViewModel.toggleSignalMeasurementService()
-//                requireContext().toast(R.string.toast_signal_measurement_enabled)
-            }
+            // The terms screen owns the whole start flow (usage terms -> background permission ->
+            // waiting for GPS/network -> starting the measurement), so nothing is needed here.
         }
 
     private val getLoopModeInstructionsResult =
@@ -127,20 +125,17 @@ class HomeFragment : BaseFragment() {
         homeViewModel.activeNetworkLiveData.listen(this) {
             if (it == null || it is CellNetworkInfo) {
                 Timber.d("Network changed to CellInfo or null")
-                dismissSignalNotPossibleDialogIfConditionsMet()
             }
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.locationLiveData.listen(this) {
-            dismissSignalNotPossibleDialogIfConditionsMet()
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         // Observing the GPS-only watcher keeps its GNSS source warm on the home screen so the
         // signal-measurement start precheck (which must not use the combined fix) has a fresh value.
         homeViewModel.gpsLocationLiveData.listen(this) {
-            dismissSignalNotPossibleDialogIfConditionsMet()
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
@@ -272,8 +267,11 @@ class HomeFragment : BaseFragment() {
         binding.btnCoverage.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
-                    val checksPassed = isSignalMeasurementPrechecksPassed()
-                    if (checksPassed) {
+                    // Only the "hard" prerequisites (location permission, single SIM, IP protocol) gate
+                    // the start here. The transient GPS-quality / mobile-network status is NOT checked
+                    // yet: it is checked - and waited for - only after the terms and background
+                    // permission consent (see beginSignalMeasurementStartWhenReady).
+                    if (hardSignalMeasurementPrechecksPassed()) {
                         // This is a brand-new measurement (no measurement is active). Never continue a
                         // previous loop - a stale continue-flag from an earlier loop that did not end
                         // cleanly would otherwise reuse its old loop start time and show a wrong
@@ -406,7 +404,7 @@ class HomeFragment : BaseFragment() {
         // The prechecks already require the GNSS-only fix to meet the build-config accuracy limit
         // (minLocationAccuracyMetersDuringSignalMeasurement) - the single source of truth - so no
         // separate hardcoded accuracy gate is needed here.
-        val isPassed = isSignalMeasurementPrechecksPassed(false)
+        val isPassed = allSignalMeasurementConditionsMet()
         homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
         return isPassed
     }
@@ -432,25 +430,38 @@ class HomeFragment : BaseFragment() {
             ColorStateList.valueOf(ContextCompat.getColor(ctx, colorRes))
     }
 
-    private fun isSignalMeasurementPrechecksPassed(showDialogs: Boolean = true): Boolean {
-        val isMobileNetworkActive = homeViewModel.isMobileNetworkActive()
-        val isOnlyOneSimActive = homeViewModel.isOnlyOneSimActive()
-        val isGPSEnabledAndPermitted = checkGPSAndShouldMakeAction(showDialogs) {}
+    /**
+     * All conditions for a signal measurement are currently met (pure check, no UI). Used to drive
+     * the coverage button's enabled/disabled appearance. Combines the "hard" prerequisites (location
+     * permission/service, single SIM, IP protocol) with the transient status ([signalStatusReady]).
+     */
+    private fun allSignalMeasurementConditionsMet(): Boolean {
+        val isGPSEnabledAndPermitted = checkGPSAndShouldMakeAction(false) {}
+        if (!isGPSEnabledAndPermitted) return false
+        if (!signalStatusReady()) return false
+        if (!homeViewModel.isOnlyOneSimActive()) return false
+        if (homeViewModel.unavailableForcedIpProtocol() != null) return false
+        return true
+    }
 
-        if (!isGPSEnabledAndPermitted) {
-            return false
-        }
+    /**
+     * The transient GPS/network status the app now waits for: a sufficiently fresh & accurate GNSS
+     * fix AND a non-WiFi (mobile or no) network. These can change moment to moment, so instead of a
+     * one-time gate the measurement waits (showing an abortable alert) and starts once they are met.
+     */
+    private fun signalStatusReady(): Boolean =
+        homeViewModel.isGpsQualitySufficientForSignalMeasurement() && homeViewModel.isMobileNetworkActive()
 
-        if (!homeViewModel.isGpsQualitySufficientForSignalMeasurement() || !isMobileNetworkActive) {
-            // A signal measurement requires both good GPS coverage (same minimum quality - age &
-            // accuracy - as during the measurement) and WiFi off / mobile network active. A single
-            // combined dialog explains both prerequisites.
-            if (showDialogs) showSignalMeasurementNotPossibleDialog()
-            return false
-        }
+    /**
+     * The "hard" prerequisites checked up front (before the terms/permission consent), each of which
+     * needs a deliberate user action to fix and so still blocks with a one-time dialog: location
+     * permission/service, a single active SIM, and a reachable forced IP protocol.
+     */
+    private fun hardSignalMeasurementPrechecksPassed(): Boolean {
+        if (!checkGPSAndShouldMakeAction(true) {}) return false
 
-        if (!isOnlyOneSimActive) {
-            if (showDialogs) showMoreSimsActiveDialog()
+        if (!homeViewModel.isOnlyOneSimActive()) {
+            showMoreSimsActiveDialog()
             return false
         }
 
@@ -458,19 +469,17 @@ class HomeFragment : BaseFragment() {
         if (unavailableProtocol != null) {
             // IPv4-only / IPv6-only is active but the selected protocol has no connectivity
             // (e.g. after a network change); starting the measurement would only fail.
-            if (showDialogs) {
-                activity?.supportFragmentManager?.let {
-                    MessageDialog.show(
-                        it,
-                        getString(
-                            if (unavailableProtocol == IpProtocol.V4)
-                                R.string.expert_mode_ipv4_only_not_available
-                            else
-                                R.string.expert_mode_ipv6_only_not_available
-                        ),
-                        "IpProtocolNotAvailable"
-                    )
-                }
+            activity?.supportFragmentManager?.let {
+                MessageDialog.show(
+                    it,
+                    getString(
+                        if (unavailableProtocol == IpProtocol.V4)
+                            R.string.expert_mode_ipv4_only_not_available
+                        else
+                            R.string.expert_mode_ipv6_only_not_available
+                    ),
+                    "IpProtocolNotAvailable"
+                )
             }
             return false
         }
@@ -488,31 +497,6 @@ class HomeFragment : BaseFragment() {
                 .positiveText(R.string.confirm)
                 .cancelable(false)
                 .show(this.childFragmentManager, CODE_DIALOG_MORE_SIMS)
-        }
-    }
-
-    private fun showSignalMeasurementNotPossibleDialog() {
-        context?.let {
-            val title = ContextCompat.getString(it, R.string.signal_measurement_not_possible_dialog_title)
-            val text = ContextCompat.getString(it, R.string.signal_measurement_not_possible_dialog_text)
-            SimpleDialog.Builder()
-                .messageText(text)
-                .titleText(title)
-                .positiveText(R.string.confirm)
-                .cancelable(false)
-                .show(
-                    this.childFragmentManager,
-                    CODE_DIALOG_SIGNAL_NOT_POSSIBLE,
-                    TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE
-                )
-        }
-    }
-
-    private fun dismissSignalNotPossibleDialogIfConditionsMet() {
-        if (homeViewModel.isGpsQualitySufficientForSignalMeasurement() && homeViewModel.isMobileNetworkActive()) {
-            val dialog =
-                this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE) as SimpleDialog?
-            dialog?.dismissAllowingStateLoss()
         }
     }
 
@@ -703,8 +687,5 @@ class HomeFragment : BaseFragment() {
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_DIALOG_NEWS = 14
         private const val CODE_DIALOG_MORE_SIMS = 15
-        private const val CODE_DIALOG_SIGNAL_NOT_POSSIBLE = 17
-
-        private const val TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE = "TAG_CODE_DIALOG_SIGNAL_NOT_POSSIBLE"
     }
 }

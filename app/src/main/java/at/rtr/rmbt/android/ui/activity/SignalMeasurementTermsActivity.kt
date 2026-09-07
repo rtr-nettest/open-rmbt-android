@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,6 +16,7 @@ import at.rtr.rmbt.android.databinding.ActivitySignalMeasurementTermsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
+import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import kotlin.math.max
 
@@ -24,8 +26,13 @@ class SignalMeasurementTermsActivity : BaseActivity() {
     private val viewModel: HomeViewModel by viewModelLazy()
 
     // Once true, the background-location permission info screen is being shown (second step). The
-    // next "accept" then requests the permission and proceeds to the measurement.
+    // next "accept" then requests the permission and proceeds.
     private var backgroundInfoShown = false
+
+    // Once true, consent is done and this screen is showing the "waiting for GPS/network" state,
+    // continuously re-checking (via the observers below) and starting the measurement the moment the
+    // status becomes good - no further user interaction needed. The only action offered is "Abort".
+    private var waitingForStatus = false
 
     // We keep this terms screen in the foreground until the background-location permission flow has
     // returned (on Android 11+ that flow is the system settings page), and only THEN start the
@@ -37,7 +44,7 @@ class SignalMeasurementTermsActivity : BaseActivity() {
             // a granted permission is), then proceed regardless of the choice: without the permission
             // the measurement simply cannot keep recording location once the app leaves the foreground.
             viewModel.recordBackgroundPermissionResult(granted)
-            startMeasurementAndFinish()
+            proceedAfterConsent()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +90,8 @@ class SignalMeasurementTermsActivity : BaseActivity() {
             }
         }
 
+        // "Decline" during the terms/background steps, "Abort" during the waiting step - both simply
+        // cancel and return to the start screen.
         binding.decline.setOnClickListener {
             setResult(Activity.RESULT_CANCELED)
             finish()
@@ -98,11 +107,25 @@ class SignalMeasurementTermsActivity : BaseActivity() {
                 }
                 // Reaching the info screen already guarantees the permission is requestable and not
                 // yet granted (see shouldAskForBackgroundPermission), so just launch the request and
-                // wait for the result before starting the measurement.
+                // wait for the result before proceeding.
                 backgroundInfoShown ->
                     requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                else -> startMeasurementAndFinish()
+                else -> proceedAfterConsent()
             }
+        }
+
+        // Observe the GPS and network status live. Observing also keeps the GNSS source warm while
+        // this full-screen consent flow is shown (the home screen's own observer is paused), so the
+        // fix stays fresh and, once consent is done, the measurement can start without a cold GPS
+        // re-acquisition delay. While waiting, each change re-checks whether we can start now.
+        viewModel.gpsLocationLiveData.listen(this) { maybeStartWhenReady() }
+        viewModel.locationStateLiveData.listen(this) { maybeStartWhenReady() }
+        viewModel.activeNetworkLiveData.listen(this) { maybeStartWhenReady() }
+        viewModel.signalStrengthLiveData.listen(this) { info ->
+            // Keep the active-network info (used by isMobileNetworkActive) current on this screen's
+            // own view model instance.
+            viewModel.state.activeNetworkInfo.set(info?.copy())
+            maybeStartWhenReady()
         }
     }
 
@@ -116,7 +139,41 @@ class SignalMeasurementTermsActivity : BaseActivity() {
         binding.scrollView.scrollTo(0, 0)
     }
 
-    private fun startMeasurementAndFinish() {
+    /**
+     * The usage terms were accepted and the background-permission step is done. If the GPS/network
+     * status is already good, start the measurement immediately; otherwise switch this same screen
+     * into its "waiting" state and start automatically once the status becomes good. Keeping it on
+     * this full-screen activity (instead of returning to the home screen) means the home screen never
+     * flashes behind an alert, and no user interaction is needed once the conditions are met.
+     */
+    private fun proceedAfterConsent() {
+        if (signalStatusReady()) {
+            startMeasurement()
+        } else {
+            showWaitingForStatus()
+        }
+    }
+
+    private fun signalStatusReady(): Boolean =
+        viewModel.isGpsQualitySufficientForSignalMeasurement() && viewModel.isMobileNetworkActive()
+
+    private fun showWaitingForStatus() {
+        waitingForStatus = true
+        binding.title.text = getString(R.string.signal_measurement_not_possible_dialog_title)
+        binding.content.text = getString(R.string.signal_measurement_not_possible_dialog_text)
+        binding.scrollView.scrollTo(0, 0)
+        // Only "Abort" is offered now; the measurement starts on its own once the status is good.
+        binding.accept.visibility = View.GONE
+        binding.decline.text = getString(R.string.text_button_abort)
+    }
+
+    private fun maybeStartWhenReady() {
+        if (waitingForStatus && signalStatusReady()) {
+            startMeasurement()
+        }
+    }
+
+    private fun startMeasurement() {
         setResult(Activity.RESULT_OK)
         SignalMeasurementActivity.start(this)
         finish()
