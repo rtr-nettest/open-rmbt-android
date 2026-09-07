@@ -23,6 +23,10 @@ import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.CoverageSettingsViewModel
+import at.specure.data.entity.CoverageMeasurementSession
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -41,6 +45,8 @@ class CoverageSettingsDialog : FullscreenDialog() {
     private lateinit var binding: DialogCoverageSettingsBinding
 
     private var durationTickerJob: Job? = null
+
+    private val timeFormat by lazy { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
 
     init {
         retainInstance = true
@@ -64,8 +70,35 @@ class CoverageSettingsDialog : FullscreenDialog() {
             showConnectionCount(currentSequenceNumber + 1)
             showFencesCount(it?.fences?.size ?: 0)
             showIpVersion(it?.coverageMeasurementSession?.ipVersion ?: 0)
+            showSegmentRegistration(it?.coverageMeasurementSession)
         }
 
+        viewModel.unsubmittedPreviousSegmentsCountLiveData.listen(this) { count ->
+            showUnsubmittedPreviousSegments(count)
+        }
+    }
+
+    /**
+     * Registration status of the CURRENT segment: the registration time once the session has a server
+     * measurement id, otherwise "Waiting for registration".
+     */
+    private fun showSegmentRegistration(session: CoverageMeasurementSession?) {
+        binding.labelSegmentRegistration.text = if (session?.serverMeasurementId != null) {
+            getString(
+                R.string.coverage_segment_registered,
+                timeFormat.format(Date(session.startMeasurementResponseReceivedMillis))
+            )
+        } else {
+            getString(R.string.coverage_segment_waiting_registration)
+        }
+    }
+
+    private fun showUnsubmittedPreviousSegments(count: Int) {
+        binding.labelUnsubmittedSegments.text = if (count > 0) {
+            getString(R.string.coverage_segments_unsubmitted, count)
+        } else {
+            getString(R.string.coverage_segments_unsubmitted_none)
+        }
     }
 
     private fun showFencesCount(i: Int) {
@@ -144,6 +177,11 @@ class CoverageSettingsDialog : FullscreenDialog() {
         setAccuracyRadiusItem()
 
         startDurationTicker()
+
+        // The segment registration status and the outstanding-segments count are expert-only.
+        val expertVisibility = if (viewModel.isExpertModeEnabled) View.VISIBLE else View.GONE
+        binding.labelSegmentRegistration.visibility = expertVisibility
+        binding.labelUnsubmittedSegments.visibility = expertVisibility
 
         binding.iconClose.setOnClickListener { dismiss() }
     }

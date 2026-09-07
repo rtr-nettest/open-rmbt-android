@@ -143,6 +143,11 @@ class SignalMeasurementRepositoryImpl(
         return dao.getCoverageMeasurementSessionForMeasurementId(measurementId)
     }
 
+    override fun getUnsubmittedPreviousCoverageSegmentsCount(
+        loopId: String,
+        currentMeasurementId: String
+    ): Flow<Int> = dao.getUnsubmittedPreviousCoverageSegmentsCount(loopId, currentMeasurementId)
+
     override fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord) {
         dao.upsertSignalMeasurementPoint(point)
     }

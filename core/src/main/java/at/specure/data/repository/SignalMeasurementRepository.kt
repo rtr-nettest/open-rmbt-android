@@ -55,6 +55,12 @@ interface SignalMeasurementRepository {
 
     fun getCoverageMeasurementSession(localMeasurementId: String): CoverageMeasurementSession?
 
+    /**
+     * Live count of not-yet-submitted coverage sessions ("segments") of the given loop, excluding the
+     * current (ongoing) session identified by [currentMeasurementId].
+     */
+    fun getUnsubmittedPreviousCoverageSegmentsCount(loopId: String, currentMeasurementId: String): Flow<Int>
+
     fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
 
     suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord)

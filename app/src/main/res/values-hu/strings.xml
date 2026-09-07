@@ -435,4 +435,9 @@
     <string name="location_usage_always_warning_message">Engedélyezze a helyadatokhoz való hozzáférést a háttérben a funkció használatához.</string>
     <string name="allow">Engedélyezés</string>
     <string name="measuring">Mérés folyamatban…</string>
+    <string name="coverage_status_and_settings">Állapot és beállítások</string>
+    <string name="coverage_segment_registered">Szegmens regisztrálva ekkor: %1$s</string>
+    <string name="coverage_segment_waiting_registration">Várakozás a regisztrációra</string>
+    <string name="coverage_segments_unsubmitted">%1$d el nem küldött korábbi szegmens</string>
+    <string name="coverage_segments_unsubmitted_none">Nincs el nem küldött korábbi szegmens</string>
 </resources>

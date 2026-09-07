@@ -436,4 +436,9 @@
     <string name="allow">Erlauben</string>
     <string name="measuring">Messung läuft …</string>
     <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
+    <string name="coverage_status_and_settings">Status und Einstellungen</string>
+    <string name="coverage_segment_registered">Segment registriert um %1$s</string>
+    <string name="coverage_segment_waiting_registration">Warte auf Registrierung</string>
+    <string name="coverage_segments_unsubmitted">%1$d nicht übermittelte vorherige Segmente</string>
+    <string name="coverage_segments_unsubmitted_none">Keine nicht übermittelten vorherigen Segmente</string>
 </resources>

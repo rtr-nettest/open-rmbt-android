@@ -435,4 +435,9 @@
     <string name="location_usage_always_warning_message">Consenti l\'accesso alla posizione in background per utilizzare questa funzione.</string>
     <string name="allow">Consenti</string>
     <string name="measuring">Misurazione in corso…</string>
+    <string name="coverage_status_and_settings">Stato e impostazioni</string>
+    <string name="coverage_segment_registered">Segmento registrato alle %1$s</string>
+    <string name="coverage_segment_waiting_registration">In attesa di registrazione</string>
+    <string name="coverage_segments_unsubmitted">%1$d segmenti precedenti non inviati</string>
+    <string name="coverage_segments_unsubmitted_none">Nessun segmento precedente non inviato</string>
 </resources>

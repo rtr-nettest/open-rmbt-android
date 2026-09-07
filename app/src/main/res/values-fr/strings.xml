@@ -422,4 +422,9 @@
     <string name="location_usage_always_warning_message">Autorisez l\'accès à la localisation en arrière-plan pour utiliser cette fonctionnalité.</string>
     <string name="allow">Autoriser</string>
     <string name="measuring">Mesure en cours…</string>
+    <string name="coverage_status_and_settings">État et paramètres</string>
+    <string name="coverage_segment_registered">Segment enregistré à %1$s</string>
+    <string name="coverage_segment_waiting_registration">En attente d\'enregistrement</string>
+    <string name="coverage_segments_unsubmitted">%1$d segments précédents non envoyés</string>
+    <string name="coverage_segments_unsubmitted_none">Aucun segment précédent non envoyé</string>
 </resources>

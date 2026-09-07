@@ -15,6 +15,7 @@ import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
+import kotlinx.coroutines.flow.Flow
 
 const val COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT = 3
 
@@ -155,6 +156,21 @@ interface SignalMeasurementDao {
 
     @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE localMeasurementId=:measurementId LIMIT 1")
     fun getCoverageMeasurementSessionForMeasurementId(measurementId: String): CoverageMeasurementSession?
+
+    /**
+     * Live count of not-yet-submitted (synced = 0) coverage sessions ("segments") that belong to the
+     * given loop, EXCLUDING the current (ongoing) session. Used by the coverage settings overlay to
+     * show the number of outstanding previous segments of the current measurement.
+     */
+    @Query(
+        """
+        SELECT COUNT(*) FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+        WHERE localLoopId = :loopId
+          AND synced = 0
+          AND localMeasurementId != :currentMeasurementId
+    """
+    )
+    fun getUnsubmittedPreviousCoverageSegmentsCount(loopId: String, currentMeasurementId: String): Flow<Int>
 
     @Query(
         """

@@ -572,6 +572,11 @@
     <string name="text_connection_count">%1$d segments</string>
     <string name="coverage_duration_label">Duration: %1$s</string>
     <string name="text_fence_count">%1$d points</string>
+    <string name="coverage_status_and_settings">Status and settings</string>
+    <string name="coverage_segment_registered">Segment registered at %1$s</string>
+    <string name="coverage_segment_waiting_registration">Waiting for registration</string>
+    <string name="coverage_segments_unsubmitted">%1$d unsubmitted previous segments</string>
+    <string name="coverage_segments_unsubmitted_none">No unsubmitted previous segments</string>
     <string name="text_unknown">None</string>
     <string name="ipv4_short">IPv4</string>
     <string name="ipv6_short">IPv6</string>

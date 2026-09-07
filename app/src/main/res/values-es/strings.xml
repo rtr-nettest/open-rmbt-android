@@ -435,4 +435,9 @@
     <string name="location_usage_always_warning_message">Permite el acceso a la ubicación en segundo plano para usar esta función.</string>
     <string name="allow">Permitir</string>
     <string name="measuring">Midiendo…</string>
+    <string name="coverage_status_and_settings">Estado y ajustes</string>
+    <string name="coverage_segment_registered">Segmento registrado a las %1$s</string>
+    <string name="coverage_segment_waiting_registration">Esperando registro</string>
+    <string name="coverage_segments_unsubmitted">%1$d segmentos anteriores sin enviar</string>
+    <string name="coverage_segments_unsubmitted_none">No hay segmentos anteriores sin enviar</string>
 </resources>

@@ -422,4 +422,9 @@
     <string name="location_usage_always_warning_message">Povolte přístup k poloze na pozadí pro použití této funkce.</string>
     <string name="allow">Povolit</string>
     <string name="measuring">Měření…</string>
+    <string name="coverage_status_and_settings">Stav a nastavení</string>
+    <string name="coverage_segment_registered">Segment registrován v %1$s</string>
+    <string name="coverage_segment_waiting_registration">Čekání na registraci</string>
+    <string name="coverage_segments_unsubmitted">%1$d neodeslaných předchozích segmentů</string>
+    <string name="coverage_segments_unsubmitted_none">Žádné neodeslané předchozí segmenty</string>
 </resources>

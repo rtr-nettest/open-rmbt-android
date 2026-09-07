@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_large"
-            android:text="@string/history_settings"
+            android:text="@string/coverage_status_and_settings"
             android:textColor="@color/navigation_gray"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -110,6 +110,34 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_points_count" />
 
+        <!-- Expert-only: registration status of the current segment. Visibility set in code. -->
+        <TextView
+            android:id="@+id/label_segment_registration"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:textColor="@color/navigation_gray"
+            tools:text="Segment registered at 12:30:31"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_duration" />
+
+        <!-- Expert-only: number of outstanding (unsubmitted) previous segments. Visibility set in code. -->
+        <TextView
+            android:id="@+id/label_unsubmitted_segments"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:textColor="@color/navigation_gray"
+            tools:text="123 unsubmitted previous segments"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_segment_registration" />
+
         <View
             android:id="@+id/expert_info_divider"
             android:layout_width="0dp"
@@ -121,7 +149,7 @@
             android:layout_marginEnd="@dimen/padding_large"
             android:layout_marginBottom="@dimen/padding_medium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/label_duration" />
+            app:layout_constraintTop_toBottomOf="@id/label_unsubmitted_segments" />
 
         <TextView
             android:id="@+id/label_accuracy_radius"
