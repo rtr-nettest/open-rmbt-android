@@ -106,9 +106,11 @@ class SignalMeasurementTermsActivity : BaseActivity() {
                     showBackgroundPermissionInfo()
                 }
                 // Reaching the info screen already guarantees the permission is requestable and not
-                // yet granted (see shouldAskForBackgroundPermission), so just launch the request and
-                // wait for the result before proceeding.
-                backgroundInfoShown ->
+                // yet granted (see shouldAskForBackgroundPermission - which only returns true on
+                // Android Q+, where the separate background-location permission exists), so just
+                // launch the request and wait for the result before proceeding. The explicit SDK
+                // check keeps lint happy about the Q-only permission constant.
+                backgroundInfoShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
                     requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 else -> proceedAfterConsent()
             }
