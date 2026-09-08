@@ -32,10 +32,19 @@ class SignalMeasurementTermsActivity : BaseActivity() {
     // next "accept" then requests the permission and proceeds.
     private var backgroundInfoShown = false
 
-    // Once true, consent is done and this screen is showing the "waiting for GPS/network" state,
-    // continuously re-checking (via the observers below) and starting the measurement the moment the
-    // status becomes good - no further user interaction needed. The only action offered is "Abort".
+    // Once true, consent is done and this screen is showing the "waiting for GPS/network" state. The
+    // foreground service (started on consent) holds GPS and decides when to begin recording; this
+    // screen only shows live status and hands off to the measurement UI once recording begins. The
+    // only action offered is "Abort".
     private var waitingForStatus = false
+
+    // True once we have bound (and started) the signal-measurement service, so onDestroy knows to
+    // release our binding.
+    private var serviceBound = false
+
+    // Guards against handing off to the measurement screen more than once (the active observer can
+    // fire again on re-resume).
+    private var handedOff = false
 
     // We keep this terms screen in the foreground until the background-location permission flow has
     // returned (on Android 11+ that flow is the system settings page), and only THEN start the
@@ -93,27 +102,36 @@ class SignalMeasurementTermsActivity : BaseActivity() {
             }
         }
 
-        // "Decline" during the terms/background steps, "Abort" during the waiting step - both simply
-        // cancel and return to the start screen.
+        // "Decline" during the terms/background steps, "Abort" during the waiting step - both cancel
+        // and return to the start screen. During waiting we must also stop the service we started.
         binding.decline.setOnClickListener {
+            if (waitingForStatus && !handedOff) {
+                viewModel.stopSignalMeasurement()
+            }
             setResult(Activity.RESULT_CANCELED)
             finish()
         }
 
         binding.accept.setOnClickListener { onTermsAccepted() }
 
-        // Observe the GPS and network status live. Observing also keeps the GNSS source warm while
-        // this full-screen consent flow is shown (the home screen's own observer is paused), so the
-        // fix stays fresh and, once consent is done, the measurement can start without a cold GPS
-        // re-acquisition delay. While waiting, each change re-checks whether we can start now.
-        viewModel.gpsLocationLiveData.listen(this) { maybeStartWhenReady() }
-        viewModel.locationStateLiveData.listen(this) { maybeStartWhenReady() }
-        viewModel.activeNetworkLiveData.listen(this) { maybeStartWhenReady() }
+        // Observe the GPS and network status live to keep the on-screen readiness rows current. The
+        // actual GPS acquisition during waiting is owned by the foreground service (screen-off safe);
+        // these observers are only for the visible status while this screen is in the foreground.
+        viewModel.gpsLocationLiveData.listen(this) { updateReadinessStatus() }
+        viewModel.locationStateLiveData.listen(this) { updateReadinessStatus() }
+        viewModel.activeNetworkLiveData.listen(this) { updateReadinessStatus() }
         viewModel.signalStrengthLiveData.listen(this) { info ->
             // Keep the active-network info (used by isMobileNetworkActive) current on this screen's
             // own view model instance.
             viewModel.state.activeNetworkInfo.set(info?.copy())
-            maybeStartWhenReady()
+            updateReadinessStatus()
+        }
+
+        // Once the service transitions from "preparing" to actually recording, hand off to the
+        // measurement UI. LiveData re-delivers the latest value on resume, so if recording began while
+        // the screen was off, the hand-off happens as soon as this screen comes back to the foreground.
+        viewModel.activeSignalMeasurementLiveData.listen(this) { active ->
+            if (active && waitingForStatus) handOffToMeasurement()
         }
 
         if (viewModel.shouldShowSignalMeasurementTerms()) {
@@ -161,22 +179,19 @@ class SignalMeasurementTermsActivity : BaseActivity() {
     }
 
     /**
-     * The usage terms were accepted and the background-permission step is done. If the GPS/network
-     * status is already good, start the measurement immediately; otherwise switch this same screen
-     * into its "waiting" state and start automatically once the status becomes good. Keeping it on
-     * this full-screen activity (instead of returning to the home screen) means the home screen never
-     * flashes behind an alert, and no user interaction is needed once the conditions are met.
+     * The usage terms were accepted and the background-permission step is done. Start the signal
+     * measurement service (which owns GPS acquisition the robust, screen-off-safe way and waits until
+     * GPS + mobile network are good before it begins recording) and show the live "waiting" status.
+     * The hand-off to the measurement UI happens from the active-state observer once recording begins.
      */
     private fun proceedAfterConsent() {
-        if (signalStatusReady()) {
-            startMeasurement()
-        } else {
-            showWaitingForStatus()
-        }
+        showWaitingForStatus()
+        // Start the foreground service in its "preparing" phase. From here on the service - not this
+        // screen - holds GPS and decides when conditions are good enough to begin recording, so the
+        // wait survives the screen being turned off and there is no cold GPS restart at hand-off.
+        viewModel.startSignalMeasurementService(this)
+        serviceBound = true
     }
-
-    private fun signalStatusReady(): Boolean =
-        viewModel.isGpsQualitySufficientForSignalMeasurement() && viewModel.isMobileNetworkActive()
 
     private fun showWaitingForStatus() {
         waitingForStatus = true
@@ -184,20 +199,10 @@ class SignalMeasurementTermsActivity : BaseActivity() {
         binding.content.text = getString(R.string.signal_measurement_not_possible_dialog_text)
         binding.statusContainer.visibility = View.VISIBLE
         binding.scrollView.scrollTo(0, 0)
-        // Only "Abort" is offered now; the measurement starts on its own once the status is good.
+        // Only "Abort" is offered now; the measurement begins on its own once conditions are good.
         binding.accept.visibility = View.GONE
         binding.decline.text = getString(R.string.text_button_abort)
         updateReadinessStatus()
-    }
-
-    private fun maybeStartWhenReady() {
-        if (!waitingForStatus) return
-        // Refresh the per-criterion readiness rows on every GPS/network change, then start as soon as
-        // both criteria are good.
-        updateReadinessStatus()
-        if (signalStatusReady()) {
-            startMeasurement()
-        }
     }
 
     /**
@@ -256,10 +261,23 @@ class SignalMeasurementTermsActivity : BaseActivity() {
         )
     }
 
-    private fun startMeasurement() {
+    private fun handOffToMeasurement() {
+        if (handedOff) return
+        handedOff = true
         setResult(Activity.RESULT_OK)
         SignalMeasurementActivity.start(this)
         finish()
+    }
+
+    override fun onDestroy() {
+        // Release our binding to the service. When handing off to the measurement screen the service
+        // keeps running (it is a started foreground service), so unbinding here does not stop it; on
+        // an abort it was already stopped in the decline handler.
+        if (serviceBound) {
+            viewModel.detach(this)
+            serviceBound = false
+        }
+        super.onDestroy()
     }
 
     companion object {

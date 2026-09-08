@@ -220,6 +220,20 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Starts the signal-measurement foreground service in its "preparing" phase (used by the terms
+     * screen on consent). The service then holds GPS the robust, screen-off-safe way and only begins
+     * recording once GPS + mobile network are good; [activeSignalMeasurementLiveData] turns true the
+     * moment recording actually begins, which the terms screen uses to hand off to the measurement UI.
+     * Binding is async, so this may only flag the intent (toggleService) and let onServiceConnected
+     * actually start it.
+     */
+    fun startSignalMeasurementService(context: Context) {
+        shouldStartDedicatedMeasurementStateChecker = { true }
+        attach(context)
+        toggleSignalMeasurementService()
+    }
+
     fun stopSignalMeasurement(): LiveData<Boolean>? {
         coverageMeasurementSettings.signalMeasurementIsRunning = false
         Timber.d("Stopping coverage session HVM2")
