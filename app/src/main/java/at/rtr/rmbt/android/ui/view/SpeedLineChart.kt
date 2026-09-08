@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.util.AttributeSet
+import androidx.core.content.withStyledAttributes
 import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.GraphItemRecord
@@ -17,7 +18,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
-import androidx.core.content.withStyledAttributes
+
 
 
 private const val RESULT_GRAPH_MISSING_SPEED_TIME_GAP_MILLISECONDS = 250L
@@ -42,19 +43,22 @@ class SpeedLineChart @JvmOverloads constructor(
     private var rowCount = DEFAULT_NUMBER_OF_ROWS_IN_GRID
     init {
 
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SpeedLineChart)
-
-        val lineChartTypedArray = context.obtainStyledAttributes(attrs, R.styleable.LineChart)
-        try {
+        context.withStyledAttributes(attrs, R.styleable.LineChart) {
             // Access LineChart specific attributes
-            rowCount = lineChartTypedArray.getInt(R.styleable.LineChart_grid_row, DEFAULT_NUMBER_OF_ROWS_IN_GRID)  // default value is 0
-        } finally {
-            lineChartTypedArray.recycle()
+            rowCount = getInt(R.styleable.LineChart_grid_row, DEFAULT_NUMBER_OF_ROWS_IN_GRID)  // default value is 0
         }
-        paintStroke.color = typedArray.getColor(
-            R.styleable.SpeedLineChart_progress_line_color,
-            context.getColor(R.color.colorAccent)
-        )
+
+        context.withStyledAttributes(attrs, R.styleable.SpeedLineChart) {
+            paintStroke.color = getColor(
+                R.styleable.SpeedLineChart_progress_line_color,
+                context.getColor(R.color.colorAccent)
+            )
+            paintFill.color = getColor(
+                R.styleable.SpeedLineChart_progress_fill_color,
+                context.getColor(R.color.speed_chart_progress_fill_color)
+            )
+        }
+
         paintStroke.style = Paint.Style.STROKE
         paintStroke.strokeWidth = STROKE_WIDTH
         paintStroke.strokeCap = Paint.Cap.ROUND
@@ -63,16 +67,10 @@ class SpeedLineChart @JvmOverloads constructor(
 
         pathStroke = Path()
 
-        paintFill.color = typedArray.getColor(
-            R.styleable.SpeedLineChart_progress_fill_color,
-            context.getColor(R.color.speed_chart_progress_fill_color)
-        )
         paintFill.style = Paint.Style.FILL
         paintFill.isAntiAlias = true
 
         pathFill = Path()
-
-        typedArray.recycle()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -221,7 +219,8 @@ class SpeedLineChart @JvmOverloads constructor(
             chartPoints = ArrayList()
 
             val maxValue = items?.maxByOrNull { it.time }?.time
-            if (maxValue != null) {
+            // maxValue > 0 also avoids NaN x-coordinates from time / 0f when every sample has time 0.
+            if (maxValue != null && maxValue > 0L) {
 
                 if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {
                     chartPoints.add(PointF(0.0f, toLog(items[0].value * 8000 / items[0].time)))
@@ -229,7 +228,10 @@ class SpeedLineChart @JvmOverloads constructor(
 
                 for (index in items.indices) {
                     val x = items[index].time / maxValue.toFloat()
-                    val y = toLog(items[index].value * 8000 / items[index].time)
+                    var y = 0.0F
+                    if (items[index].time > 0) {
+                        y = toLog(items[index].value * 8000 / items[index].time)
+                    }
                     chartPoints.add(PointF(x, y))
                     Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
                 }
