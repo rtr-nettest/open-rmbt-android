@@ -33,6 +33,7 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
+import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
@@ -67,6 +68,7 @@ class HomeViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val controlServerModule: ControlServerModule,
+    private val connectivityMonitor: ConnectivityMonitor,
     measurementServers: MeasurementServers,
 ) : BaseViewModel() {
 
@@ -283,6 +285,15 @@ class HomeViewModel @Inject constructor(
     fun isMobileNetworkActive(): Boolean {
         return state.activeNetworkInfo.get()?.networkInfo?.type != TransportType.WIFI
     }
+
+    /**
+     * A coverage/signal measurement needs an active mobile network to register and to measure. These
+     * two "artificial no-coverage" conditions are the same ones that would immediately pause the
+     * measurement, so they are used as hard prechecks to block the start up front.
+     */
+    fun isAirplaneModeEnabled(): Boolean = connectivityMonitor.isAirplaneModeCurrentlyEnabled()
+
+    fun isMobileDataEnabled(): Boolean = connectivityMonitor.isMobileDataEnabled()
 
     fun isOnlyOneSimActive(): Boolean {
         return if (state.activeNetworkInfo.get()?.networkInfo is CellNetworkInfo && appConfig.shouldCheckActiveSimsCount) {

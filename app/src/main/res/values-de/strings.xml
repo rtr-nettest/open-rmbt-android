@@ -441,4 +441,8 @@
     <string name="coverage_segment_waiting_registration">Warte auf Registrierung</string>
     <string name="coverage_segments_unsubmitted">%1$d nicht übermittelte vorherige Segmente</string>
     <string name="coverage_segments_unsubmitted_none">Keine nicht übermittelten vorherigen Segmente</string>
+    <string name="coverage_measurement_error_no_connectivity">Es gab %1$d Minuten lang keine Netzverbindung. Die Messung wird daher abgebrochen. Bitte versuchen Sie es in einem Gebiet mit Empfang erneut.</string>
+    <string name="signal_measurement_mobile_network_required_title">Mobilfunknetz erforderlich</string>
+    <string name="signal_measurement_airplane_mode_active">Der Flugmodus ist aktiv. Bitte schalten Sie ihn aus — eine Signalmessung benötigt eine aktives Mobilfunknetz.</string>
+    <string name="signal_measurement_mobile_data_disabled">Mobile Daten sind deaktiviert. Bitte aktivieren Sie sie — eine Signalmessung benötigt eine aktives Mobilfunknetz.</string>
 </resources>

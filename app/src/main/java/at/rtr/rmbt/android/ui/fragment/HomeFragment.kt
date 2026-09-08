@@ -458,6 +458,18 @@ class HomeFragment : BaseFragment() {
      * permission/service, a single active SIM, and a reachable forced IP protocol.
      */
     private fun hardSignalMeasurementPrechecksPassed(): Boolean {
+        // A coverage measurement needs an active mobile network (to register and to measure). Airplane
+        // mode / mobile-data-off are "artificial no-coverage": they would only pause the measurement,
+        // so block the start with a clear explanation instead of letting the user fake no coverage.
+        if (homeViewModel.isAirplaneModeEnabled()) {
+            showMobileNetworkRequiredDialog(R.string.signal_measurement_airplane_mode_active)
+            return false
+        }
+        if (!homeViewModel.isMobileDataEnabled()) {
+            showMobileNetworkRequiredDialog(R.string.signal_measurement_mobile_data_disabled)
+            return false
+        }
+
         if (!checkGPSAndShouldMakeAction(true) {}) return false
 
         if (!homeViewModel.isOnlyOneSimActive()) {
@@ -498,6 +510,16 @@ class HomeFragment : BaseFragment() {
                 .cancelable(false)
                 .show(this.childFragmentManager, CODE_DIALOG_MORE_SIMS)
         }
+    }
+
+    /** Blocks the signal-measurement start when there is no usable mobile network (airplane / data off). */
+    private fun showMobileNetworkRequiredDialog(messageRes: Int) {
+        SimpleDialog.Builder()
+            .titleText(R.string.signal_measurement_mobile_network_required_title)
+            .messageText(messageRes)
+            .positiveText(R.string.confirm)
+            .cancelable(false)
+            .show(this.childFragmentManager, CODE_DIALOG_MOBILE_NETWORK_REQUIRED)
     }
 
     private fun checkInformationAvailability() {
@@ -687,5 +709,6 @@ class HomeFragment : BaseFragment() {
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_DIALOG_NEWS = 14
         private const val CODE_DIALOG_MORE_SIMS = 15
+        private const val CODE_DIALOG_MOBILE_NETWORK_REQUIRED = 18
     }
 }

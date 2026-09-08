@@ -1,13 +1,16 @@
 package at.specure.measurement.coverage
 
+import android.os.SystemClock
 import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.isRegistered
+import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
+import at.specure.measurement.coverage.domain.models.CoverageRegistrationTimeoutException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +33,7 @@ class RtrCoverageLoopManager @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val config: Config,
+    private val connectivityWatcher: ConnectivityWatcher,
 ) : CoverageLoopManager {
 
     private val _sessionEvents = MutableSharedFlow<CoverageMeasurementEvent>()
@@ -38,8 +42,14 @@ class RtrCoverageLoopManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var registrationJob: Job? = null
 
-    private val RETRY_DELAY_MS = 2_000L
-    private val MAX_RETRY = 1_800 // 1_800 * 2s = 3600s = 1 hour
+    // Only attempt registration when there is actual network connectivity, and then no more often
+    // than every 15 s. The whole flow gives up after the total time budget below.
+    private val RETRY_INTERVAL_MS = 15_000L
+    private val REGISTRATION_TIMEOUT_MS = 120L * 60 * 1_000 // 2 hours
+
+    /** How long the app keeps trying to register before giving up, in whole minutes. */
+    private val registrationTimeoutMinutes: Int
+        get() = (REGISTRATION_TIMEOUT_MS / 60_000L).toInt()
 
     /**
      * Starts the first measurement in loop or continue in the last one
@@ -174,50 +184,61 @@ class RtrCoverageLoopManager @Inject constructor(
     }
 
     private suspend fun registerMeasurementWithRetry(session: CoverageMeasurementSession) {
-        var attempt = 1
+        val deadlineElapsedMs = SystemClock.elapsedRealtime() + REGISTRATION_TIMEOUT_MS
+        var attempt = 0
 
-        while (attempt <= MAX_RETRY) {
+        while (SystemClock.elapsedRealtime() < deadlineElapsedMs) {
             coroutineContext.ensureActive()
 
-            try {
-                Timber.d("Registering coverage measurement: ${session.localMeasurementId}")
-                val ok = signalMeasurementRepository
-                    .registerCoverageMeasurement(session.localMeasurementId)
-                    .first()
+            // Only spend an attempt when there is actual connectivity; otherwise just wait for it.
+            if (isNetworkAvailable()) {
+                attempt++
+                try {
+                    Timber.d("Registering coverage measurement (attempt $attempt): ${session.localMeasurementId}")
+                    val ok = signalMeasurementRepository
+                        .registerCoverageMeasurement(session.localMeasurementId)
+                        .first()
 
-                if (ok) {
-                    val registered =
-                        signalMeasurementRepository.getCoverageMeasurementSession(session.localMeasurementId)
+                    if (ok) {
+                        val registered =
+                            signalMeasurementRepository.getCoverageMeasurementSession(session.localMeasurementId)
 
+                        _sessionEvents.emit(
+                            CoverageMeasurementEvent.MeasurementRegistered(registered!!)
+                        )
+
+                        return
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Timber.w(e, "Coverage registration attempt $attempt failed, will retry in ${RETRY_INTERVAL_MS}ms")
                     _sessionEvents.emit(
-                        CoverageMeasurementEvent.MeasurementRegistered(registered!!)
+                        CoverageMeasurementEvent.MeasurementRegistrationRetrying(
+                            session = session,
+                            attempt = attempt,
+                            maxAttempts = -1, // time-budget based, not a fixed attempt count
+                            delayMs = RETRY_INTERVAL_MS
+                        )
                     )
-
-                    return
                 }
-
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (attempt >= MAX_RETRY) {
-                    _sessionEvents.emit(
-                        CoverageMeasurementEvent.MeasurementRegistrationFailed(session, e)
-                    )
-                    return
-                }
-
-                _sessionEvents.emit(
-                    CoverageMeasurementEvent.MeasurementRegistrationRetrying(
-                        session = session,
-                        attempt = attempt,
-                        maxAttempts = MAX_RETRY,
-                        delayMs = RETRY_DELAY_MS
-                    )
-                )
+            } else {
+                Timber.d("Skipping coverage registration - no network connectivity, will re-check in ${RETRY_INTERVAL_MS}ms")
             }
 
-            delay(RETRY_DELAY_MS)  // automatically cancels if job is cancelled
-            attempt++
+            delay(RETRY_INTERVAL_MS) // automatically cancels if job is cancelled
         }
+
+        // Time budget exhausted without registering: give up with a dedicated no-connectivity timeout
+        // so the UI can show a clear message (and not a generic "unknown" error).
+        _sessionEvents.emit(
+            CoverageMeasurementEvent.MeasurementRegistrationFailed(
+                session,
+                CoverageRegistrationTimeoutException(registrationTimeoutMinutes)
+            )
+        )
     }
+
+    /** True when the device currently has a default (internet-capable) network. */
+    private fun isNetworkAvailable(): Boolean = connectivityWatcher.network != null
 }

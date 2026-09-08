@@ -427,4 +427,8 @@
     <string name="coverage_segment_waiting_registration">En attente d\'enregistrement</string>
     <string name="coverage_segments_unsubmitted">%1$d segments précédents non envoyés</string>
     <string name="coverage_segments_unsubmitted_none">Aucun segment précédent non envoyé</string>
+    <string name="coverage_measurement_error_no_connectivity">Aucune connectivité réseau pendant %1$d min, abandon. Veuillez réessayer dans une zone couverte.</string>
+    <string name="signal_measurement_mobile_network_required_title">Réseau mobile requis</string>
+    <string name="signal_measurement_airplane_mode_active">Le mode avion est activé. Veuillez le désactiver — une mesure du signal nécessite un réseau mobile actif.</string>
+    <string name="signal_measurement_mobile_data_disabled">Les données mobiles sont désactivées. Veuillez les activer — une mesure du signal nécessite un réseau mobile actif.</string>
 </resources>

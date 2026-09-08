@@ -38,6 +38,7 @@ import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.CoverageRegistrationTimeoutException
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -413,10 +414,21 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     }
 
     private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
-        coverageMeasurementData?.signalMeasurementException?.also {
+        coverageMeasurementData?.signalMeasurementException?.also { exception ->
+            // A registration timeout means there was simply no connectivity for the whole retry
+            // budget - show that clearly instead of a generic "unknown" error. On dismiss the
+            // measurement is stopped and the screen finishes, returning to the start screen.
+            val message = if (exception is CoverageRegistrationTimeoutException) {
+                getString(
+                    R.string.coverage_measurement_error_no_connectivity,
+                    exception.timeoutMinutes
+                )
+            } else {
+                getString(R.string.coverage_measurement_error_unknown)
+            }
             MessageDialog.show(
                 this.supportFragmentManager,
-                getString(R.string.coverage_measurement_error_unknown),
+                message,
                 "CoverageMeasurementErrorDialog"
             ) {
                 viewModel.stopSignalMeasurement()?.listen(this) {
@@ -437,8 +449,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         val frequencyBand = coverageMeasurementData?.currentNetworkInfo
             ?.getFrequencyBand(coverageMeasurementData.currentSecondaryNetworkInfo)
         val networkStringRaw = listOfNotNull(networkType, frequencyBand).joinToString(" | ")
+        // With no mobile network the type/band are empty; show "No signal" instead of a blank pill.
         val networkString = networkStringRaw.ifEmpty {
-            ""
+            getString(R.string.noSignal)
         }
         binding.technologyValue.text = networkString
         binding.technologyValuePip.text = networkString

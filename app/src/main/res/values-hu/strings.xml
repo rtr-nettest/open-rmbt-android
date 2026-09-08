@@ -440,4 +440,8 @@
     <string name="coverage_segment_waiting_registration">Várakozás a regisztrációra</string>
     <string name="coverage_segments_unsubmitted">%1$d el nem küldött korábbi szegmens</string>
     <string name="coverage_segments_unsubmitted_none">Nincs el nem küldött korábbi szegmens</string>
+    <string name="coverage_measurement_error_no_connectivity">%1$d percig nem volt hálózati kapcsolat, a művelet megszakadt. Próbálja újra lefedettséggel rendelkező területen.</string>
+    <string name="signal_measurement_mobile_network_required_title">Mobilhálózat szükséges</string>
+    <string name="signal_measurement_airplane_mode_active">A repülő üzemmód aktív. Kérjük, kapcsolja ki — a jelméréshez aktív mobilhálózat szükséges.</string>
+    <string name="signal_measurement_mobile_data_disabled">A mobiladat ki van kapcsolva. Kérjük, kapcsolja be — a jelméréshez aktív mobilhálózat szükséges.</string>
 </resources>

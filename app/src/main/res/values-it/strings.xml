@@ -440,4 +440,8 @@
     <string name="coverage_segment_waiting_registration">In attesa di registrazione</string>
     <string name="coverage_segments_unsubmitted">%1$d segmenti precedenti non inviati</string>
     <string name="coverage_segments_unsubmitted_none">Nessun segmento precedente non inviato</string>
+    <string name="coverage_measurement_error_no_connectivity">Nessuna connettività di rete per %1$d min, operazione annullata. Riprova in un\'area con copertura.</string>
+    <string name="signal_measurement_mobile_network_required_title">Rete mobile necessaria</string>
+    <string name="signal_measurement_airplane_mode_active">La modalità aereo è attiva. Disattivala — la misurazione del segnale richiede una rete mobile attiva.</string>
+    <string name="signal_measurement_mobile_data_disabled">I dati mobili sono disattivati. Attivali — la misurazione del segnale richiede una rete mobile attiva.</string>
 </resources>

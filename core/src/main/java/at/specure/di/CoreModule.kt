@@ -362,11 +362,13 @@ class CoreModule {
     fun provideCoverageSessionManager(
         signalMeasurementRepository: SignalMeasurementRepository,
         coverageMeasurementSettings: CoverageMeasurementSettings,
-        config: Config
+        config: Config,
+        connectivityWatcher: ConnectivityWatcher,
     ): CoverageLoopManager = RtrCoverageLoopManager(
         signalMeasurementRepository = signalMeasurementRepository,
         coverageMeasurementSettings = coverageMeasurementSettings,
-        config,
+        config = config,
+        connectivityWatcher = connectivityWatcher,
     )
 
     @Provides

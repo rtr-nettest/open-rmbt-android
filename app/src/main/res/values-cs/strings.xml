@@ -427,4 +427,8 @@
     <string name="coverage_segment_waiting_registration">Čekání na registraci</string>
     <string name="coverage_segments_unsubmitted">%1$d neodeslaných předchozích segmentů</string>
     <string name="coverage_segments_unsubmitted_none">Žádné neodeslané předchozí segmenty</string>
+    <string name="coverage_measurement_error_no_connectivity">Po dobu %1$d min nebylo k dispozici síťové připojení, akce byla zrušena. Zkuste to prosím v oblasti s pokrytím.</string>
+    <string name="signal_measurement_mobile_network_required_title">Vyžadována mobilní síť</string>
+    <string name="signal_measurement_airplane_mode_active">Režim letadlo je aktivní. Vypněte jej — měření signálu vyžaduje aktivní mobilní síť.</string>
+    <string name="signal_measurement_mobile_data_disabled">Mobilní data jsou vypnutá. Zapněte je — měření signálu vyžaduje aktivní mobilní síť.</string>
 </resources>

@@ -548,6 +548,9 @@
     <string name="wrong_network_type_active_dialog_text">Please deactivate Wifi (or some other non-mobile connection)</string>
     <string name="signal_measurement_not_possible_dialog_title">Waiting for start of signal measurement</string>
     <string name="signal_measurement_not_possible_dialog_text">The signal measurement requires WiFi turned off and good GPS reception. It will start automatically once these conditions are met.</string>
+    <string name="signal_measurement_mobile_network_required_title">Mobile network required</string>
+    <string name="signal_measurement_airplane_mode_active">Airplane mode is active. Please turn it off — a signal measurement needs an active mobile network.</string>
+    <string name="signal_measurement_mobile_data_disabled">Mobile data is disabled. Please enable it — a signal measurement needs an active mobile network.</string>
     <string name="text_button_abort">Abort</string>
     <string name="stop_signal_measurement_title">End signal measurement</string>
     <string name="stop_signal_measurement_text">Do you want to end the measurement?</string>
@@ -560,6 +563,7 @@
     <string name="loading_map_filters_failed">Unable to load map filters. Please, try again.</string>
     <string name="coverage_measurement_error_title">Signal measurement error</string>
     <string name="coverage_measurement_error_unknown">There was an error during signal measurement. Please, try again.</string>
+    <string name="coverage_measurement_error_no_connectivity">There was no network connectivity for %1$d min, giving up. Please try in an area with coverage.</string>
     <string name="dismiss">Dismiss</string>
     <string name="signal_result_title">Signal measurement result</string>
     <string name="text_fence_radius">Point radius factor:</string>
