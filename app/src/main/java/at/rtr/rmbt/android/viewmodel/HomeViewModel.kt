@@ -416,4 +416,41 @@ class HomeViewModel @Inject constructor(
      */
     fun currentGpsLocation(): LocationInfo? =
         gpsLocationLiveData.value ?: gpsLocationWatcher.latestLocation
+
+    /**
+     * Current GNSS accuracy (meters) for the signal-measurement readiness display, or null when there
+     * is no usable fix yet.
+     */
+    fun currentGpsAccuracyMeters(): Float? =
+        currentGpsLocation()?.takeIf { it.hasAccuracy }?.accuracy
+
+    /** Accuracy threshold (meters) a fix must be at/below to start a signal measurement. */
+    val signalMeasurementAccuracyThresholdMeters: Int
+        get() = appConfig.minLocationAccuracyMetersDuringSignalMeasurement
+
+    /**
+     * Whether the current GNSS fix is fresh enough (age within
+     * [Config.maxAgeOfLocationInformationForSignalMeasurementMillis]) to be usable. A stale fix - even
+     * one with good accuracy - is not accepted for a start, so the readiness UI must treat it as "no
+     * current fix" rather than showing a misleadingly good (but old) accuracy value.
+     */
+    fun isGpsFixFresh(): Boolean {
+        val location = currentGpsLocation() ?: return false
+        val ageMillis = location.ageNanos / 1_000_000L
+        return ageMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
+    }
+
+    /**
+     * Human-readable name of the currently active network for the readiness display (e.g. "5G" or
+     * "WIFI"), or null when there is no active network.
+     */
+    fun currentNetworkTypeName(): String? {
+        val networkInfo = state.activeNetworkInfo.get()?.networkInfo
+        return when (networkInfo?.type) {
+            TransportType.CELLULAR ->
+                (networkInfo as CellNetworkInfo).networkType.generationDisplayName(nrFlavor = true)
+            null -> null
+            else -> networkInfo.type.name
+        }
+    }
 }

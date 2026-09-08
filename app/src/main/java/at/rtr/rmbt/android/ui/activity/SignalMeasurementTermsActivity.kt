@@ -7,7 +7,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -19,6 +21,7 @@ import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 class SignalMeasurementTermsActivity : BaseActivity() {
 
@@ -179,16 +182,78 @@ class SignalMeasurementTermsActivity : BaseActivity() {
         waitingForStatus = true
         binding.title.text = getString(R.string.signal_measurement_not_possible_dialog_title)
         binding.content.text = getString(R.string.signal_measurement_not_possible_dialog_text)
+        binding.statusContainer.visibility = View.VISIBLE
         binding.scrollView.scrollTo(0, 0)
         // Only "Abort" is offered now; the measurement starts on its own once the status is good.
         binding.accept.visibility = View.GONE
         binding.decline.text = getString(R.string.text_button_abort)
+        updateReadinessStatus()
     }
 
     private fun maybeStartWhenReady() {
-        if (waitingForStatus && signalStatusReady()) {
+        if (!waitingForStatus) return
+        // Refresh the per-criterion readiness rows on every GPS/network change, then start as soon as
+        // both criteria are good.
+        updateReadinessStatus()
+        if (signalStatusReady()) {
             startMeasurement()
         }
+    }
+
+    /**
+     * Updates the two live readiness rows (GPS accuracy, network type): a green check + green text
+     * when the criterion is met, a red X + red text (with the actual vs. required value) when not.
+     */
+    private fun updateReadinessStatus() {
+        if (!waitingForStatus) return
+
+        // Three distinct GPS states, text and color derived from the SAME facts so they never disagree:
+        //  - stale / no usable fix  -> "GPS: stale" (red)
+        //  - fresh but too inaccurate -> the accuracy value vs. the limit (red)
+        //  - fresh and within the limit -> "GPS: ok" (green)
+        // The green case is exactly the GPS half of the start criterion.
+        val threshold = viewModel.signalMeasurementAccuracyThresholdMeters
+        val accuracy = viewModel.currentGpsAccuracyMeters()
+        val gpsOk: Boolean
+        val gpsText: String
+        when {
+            accuracy == null || !viewModel.isGpsFixFresh() -> {
+                gpsOk = false
+                gpsText = getString(R.string.signal_readiness_gps_stale)
+            }
+            accuracy.roundToInt() > threshold -> {
+                gpsOk = false
+                gpsText = getString(R.string.signal_readiness_gps_accuracy, accuracy.roundToInt(), threshold)
+            }
+            else -> {
+                gpsOk = true
+                gpsText = getString(R.string.signal_readiness_gps_ok)
+            }
+        }
+        applyStatusRow(binding.gpsStatusText, gpsOk, gpsText)
+
+        // Network type: WiFi (or no network) is not acceptable for a signal measurement.
+        val networkOk = viewModel.isMobileNetworkActive()
+        val networkName = viewModel.currentNetworkTypeName() ?: getString(R.string.noSignal)
+        applyStatusRow(
+            binding.networkStatusText,
+            networkOk,
+            getString(R.string.signal_readiness_network, networkName)
+        )
+    }
+
+    private fun applyStatusRow(text: TextView, ok: Boolean, message: String) {
+        // Icon as a start compound drawable (24dp intrinsic bounds), color matching the pass/fail state.
+        text.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            if (ok) R.drawable.ic_status_ok else R.drawable.ic_status_fail, 0, 0, 0
+        )
+        text.text = message
+        text.setTextColor(
+            ContextCompat.getColor(
+                this,
+                if (ok) R.color.classification_green else R.color.classification_red
+            )
+        )
     }
 
     private fun startMeasurement() {
