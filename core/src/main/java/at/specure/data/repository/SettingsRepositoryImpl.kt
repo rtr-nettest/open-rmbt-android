@@ -138,17 +138,37 @@ class SettingsRepositoryImpl(
     }
 
     private fun updateTermsAndConditions(tac: TermsAndConditionsSettings?) = tac?.let { terms ->
+        // Migration for clients that accepted BEFORE acceptedTacVersion existed: they have
+        // tacAccepted=true but no accepted version recorded. Backfill it from the previously stored
+        // (already in-sync) version so they are NOT re-prompted for a version they already accepted.
+        // Done before tacVersion is overwritten with the server value below.
+        if (termsAndConditions.tacAccepted && termsAndConditions.acceptedTacVersion == null) {
+            termsAndConditions.acceptedTacVersion =
+                termsAndConditions.tacVersion ?: termsAndConditions.bundledTermsVersion
+        }
+
+        // The URL is language-specific (…/%s/tc_android.html) and only decides which localized text is
+        // shown. Update it (and drop the now-stale cached content for the old URL), but do NOT reset
+        // acceptance just because the language/URL changed - only a newer VERSION requires re-accepting.
         if (termsAndConditions.tacUrl != terms.url) {
+            termsAndConditions.tacUrl?.let { oldUrl ->
+                val count = tacDao.deleteTermsAndCondition(oldUrl)
+                Timber.d("DB: Dropping cached TaC for old/other-language URL: $count")
+            }
             termsAndConditions.tacUrl = terms.url
-            termsAndConditions.tacAccepted = false
         }
         termsAndConditions.ndtTermsUrl = terms.ndtURL
-        if (termsAndConditions.tacVersion != terms.version) {
-            termsAndConditions.tacVersion = terms.version
+
+        val serverVersion = terms.version
+        termsAndConditions.tacVersion = serverVersion
+        // Re-prompt only when the server has a STRICTLY NEWER version than the one the user accepted.
+        // (acceptedTacVersion is recorded at acceptance time, including the bundled version for an
+        // offline acceptance, so a first online fetch of the same version no longer re-prompts.)
+        if (serverVersion != null && serverVersion > (termsAndConditions.acceptedTacVersion ?: -1)) {
             termsAndConditions.tacAccepted = false
             terms.url?.let { url ->
                 val count = tacDao.deleteTermsAndCondition(url)
-                Timber.d("DB: Deleting old TaC: $count")
+                Timber.d("DB: Deleting old TaC for new version: $count")
             }
         }
     }

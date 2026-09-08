@@ -347,10 +347,14 @@ interface Config {
      */
     var dataPrivacyAndTermsUrl: String
 
+
+
     /**
-     * Default (local stored) url to open terms of use for acceptance
+     * Version of the terms text bundled with the app (res/raw/terms). Recorded as the accepted
+     * version when the user accepts offline, so a later online settings fetch only re-prompts if the
+     * server has a strictly newer version. Must be kept in sync with the bundled terms text.
      */
-    var termsAcceptanceDefaultUrl: String
+    val bundledTermsVersion: Int
 
     /**
      * Is Override Map Server turned on

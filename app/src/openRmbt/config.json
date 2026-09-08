@@ -36,11 +36,6 @@
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_NEW_HOST",
-      "value": "api-test.example.org",
-      "visible": false
-    },
-    {
       "name": "CONTROL_SERVER_NEW_ROUTE",
       "value": "rtr",
       "visible": false
@@ -266,8 +261,8 @@
       "visible": true
     },
     {
-      "name": "CMS_URL",
-      "value": "",
+      "name": "BUNDLED_TERMS_VERSION",
+      "value": "20120101",
       "visible": false
     },
     {
@@ -398,11 +393,6 @@
     {
       "name": "CONTROL_SERVER_SYNC_DEVICES_ROUTE",
       "value": "sync",
-      "visible": false
-    },
-    {
-      "name": "CONTROL_SERVER_GET_NEWS_ENDPOINT",
-      "value": "news",
       "visible": false
     },
     {
