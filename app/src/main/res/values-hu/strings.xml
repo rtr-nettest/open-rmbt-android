@@ -402,6 +402,11 @@
     <string name="wrong_network_type_active_dialog_text">Kérjük, kapcsolja ki a WIFI-t (vagy más nem mobil kapcsolatot)</string>
     <string name="signal_measurement_not_possible_dialog_title">Várakozás a jelmérés indítására</string>
     <string name="signal_measurement_not_possible_dialog_text">A jelméréshez ki kell kapcsolni a WiFi-t, és jó GPS-lefedettség szükséges. Automatikusan elindul, amint ezek a feltételek teljesülnek.</string>
+    <string name="signal_readiness_status_heading">Állapot</string>
+    <string name="signal_readiness_gps_ok">GPS: rendben</string>
+    <string name="signal_readiness_gps_accuracy">GPS: pontosság %1$d m (határérték %2$d m)</string>
+    <string name="signal_readiness_gps_stale">GPS: nincs jel</string>
+    <string name="signal_readiness_network">Hálózat: %1$s</string>
     <string name="text_button_abort">Megszakítás</string>
     <string name="stop_signal_measurement_title">Jelszintmérés befejezése</string>
     <string name="stop_signal_measurement_text">Valóban be kívánja fejezni a mérést?</string>

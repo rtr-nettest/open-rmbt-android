@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.rmbt.util.exception.HandledException
+import at.specure.config.Config
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.DetailedNetworkInfo
@@ -42,12 +43,24 @@ class SignalMeasurementProcessor @Inject constructor(
     @Named("gps-location") private val locationWatcher: LocationWatcher,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
+    private val config: Config,
 ) : Binder(), SignalMeasurementProducer, CoroutineScope {
 
     private var globalNetworkInfo: DetailedNetworkInfo? = null
     private var isUnstoppable = false
     private var _isActive = false
     private var _isPaused = false
+
+    // "Preparing" phase: the service is running and holding GPS (screen-off safe) but has NOT yet
+    // started the coverage session (registration + fence recording). It stays here until GPS accuracy
+    // and a mobile network are both good, then flips to active and begins recording. This replaces the
+    // old UI-side "waiting for GPS" screen, whose GPS died whenever the screen turned off.
+    private var _isPreparing = false
+    private var pendingSignalMeasurementType: SignalMeasurementType = SignalMeasurementType.DEDICATED
+
+    // The GPS/foreground listeners are held for the whole run - both while preparing and while active.
+    private val isRunning: Boolean
+        get() = _isActive || _isPreparing
     private val _activeStateLiveData = MutableLiveData<Boolean>()
     private val _pausedStateLiveData = MutableLiveData<Boolean>()
     private val _signalMeasurementSessionIdLiveData = MutableLiveData<String?>()
@@ -135,11 +148,13 @@ class SignalMeasurementProcessor @Inject constructor(
             globalNetworkInfo,
             batteryInfo.getTemp()
         )
+        // A fresh fix may now satisfy the start conditions - begin recording if we were preparing.
+        maybeBeginCoverageSession()
 
         // restart timer
         locationResetJob?.cancel()
         locationResetJob = launch {
-            while (isActive) {
+            while (isRunning) {
                 delay(MAXIMUM_TIME_LOCATION_KEEP_MILLS.toLong())
                 // Double-check: If we still have satellites used in fix,
                 // we are likely just stationary, so we keep the last location.
@@ -193,39 +208,87 @@ class SignalMeasurementProcessor @Inject constructor(
                 globalNetworkInfo = if (isNoSignal) null else newValue
             }
         }
+        // A newly-available mobile network may now satisfy the start conditions - begin if preparing.
+        maybeBeginCoverageSession()
     }
 
     override fun startMeasurement(
         unstoppable: Boolean,
         signalMeasurementType: SignalMeasurementType,
     ) {
-        val shouldStartCoverage = !_isActive
-        Timber.w("startMeasurement $shouldStartCoverage")
+        Timber.w("startMeasurement (already running: $isRunning)")
 
-        if (shouldStartCoverage) {
-            _isActive = true
-            isUnstoppable = unstoppable
-            postStateData()
-            registerBatteryInfoReceiver(batteryInfo)
-            locationWatcher.addListener(locationListener)
-            signalStrengthWatcher.addListener(signalStrengthListener)
-            Timber.d("Starting coverage session")
-            rtrCoverageMeasurementProcessor.startCoverageSession(
-                sessionCreated = measurementSessionInitializedCallback,
-                sessionCreationError = measurementSessionInitializationErrorCallback,
-                sessionStopped = measurementSessionStoppedCallback,
-            )
-            rtrCoverageMeasurementProcessor.onNewLocation(
-                globalLocationInfo,
-                globalNetworkInfo,
-                batteryInfo.getTemp()
-            )
-        }
+        // Idempotent: ignore a repeated start while preparing or already recording (e.g. the terms
+        // screen starts it, then the measurement screen's onStart calls startMeasurement again).
+        if (isRunning) return
+
+        isUnstoppable = unstoppable
+        pendingSignalMeasurementType = signalMeasurementType
+
+        // Enter the preparing phase: hold GPS + the foreground service, but do NOT start the coverage
+        // session yet. Note isActive stays false here, so no "recording" state is reported to the UI.
+        _isPreparing = true
+        postStateData()
+        registerBatteryInfoReceiver(batteryInfo)
+        locationWatcher.addListener(locationListener)
+        signalStrengthWatcher.addListener(signalStrengthListener)
+        Timber.d("Preparing coverage session - waiting for good GPS and mobile network")
+
+        // In case a good fix + network are already available, begin immediately.
+        maybeBeginCoverageSession()
+    }
+
+    /**
+     * While preparing, start the actual coverage session (registration + fence recording) as soon as
+     * the GPS fix is fresh + accurate enough AND a mobile network is available. Called on every
+     * location/network update, so it fires the moment the conditions are first met. No-op once
+     * recording has begun.
+     */
+    private fun maybeBeginCoverageSession() {
+        if (_isActive || !_isPreparing) return
+        if (!isReadyToBegin()) return
+
+        _isPreparing = false
+        _isActive = true
+        postStateData()
+        Timber.d("Conditions met - starting coverage session")
+        rtrCoverageMeasurementProcessor.startCoverageSession(
+            sessionCreated = measurementSessionInitializedCallback,
+            sessionCreationError = measurementSessionInitializationErrorCallback,
+            sessionStopped = measurementSessionStoppedCallback,
+        )
+        rtrCoverageMeasurementProcessor.onNewLocation(
+            globalLocationInfo,
+            globalNetworkInfo,
+            batteryInfo.getTemp()
+        )
+    }
+
+    /**
+     * Readiness to begin recording: a fresh, accurate-enough GPS fix (same thresholds the fix must
+     * meet during the measurement) plus an active, known mobile (cellular) network.
+     */
+    private fun isReadyToBegin(): Boolean {
+        val location = globalLocationInfo ?: return false
+        if (!location.hasAccuracy) return false
+        val ageMillis = location.ageNanos / 1_000_000L
+        val gpsOk = location.accuracy <= config.minLocationAccuracyMetersDuringSignalMeasurement &&
+            ageMillis <= config.maxAgeOfLocationInformationForSignalMeasurementMillis
+
+        val network = globalNetworkInfo?.networkInfo
+        val networkOk = network is CellNetworkInfo &&
+            network.networkType.intValue != MobileNetworkType.UNKNOWN.intValue
+
+        return gpsOk && networkOk
     }
 
     override fun stopMeasurement(unstoppable: Boolean) {
         Timber.d("Stopping coverage session from SignalMeasurementProcessor")
-        rtrCoverageMeasurementProcessor.stopCoverageSession(CoverageMeasurementTerminationCause.EndedByUser())
+        // Only tear down a coverage session if one was actually started (i.e. not aborted while still
+        // in the preparing phase, where no session/registration exists yet).
+        if (_isActive) {
+            rtrCoverageMeasurementProcessor.stopCoverageSession(CoverageMeasurementTerminationCause.EndedByUser())
+        }
         unregisterBatteryInfoReceiver(batteryInfo)
         resetStateData()
         postStateData()
@@ -235,6 +298,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun resetStateData() {
         _isActive = false
+        _isPreparing = false
         _isPaused = false
         globalNetworkInfo = null
     }

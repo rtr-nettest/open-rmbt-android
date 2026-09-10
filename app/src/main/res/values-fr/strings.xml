@@ -389,6 +389,11 @@
     <string name="wrong_network_type_active_dialog_text">Veuillez désactiver le Wi-Fi (ou toute autre connexion non mobile)</string>
     <string name="signal_measurement_not_possible_dialog_title">En attente du démarrage de la mesure du signal</string>
     <string name="signal_measurement_not_possible_dialog_text">La mesure du signal nécessite que le Wi-Fi soit désactivé et une bonne couverture GPS. Elle démarrera automatiquement dès que ces conditions seront remplies.</string>
+    <string name="signal_readiness_status_heading">État</string>
+    <string name="signal_readiness_gps_ok">GPS : ok</string>
+    <string name="signal_readiness_gps_accuracy">GPS : précision %1$d m (limite %2$d m)</string>
+    <string name="signal_readiness_gps_stale">GPS : aucun signal</string>
+    <string name="signal_readiness_network">Réseau : %1$s</string>
     <string name="text_button_abort">Annuler</string>
     <string name="stop_signal_measurement_title">Terminer la mesure de signal</string>
     <string name="stop_signal_measurement_text">Voulez-vous terminer la mesure ?</string>

@@ -33,7 +33,7 @@
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequency</string>
-    <string name="home_speed">Movement</string>
+    <string name="home_speed">Velocity</string>
     <string name="home_speed_value" translatable="false">%1$.1f km/h</string>
     <string name="home_no_internet_connection">No Internet connection!</string>
     <string name="home_no_internet_connection_details">No test is possible.</string>
@@ -548,6 +548,12 @@
     <string name="wrong_network_type_active_dialog_text">Please deactivate Wifi (or some other non-mobile connection)</string>
     <string name="signal_measurement_not_possible_dialog_title">Waiting for start of signal measurement</string>
     <string name="signal_measurement_not_possible_dialog_text">The signal measurement requires WiFi turned off and good GPS reception. It will start automatically once these conditions are met.</string>
+    <!-- Live readiness rows on the waiting screen. %1$d = current accuracy, %2$d = the required limit. The row's icon/color carries pass/fail. -->
+    <string name="signal_readiness_status_heading">Status</string>
+    <string name="signal_readiness_gps_ok">GPS: OK</string>
+    <string name="signal_readiness_gps_accuracy">GPS: accuracy %1$d m (limit %2$d m)</string>
+    <string name="signal_readiness_gps_stale">GPS: no signal</string>
+    <string name="signal_readiness_network">Network: %1$s</string>
     <string name="signal_measurement_mobile_network_required_title">Mobile network required</string>
     <string name="signal_measurement_airplane_mode_active">Airplane mode is active. Please turn it off — a signal measurement needs an active mobile network.</string>
     <string name="signal_measurement_mobile_data_disabled">Mobile data is disabled. Please enable it — a signal measurement needs an active mobile network.</string>

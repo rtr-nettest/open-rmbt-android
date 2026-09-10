@@ -402,6 +402,11 @@
     <string name="wrong_network_type_active_dialog_text">Por favor, desactiva el Wifi (u otra conexión no móvil)</string>
     <string name="signal_measurement_not_possible_dialog_title">Esperando el inicio de la medición de señal</string>
     <string name="signal_measurement_not_possible_dialog_text">La medición de señal requiere que el Wi-Fi esté desactivado y una buena cobertura GPS. Se iniciará automáticamente cuando se cumplan estas condiciones.</string>
+    <string name="signal_readiness_status_heading">Estado</string>
+    <string name="signal_readiness_gps_ok">GPS: correcto</string>
+    <string name="signal_readiness_gps_accuracy">GPS: precisión %1$d m (límite %2$d m)</string>
+    <string name="signal_readiness_gps_stale">GPS: sin señal</string>
+    <string name="signal_readiness_network">Red: %1$s</string>
     <string name="text_button_abort">Cancelar</string>
     <string name="stop_signal_measurement_title">Finalizar medición de señal</string>
     <string name="stop_signal_measurement_text">¿Deseas finalizar la medición?</string>

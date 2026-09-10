@@ -33,17 +33,73 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title">
 
-            <TextView
-                android:id="@+id/content"
-                style="@style/RobotoRegularStyle.Small"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/margin_large"
-                android:text="@string/signal_measurement_terms_content"
-                android:justificationMode="inter_word"
-                android:textColor="@color/text_dark_gray"
-                tools:targetApi="o"
-                tools:text="Content" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/content"
+                    style="@style/RobotoRegularStyle.Small"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/margin_large"
+                    android:text="@string/signal_measurement_terms_content"
+                    android:justificationMode="inter_word"
+                    android:textColor="@color/text_dark_gray"
+                    tools:text="Content" />
+
+                <!-- Live GPS/network readiness, only shown while waiting for the status to become good.
+                     Each row: an OK/fail icon plus a message that turns red when the criterion fails. -->
+                <LinearLayout
+                    android:id="@+id/statusContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/margin_large"
+                    android:paddingEnd="@dimen/margin_large"
+                    android:paddingBottom="@dimen/margin_large"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        style="@style/RobotoMediumStyle.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/margin_small"
+                        android:text="@string/signal_readiness_status_heading"
+                        android:textColor="@color/text_dark_gray"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/gpsStatusText"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="@dimen/margin_medium"
+                        android:gravity="center_vertical"
+                        android:paddingTop="@dimen/margin_small"
+                        android:paddingBottom="@dimen/margin_small"
+                        android:textColor="@color/classification_red"
+                        app:drawableStartCompat="@drawable/ic_status_fail"
+                        tools:text="GPS: accuracy 30 m (limit 14 m)" />
+
+                    <TextView
+                        android:id="@+id/networkStatusText"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="@dimen/margin_medium"
+                        android:gravity="center_vertical"
+                        android:paddingTop="@dimen/margin_small"
+                        android:paddingBottom="@dimen/margin_small"
+                        android:textColor="@color/classification_red"
+                        app:drawableStartCompat="@drawable/ic_status_fail"
+                        tools:text="Network: WiFi" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </ScrollView>
 
