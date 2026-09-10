@@ -137,6 +137,7 @@
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
     <string name="measurement_speed_chart_x_label_max">7s</string>
+    <string name="signal_chart_x_label_now">maintenant</string>
     <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Desc</string>
     <string name="measurement_up">Mont</string>

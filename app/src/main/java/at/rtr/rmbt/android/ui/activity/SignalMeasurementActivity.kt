@@ -143,6 +143,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             binding.isPaused = it
         }
 
+        // Keep the active-network info current on this screen's own view-model instance so the
+        // expert-mode cell-info block (bound to state.activeNetworkInfo) has data to show. This is set
+        // on the home/terms screens but not otherwise on this one.
+        viewModel.signalStrengthLiveData.listen(this) { info ->
+            viewModel.state.activeNetworkInfo.set(info?.copy())
+        }
+
         binding.buttonStart.setOnClickListener {
             viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
         }
@@ -486,6 +493,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         binding.signalBarsIndicator.setRange(technologyRange.minSignalValue, technologyRange.maxSignalValue)
         binding.signalBarsIndicator.maxColor = mobileNetworkType.colorInt()
         binding.signalBarsIndicator.signalValue = signal
+
+        // Feed the expert-mode signal-over-time chart with the same combined signal recorded for the
+        // fences, coloured by the current technology.
+        binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
