@@ -307,7 +307,7 @@
     },
     {
       "name": "MAP_FILTERS_ENDPOINT",
-      "value": "tiles/info",
+      "value": "v2/tiles/info",
       "visible": false
     },
     {
