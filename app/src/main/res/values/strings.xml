@@ -584,6 +584,7 @@
     <string name="coverage_duration_label">Duration: %1$s</string>
     <string name="text_fence_count">%1$d points</string>
     <string name="coverage_status_and_settings">Status and settings</string>
+    <string name="coverage_show_graph">Show signal graph</string>
     <string name="coverage_segment_registered">Segment registered at %1$s</string>
     <string name="coverage_segment_waiting_registration">Waiting for registration</string>
     <string name="coverage_segments_unsubmitted">%1$d unsubmitted previous segments</string>

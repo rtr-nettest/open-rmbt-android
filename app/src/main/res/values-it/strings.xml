@@ -442,6 +442,7 @@
     <string name="allow">Consenti</string>
     <string name="measuring">Misurazione in corso…</string>
     <string name="coverage_status_and_settings">Stato e impostazioni</string>
+    <string name="coverage_show_graph">Mostra grafico</string>
     <string name="coverage_segment_registered">Segmento registrato alle %1$s</string>
     <string name="coverage_segment_waiting_registration">In attesa di registrazione</string>
     <string name="coverage_segments_unsubmitted">%1$d segmenti precedenti non inviati</string>

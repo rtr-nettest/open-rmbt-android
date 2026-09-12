@@ -106,6 +106,11 @@ class HomeViewModel @Inject constructor(
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
     private var toggleService: Boolean = false
 
+    // A dedicated-measurement start requested while the service was not yet bound. Binding via
+    // attach() is asynchronous, so the start is remembered here and carried out from
+    // onServiceConnected once the producer is available (replaces a fragile fixed delay in the UI).
+    private var pendingSignalMeasurementStart: SignalMeasurementType? = null
+
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
@@ -138,6 +143,12 @@ class HomeViewModel @Inject constructor(
             if (producer != null && toggleService) {
                 toggleService = false
                 toggleSignalMeasurementService()
+            }
+
+            // A start was requested before the service was bound - carry it out now.
+            pendingSignalMeasurementStart?.let { type ->
+                pendingSignalMeasurementStart = null
+                startSignalMeasurement(type)
             }
 
 
@@ -213,10 +224,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
-        if (shouldStartDedicatedMeasurementStateChecker()) {
-            coverageMeasurementSettings.signalMeasurementIsRunning = true
+        if (!shouldStartDedicatedMeasurementStateChecker()) return
+        coverageMeasurementSettings.signalMeasurementIsRunning = true
+        val boundProducer = producer
+        if (boundProducer == null) {
+            // Service not bound yet (attach() is async) - start as soon as it connects.
+            Timber.d("Deferring signal measurement start until service is connected")
+            pendingSignalMeasurementStart = signalMeasurementType
+        } else {
             Timber.d("Starting coverage session HVM1")
-            producer?.startMeasurement(false, signalMeasurementType)
+            boundProducer.startMeasurement(false, signalMeasurementType)
         }
     }
 

@@ -429,6 +429,7 @@
     <string name="allow">Povolit</string>
     <string name="measuring">Měření…</string>
     <string name="coverage_status_and_settings">Stav a nastavení</string>
+    <string name="coverage_show_graph">Zobrazit graf</string>
     <string name="coverage_segment_registered">Segment registrován v %1$s</string>
     <string name="coverage_segment_waiting_registration">Čekání na registraci</string>
     <string name="coverage_segments_unsubmitted">%1$d neodeslaných předchozích segmentů</string>

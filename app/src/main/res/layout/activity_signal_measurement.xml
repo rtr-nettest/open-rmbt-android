@@ -260,7 +260,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginTop="@dimen/margin_medium"
-                        app:visibleOrGone="@{state.expertModeIsEnabled}"
+                        app:visibleOrGone="@{state.showSignalMeasurementGraph}"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/metrics_row_bottom_barrier">
@@ -298,7 +298,7 @@
                                 android:textColor="@color/text_dark_gray"
                                 android:textSize="11sp"
                                 app:primaryCellInfo="@{state.activeNetworkInfo}"
-                                app:primaryCellInfoExpert="@{state.expertModeIsEnabled}"
+                                app:primaryCellInfoExpert="@{state.showSignalMeasurementGraph}"
                                 tools:text="EARFCN: 1850\nCI: 12345\neNB: 48\nTAC: 12345\nPCI: 305" />
 
                         </LinearLayout>
@@ -625,6 +625,9 @@
                 android:padding="@dimen/margin_large"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="24dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

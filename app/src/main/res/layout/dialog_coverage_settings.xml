@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_map_action_sheet"
-        android:paddingBottom="@dimen/padding_extra_large">
+        android:paddingBottom="56dp">
 
         <TextView
             android:id="@+id/label"
@@ -70,6 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_medium"
             android:text="/"
+            tools:ignore="HardcodedText"
             android:textColor="@color/navigation_gray"
             app:layout_constraintStart_toEndOf="@+id/label_points_count"
             app:layout_constraintBaseline_toBaselineOf="@id/label_points_count" />
@@ -218,7 +219,21 @@
             app:layout_constraintStart_toEndOf="@+id/accuracy_radius_slider"
             />
 
-
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_show_graph"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:text="@string/coverage_show_graph"
+            android:textColor="@color/navigation_gray"
+            android:thumb="@drawable/thumb_selector"
+            app:track="@drawable/track_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/accuracy_radius_slider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

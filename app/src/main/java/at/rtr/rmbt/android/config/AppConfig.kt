@@ -44,6 +44,8 @@ private const val KEY_EXPERT_MODE_IPV6_ONLY = "EXPERT_MODE_IPV6_ONLY"
 private const val KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR = "KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR"
 private const val COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE = 1
 
+private const val KEY_SHOW_SIGNAL_MEASUREMENT_GRAPH = "KEY_SHOW_SIGNAL_MEASUREMENT_GRAPH"
+
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
@@ -524,6 +526,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var shouldRequestBackgroundLocation: Boolean
         get() = getBoolean(BuildConfig.SHOULD_REQUEST_BACKGROUND_LOCATION)
         set(value) = setBoolean(BuildConfig.SHOULD_REQUEST_BACKGROUND_LOCATION, value)
+
+    /**
+     * User setting (Signal Measurement settings): whether to show the live signal-strength graph and
+     * cell info on the signal-measurement screen. Persisted, default off.
+     */
+    var showSignalMeasurementGraph: Boolean
+        get() = preferences.getBoolean(KEY_SHOW_SIGNAL_MEASUREMENT_GRAPH, false)
+        set(value) = preferences.edit { putBoolean(KEY_SHOW_SIGNAL_MEASUREMENT_GRAPH, value) }
 
     companion object {
         /**

@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.dialog
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -82,6 +83,8 @@ class CoverageSettingsDialog : FullscreenDialog() {
      * Registration status of the CURRENT segment: the registration time once the session has a server
      * measurement id, otherwise "Waiting for registration".
      */
+    // coverage_segment_registered is a valid "%1$s" format string; the lint false-positive is silenced.
+    @SuppressLint("StringFormatInvalid")
     private fun showSegmentRegistration(session: CoverageMeasurementSession?) {
         binding.labelSegmentRegistration.text = if (session?.serverMeasurementId != null) {
             getString(
@@ -183,6 +186,13 @@ class CoverageSettingsDialog : FullscreenDialog() {
         binding.labelSegmentRegistration.visibility = expertVisibility
         binding.labelUnsubmittedSegments.visibility = expertVisibility
 
+        // "Show graph" toggle: reflect the persisted setting and update it (and the live screen) on change.
+        binding.switchShowGraph.isChecked = viewModel.isGraphShown
+        binding.switchShowGraph.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.isGraphShown = isChecked
+            callback?.onShowGraphChanged(isChecked)
+        }
+
         binding.iconClose.setOnClickListener { dismiss() }
     }
 
@@ -214,19 +224,19 @@ class CoverageSettingsDialog : FullscreenDialog() {
     companion object {
 
         fun show(fragmentManager: FragmentManager) {
-            with(fragmentManager.beginTransaction()) {
-                val tag = CoverageSettingsDialog::class.java.name
-                val prev = fragmentManager.findFragmentByTag(CoverageSettingsDialog::class.java.name)
-                if (prev != null) {
-                    remove(prev)
-                }
-                addToBackStack(null)
-                CoverageSettingsDialog().show(fragmentManager, tag)
+            val tag = CoverageSettingsDialog::class.java.name
+            // Remove any previous instance first (its own committed transaction), then show a new one.
+            fragmentManager.findFragmentByTag(tag)?.let { prev ->
+                fragmentManager.beginTransaction().remove(prev).commit()
             }
+            CoverageSettingsDialog().show(fragmentManager, tag)
         }
     }
 
     interface Callback {
         fun onFenceOrAccuracyUpdated()
+
+        /** The "Show graph" toggle changed; update the live signal graph + cell info visibility. */
+        fun onShowGraphChanged(show: Boolean)
     }
 }

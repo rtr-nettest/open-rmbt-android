@@ -46,10 +46,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
@@ -86,10 +84,18 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     private var showMeasurementResultsJob: Job? = null
     private var updateUnfinishedMeasurementJob: Job? = null
     private var wrongNetworkAlertActive = false
+    // Last value passed to setInfoVisible, so the pip/full card visibility can be re-applied
+    // immediately on a PiP mode change (otherwise the full-screen card lingers in the PiP window
+    // until the next data update).
+    private var lastInfoVisible = false
     private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
+    }
+
+    override fun onShowGraphChanged(show: Boolean) {
+        viewModel.state.showSignalMeasurementGraph.set(show)
     }
 
     @SuppressLint("SetTextI18n")
@@ -399,6 +405,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     }
 
     private fun setInfoVisible(visible: Boolean) {
+        lastInfoVisible = visible
 
         binding.measurementProgressInfoPipPing.visibility =
             if (visible && coverageViewModel.state.pipActive.get()) {
@@ -782,12 +789,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
-        lifecycleScope.launch(CoroutineName("Starting signal measurement")) {
-            // TODO: maybe a little improve and instead of delay add state variable which listens on onServiceConnected in homeViewModel and start it there, but drawback is that we need to know when we want to continue there
-            delay(1000)
-            Timber.d("Starting signal measurement")
-            viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
-        }
+        // Binding the service is async; startSignalMeasurement defers the actual start until the
+        // service is connected (see HomeViewModel), so no arbitrary delay is needed here.
+        Timber.d("Starting signal measurement")
+        viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
     }
 
     override fun onUserLeaveHint() {
@@ -805,9 +810,16 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
         coverageViewModel.state.pipActive.set(isInPictureInPictureMode)
 
+        // Re-apply the info-card visibility right away so the correct layout (compact PiP cards vs the
+        // full-screen card with the graph) is shown immediately, instead of the full card lingering in
+        // the PiP window until the next data update.
+        setInfoVisible(lastInfoVisible)
+        setSettingsButtonVisible(lastInfoVisible)
+
         if (isInPictureInPictureMode) {
             binding.fabLocation.visibility = View.GONE
             binding.fabClose.visibility = View.GONE
+            binding.fabWarning.visibility = View.GONE
             setResultTitleVisible(false)
         } else {
             binding.fabClose.visibility = View.VISIBLE
@@ -882,9 +894,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 //            }
             return
         }
-        var latitude = DefaultLocation.austriaLocation.latitude
-        var longitude = DefaultLocation.austriaLocation.longitude
-        var zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+        val latitude = DefaultLocation.austriaLocation.latitude
+        val longitude = DefaultLocation.austriaLocation.longitude
+        val zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
         Timber.d("Setting latest location to 7: ${latitude} $longitude")
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
     }
@@ -912,10 +924,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     }
 
     private fun showStopDialog() {
-        val hideStopDialogJob = lifecycleScope.launch(CoroutineName("Hiding stop dialog")) {
-            delay(5000L)
-            hideDialog()
-        }
+        // The confirmation must stay up until the user actually chooses Stop or Continue - it used to
+        // auto-hide after 5 s, which made "X" look like it did nothing if the user hesitated.
         viewModel.setIsCloseDialogShown(true)
         binding.warningMessageTitle.text =
             ContextCompat.getString(this, R.string.stop_signal_measurement_title)
@@ -928,12 +938,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             ContextCompat.getString(this, R.string.text_continue_measurement)
 
         binding.warningMessageAction.setOnClickListener {
-            hideStopDialogJob.cancel()
             viewModel.stopSignalMeasurement()
             hideDialog()
         }
         binding.warningMessageCancel.setOnClickListener {
-            hideStopDialogJob.cancel()
             binding.warningMessage.visibility = View.GONE
         }
         binding.warningMessage.visibility = View.VISIBLE
@@ -968,9 +976,4 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     }
 }
 
-private fun DeviceInfo.Location?.toLatLng(): LatLng? {
-    this?.let {
-        return LatLng(it.lat, it.long)
-    }
-    return null
-}
+

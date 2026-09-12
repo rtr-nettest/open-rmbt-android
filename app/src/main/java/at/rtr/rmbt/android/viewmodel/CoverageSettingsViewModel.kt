@@ -2,13 +2,8 @@ package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.CoverageSettingsViewState
-import at.rtr.rmbt.android.ui.viewstate.HistoryFiltersViewState
-import at.rtr.rmbt.android.util.addOnPropertyChanged
-import at.specure.data.CoverageMeasurementSettings
-import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
@@ -22,7 +17,6 @@ import javax.inject.Inject
 class CoverageSettingsViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val signalMeasurementRepository: SignalMeasurementRepository,
-    private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
 ) : BaseViewModel() {
 
@@ -37,6 +31,13 @@ class CoverageSettingsViewModel @Inject constructor(
     /** The two extra segment infos in the overlay are only shown to experts. */
     val isExpertModeEnabled: Boolean
         get() = appConfig.expertModeEnabled
+
+    /** Whether the live signal graph + cell info is shown on the signal-measurement screen. */
+    var isGraphShown: Boolean
+        get() = appConfig.showSignalMeasurementGraph
+        set(value) {
+            appConfig.showSignalMeasurementGraph = value
+        }
 
     /**
      * Live count of not-yet-submitted previous segments (coverage sessions) of the current loop,

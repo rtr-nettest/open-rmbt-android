@@ -98,11 +98,11 @@ class SignalMeasurementProcessor @Inject constructor(
     val measurementSessionInitializedCallback: (sessionId: CoverageMeasurementSession) -> Unit =
         { coverageMeasurementSession ->
             _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.localMeasurementId)
-            rtrCoverageMeasurementProcessor.onNewLocation(
-                globalLocationInfo,
-                globalNetworkInfo,
-                batteryInfo.getTemp()
-            )
+            // Only re-record if we already have a real fix; otherwise the next GPS update records the
+            // first fence (avoids persisting a null/stale cached position when the session registers).
+            globalLocationInfo?.let {
+                rtrCoverageMeasurementProcessor.onNewLocation(it, globalNetworkInfo, batteryInfo.getTemp())
+            }
         }
 
     val measurementSessionInitializationErrorCallback: (exception: Exception) -> Unit =
@@ -234,7 +234,12 @@ class SignalMeasurementProcessor @Inject constructor(
         signalStrengthWatcher.addListener(signalStrengthListener)
         Timber.d("Preparing coverage session - waiting for good GPS and mobile network")
 
-        // In case a good fix + network are already available, begin immediately.
+        // A good fix + network may already be available: isReadyToBegin() falls back to the watchers'
+        // cached values, so recording can start immediately instead of waiting up to tens of seconds
+        // for the next GPS/network callback (which left the UI showing "ready" while nothing happened).
+        // The cached value is used ONLY for the readiness decision - the first fence is still recorded
+        // from a real location update (see maybeBeginCoverageSession), so a stale cached position is
+        // never persisted as a fence.
         maybeBeginCoverageSession()
     }
 
@@ -257,25 +262,31 @@ class SignalMeasurementProcessor @Inject constructor(
             sessionCreationError = measurementSessionInitializationErrorCallback,
             sessionStopped = measurementSessionStoppedCallback,
         )
-        rtrCoverageMeasurementProcessor.onNewLocation(
-            globalLocationInfo,
-            globalNetworkInfo,
-            batteryInfo.getTemp()
-        )
+        // Record the first fence only from a real location update we already received. If readiness
+        // was met via the watcher's cached value (globalLocationInfo still null), the first fence is
+        // recorded when the next GPS update arrives, so the cached seed position is never persisted.
+        globalLocationInfo?.let {
+            rtrCoverageMeasurementProcessor.onNewLocation(it, globalNetworkInfo, batteryInfo.getTemp())
+        }
     }
 
     /**
      * Readiness to begin recording: a fresh, accurate-enough GPS fix (same thresholds the fix must
      * meet during the measurement) plus an active, known mobile (cellular) network.
+     *
+     * Falls back to the watchers' last-known values (the same cached values the readiness UI checks)
+     * so recording can begin the moment a good fix + network exist, without waiting for the service's
+     * own listeners to deliver the next callback. The cached values are only used for this decision -
+     * they are never recorded as a fence.
      */
     private fun isReadyToBegin(): Boolean {
-        val location = globalLocationInfo ?: return false
+        val location = globalLocationInfo ?: locationWatcher.latestLocation ?: return false
         if (!location.hasAccuracy) return false
         val ageMillis = location.ageNanos / 1_000_000L
         val gpsOk = location.accuracy <= config.minLocationAccuracyMetersDuringSignalMeasurement &&
             ageMillis <= config.maxAgeOfLocationInformationForSignalMeasurementMillis
 
-        val network = globalNetworkInfo?.networkInfo
+        val network = (globalNetworkInfo ?: signalStrengthWatcher.lastDetailedNetworkInfo)?.networkInfo
         val networkOk = network is CellNetworkInfo &&
             network.networkType.intValue != MobileNetworkType.UNKNOWN.intValue
 

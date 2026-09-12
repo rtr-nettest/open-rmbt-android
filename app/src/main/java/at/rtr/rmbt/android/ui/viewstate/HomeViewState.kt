@@ -29,7 +29,6 @@ private const val KEY_CAMERA_POSITION_LAT = "KEY_CAMERA_POSITION_LAT"
 private const val KEY_CAMERA_POSITION_LON = "KEY_CAMERA_POSITION_LON"
 
 private const val KEY_CLOSE_DIALOG_DISPLAYED = "KEY_CLOSE_DIALOG_DISPLAYED"
-private const val KEY_MARKER_DETAILS_DISPLAYED = "KEY_MARKER_DETAILS_DISPLAYED"
 
 private const val KEY_COVERAGE_SESSION_DETAILS = "KEY_COVERAGE_SESSION_DETAILS"
 private const val KEY_IS_COVERAGE_CRITERIA_MET = "KEY_IS_COVERAGE_CRITERIA_MET"
@@ -52,6 +51,8 @@ class HomeViewState(
     val isSignalMeasurementCriteriaMet = ObservableBoolean(false)
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
     val expertModeIsEnabled = ObservableField(config.expertModeEnabled)
+    // Signal-measurement setting: show the live signal graph + cell info (default off).
+    val showSignalMeasurementGraph = ObservableField(config.showSignalMeasurementGraph)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
     val coverageModeIsEnabled = ObservableField(config.coverageModeEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
@@ -106,5 +107,6 @@ class HomeViewState(
         coverageModeIsEnabled.set(config.coverageModeEnabled)
         selectedMeasurementServer.set(measurementServers.selectedMeasurementServer)
         expertModeIsEnabled.set(config.expertModeEnabled)
+        showSignalMeasurementGraph.set(config.showSignalMeasurementGraph)
     }
 }

@@ -429,6 +429,7 @@
     <string name="allow">السماح</string>
     <string name="measuring">جارٍ القياس…</string>
     <string name="coverage_status_and_settings">الحالة والإعدادات</string>
+    <string name="coverage_show_graph">إظهار الرسم البياني</string>
     <string name="coverage_segment_registered">تم تسجيل الجزء في %1$s</string>
     <string name="coverage_segment_waiting_registration">في انتظار التسجيل</string>
     <string name="coverage_segments_unsubmitted">%1$d أجزاء سابقة لم تُرسل</string>

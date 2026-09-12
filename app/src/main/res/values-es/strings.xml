@@ -442,6 +442,7 @@
     <string name="allow">Permitir</string>
     <string name="measuring">Midiendo…</string>
     <string name="coverage_status_and_settings">Estado y ajustes</string>
+    <string name="coverage_show_graph">Mostrar gráfico</string>
     <string name="coverage_segment_registered">Segmento registrado a las %1$s</string>
     <string name="coverage_segment_waiting_registration">Esperando registro</string>
     <string name="coverage_segments_unsubmitted">%1$d segmentos anteriores sin enviar</string>
