@@ -410,10 +410,10 @@
     <string name="dismiss">Zavřít</string>
     <string name="signal_result_title">Výsledek měření signálu</string>
     <string name="text_fence_radius">Faktor poloměru bodu:</string>
-    <string name="text_meters">%1$dm</string>
+    <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Hodnota posuvníku poloměru bodu %1$d metrů</string>
     <string name="accuracy_radius_slider_content_description">Hodnota posuvníku poloměru přesnosti %1$d metrů</string>
-    <string name="text_accuracy_radius">Přesnost:</string>
+    <string name="text_accuracy_radius">Přijímaná přesnost polohy</string>
     <string name="points">Body</string>
     <string name="text_loading_results_failed">Načítání výsledků se nezdařilo</string>
     <string name="text_connection_count">%1$d segmenty</string>
@@ -429,6 +429,8 @@
     <string name="allow">Povolit</string>
     <string name="measuring">Měření…</string>
     <string name="coverage_status_and_settings">Stav a nastavení</string>
+    <string name="preferences_dev_signal_accuracy">Limit přesnosti GPS (signál)</string>
+    <string name="preferences_dev_signal_accuracy_summary">Přepíše výchozí práh přesnosti GPS pro měření signálu (vývojář)</string>
     <string name="coverage_show_graph">Zobrazit graf</string>
     <string name="coverage_segment_registered">Segment registrován v %1$s</string>
     <string name="coverage_segment_waiting_registration">Čekání na registraci</string>

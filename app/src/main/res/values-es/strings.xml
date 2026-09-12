@@ -423,10 +423,10 @@
     <string name="dismiss">Ignorar</string>
     <string name="signal_result_title">Resultado de medición de señal</string>
     <string name="text_fence_radius">Factor de radio de puntos:</string>
-    <string name="text_meters">%1$dm</string>
+    <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Valor del control deslizante del radio de puntos: %1$d metros</string>
     <string name="accuracy_radius_slider_content_description">Valor del control deslizante del radio de precisión: %1$d metros</string>
-    <string name="text_accuracy_radius">Precisión:</string>
+    <string name="text_accuracy_radius">Precisión de ubicación aceptada</string>
     <string name="points">Puntos</string>
     <string name="text_loading_results_failed">Error al cargar los resultados</string>
     <string name="text_connection_count">%1$d segmentos</string>
@@ -442,6 +442,8 @@
     <string name="allow">Permitir</string>
     <string name="measuring">Midiendo…</string>
     <string name="coverage_status_and_settings">Estado y ajustes</string>
+    <string name="preferences_dev_signal_accuracy">Límite de precisión GPS (señal)</string>
+    <string name="preferences_dev_signal_accuracy_summary">Sustituye el umbral de precisión GPS predeterminado de la medición de señal (desarrollador)</string>
     <string name="coverage_show_graph">Mostrar gráfico</string>
     <string name="coverage_segment_registered">Segmento registrado a las %1$s</string>
     <string name="coverage_segment_waiting_registration">Esperando registro</string>

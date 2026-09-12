@@ -59,6 +59,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         super.onViewCreated(view, savedInstanceState)
         binding.state = settingsViewModel.state
 
+        setupDeveloperGpsAccuracySlider()
+
         binding.loopModeWaitingTime.frameLayoutRoot.setOnClickListener {
             InputSettingDialog.instance(
                 getString(R.string.preferences_loop_mode_min_delay),
@@ -370,6 +372,28 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         updateLocationStatus()
     }
 
+    /**
+     * Developer-only slider (1-100 m) that permanently overrides the default signal-measurement GPS
+     * accuracy threshold. The value is persisted and, while developer mode is on, replaces the build
+     * default (see AppConfig.developerLocationAccuracyMetersOverride).
+     */
+    private fun setupDeveloperGpsAccuracySlider() {
+        val appConfig = settingsViewModel.state.appConfig
+        val current = appConfig.developerLocationAccuracyMetersOverride
+            .coerceIn(DEV_GPS_ACCURACY_MIN, DEV_GPS_ACCURACY_MAX)
+        with(binding.developerGpsAccuracy) {
+            sliderISS.valueFrom = DEV_GPS_ACCURACY_MIN.toFloat()
+            sliderISS.valueTo = DEV_GPS_ACCURACY_MAX.toFloat()
+            sliderISS.value = current.toFloat()
+            sliderValueTVISS.text = getString(R.string.text_meters, current)
+            sliderISS.addOnChangeListener { _, value, _ ->
+                val meters = value.toInt()
+                appConfig.developerLocationAccuracyMetersOverride = meters
+                sliderValueTVISS.text = getString(R.string.text_meters, meters)
+            }
+        }
+    }
+
     /** Shows the current location-access status (label + colour) on the "Location" row. */
     private fun updateLocationStatus() {
         val ctx = context ?: return
@@ -476,6 +500,9 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         private const val KEY_DEVELOPER_TAG_CODE: Int = 9
 
         private const val CODE_DIALOG_INVALID = 14
+
+        private const val DEV_GPS_ACCURACY_MIN = 1
+        private const val DEV_GPS_ACCURACY_MAX = 100
 
         fun newInstance() = SettingsFragment()
     }

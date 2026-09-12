@@ -423,10 +423,10 @@
     <string name="dismiss">Schließen</string>
     <string name="signal_result_title">Ergebnis der Signalmessung</string>
     <string name="text_fence_radius">Punktradius-Faktor:</string>
-    <string name="text_meters">%1$dm</string>
+    <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Punktradius-Schiebereglerwert %1$d Meter</string>
     <string name="accuracy_radius_slider_content_description">Genauigkeitsradius-Schiebereglerwert %1$d Meter</string>
-    <string name="text_accuracy_radius">Genauigkeit:</string>
+    <string name="text_accuracy_radius">Akzeptierte Standortgenauigkeit</string>
     <string name="points">Punkte</string>
     <string name="text_loading_results_failed">Laden der Ergebnisse fehlgeschlagen</string>
     <string name="text_connection_count">%1$d Segmente</string>
@@ -443,6 +443,8 @@
     <string name="measuring">Messung läuft …</string>
     <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
     <string name="coverage_status_and_settings">Status und Einstellungen</string>
+    <string name="preferences_dev_signal_accuracy">GPS-Genauigkeitsgrenze (Signal)</string>
+    <string name="preferences_dev_signal_accuracy_summary">Überschreibt den Standard-Genauigkeitsschwellwert der Signalmessung (Entwickler)</string>
     <string name="coverage_show_graph">Signal-; Diagramm anzeigen</string>
     <string name="coverage_segment_registered">Segment registriert um %1$s</string>
     <string name="coverage_segment_waiting_registration">Warte auf Registrierung</string>

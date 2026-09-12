@@ -201,6 +201,18 @@
                 bind:title="@{@string/preferences_radio_info}" />
 
             <include
+                android:id="@+id/developerGpsAccuracy"
+                layout="@layout/item_setting_slider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                bind:title="@{@string/preferences_dev_signal_accuracy}"
+                bind:summary="@{@string/preferences_dev_signal_accuracy_summary}" />
+
+            <include
                 android:id="@+id/userServerSelection"
                 layout="@layout/item_setting_edittext"
                 android:layout_width="0dp"
@@ -208,7 +220,7 @@
                 android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                app:layout_constraintTop_toBottomOf="@+id/developerGpsAccuracy"
                 bind:title="@{@string/preferences_server_selection}"
                 bind:value='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}' />
 

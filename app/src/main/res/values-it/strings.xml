@@ -423,10 +423,10 @@
     <string name="dismiss">Ignora</string>
     <string name="signal_result_title">Risultato misurazione segnale</string>
     <string name="text_fence_radius">Fattore raggio punto:</string>
-    <string name="text_meters">%1$dm</string>
+    <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Valore cursore raggio punto: %1$d metri</string>
     <string name="accuracy_radius_slider_content_description">Valore cursore raggio di precisione: %1$d metri</string>
-    <string name="text_accuracy_radius">Precisione:</string>
+    <string name="text_accuracy_radius">Precisione posizione accettata</string>
     <string name="points">Punti</string>
     <string name="text_loading_results_failed">Caricamento risultati non riuscito</string>
     <string name="text_connection_count">%1$d segmenti</string>
@@ -442,6 +442,8 @@
     <string name="allow">Consenti</string>
     <string name="measuring">Misurazione in corso…</string>
     <string name="coverage_status_and_settings">Stato e impostazioni</string>
+    <string name="preferences_dev_signal_accuracy">Limite di precisione GPS (segnale)</string>
+    <string name="preferences_dev_signal_accuracy_summary">Sostituisce la soglia di precisione GPS predefinita della misurazione del segnale (sviluppatore)</string>
     <string name="coverage_show_graph">Mostra grafico</string>
     <string name="coverage_segment_registered">Segmento registrato alle %1$s</string>
     <string name="coverage_segment_waiting_registration">In attesa di registrazione</string>

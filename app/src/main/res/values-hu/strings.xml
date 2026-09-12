@@ -423,10 +423,10 @@
     <string name="dismiss">Bezárás</string>
     <string name="signal_result_title">Jelszintmérés eredménye</string>
     <string name="text_fence_radius">Pont sugarának tényezője:</string>
-    <string name="text_meters">%1$dm</string>
+    <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Pont sugár csúszka értéke: %1$d méter</string>
     <string name="accuracy_radius_slider_content_description">Pontossági sugár csúszka értéke: %1$d méter</string>
-    <string name="text_accuracy_radius">Pontosság:</string>
+    <string name="text_accuracy_radius">Elfogadott helypontosság</string>
     <string name="points">Pontok</string>
     <string name="text_loading_results_failed">Eredmények betöltése sikertelen</string>
     <string name="text_connection_count">%1$d szegmens</string>
@@ -442,6 +442,8 @@
     <string name="allow">Engedélyezés</string>
     <string name="measuring">Mérés folyamatban…</string>
     <string name="coverage_status_and_settings">Állapot és beállítások</string>
+    <string name="preferences_dev_signal_accuracy">GPS-pontossági határ (jel)</string>
+    <string name="preferences_dev_signal_accuracy_summary">Felülírja a jelmérés alapértelmezett GPS-pontossági küszöbét (fejlesztő)</string>
     <string name="coverage_show_graph">Grafikon megjelenítése</string>
     <string name="coverage_segment_registered">Szegmens regisztrálva ekkor: %1$s</string>
     <string name="coverage_segment_waiting_registration">Várakozás a regisztrációra</string>

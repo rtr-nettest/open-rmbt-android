@@ -45,6 +45,7 @@ private const val KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR = "KEY_COVERAGE_MIN_FE
 private const val COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE = 1
 
 private const val KEY_SHOW_SIGNAL_MEASUREMENT_GRAPH = "KEY_SHOW_SIGNAL_MEASUREMENT_GRAPH"
+private const val KEY_DEV_LOCATION_ACCURACY_OVERRIDE_METERS = "KEY_DEV_LOCATION_ACCURACY_OVERRIDE_METERS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -500,9 +501,29 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     private val defaultMinLocationAccuracyMetersDuringSignalMeasurement: Int
         get() = BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT.value.toInt()
 
+    /**
+     * Developer-only persistent override of the signal-measurement GPS accuracy threshold (meters).
+     * Defaults to the build default and only takes effect while developer mode is enabled; then it
+     * permanently replaces the build default (across sessions) as the accuracy limit.
+     */
+    var developerLocationAccuracyMetersOverride: Int
+        get() = preferences.getInt(
+            KEY_DEV_LOCATION_ACCURACY_OVERRIDE_METERS,
+            defaultMinLocationAccuracyMetersDuringSignalMeasurement
+        )
+        set(value) = preferences.edit { putInt(KEY_DEV_LOCATION_ACCURACY_OVERRIDE_METERS, value) }
+
+    /** The effective default accuracy: the developer override while developer mode is on, else the build default. */
+    private val effectiveDefaultMinLocationAccuracyMetersDuringSignalMeasurement: Int
+        get() = if (developerModeIsEnabled) {
+            developerLocationAccuracyMetersOverride
+        } else {
+            defaultMinLocationAccuracyMetersDuringSignalMeasurement
+        }
+
     override var minLocationAccuracyMetersDuringSignalMeasurement: Int
         get() = sessionMinLocationAccuracyMetersOverride
-            ?: defaultMinLocationAccuracyMetersDuringSignalMeasurement
+            ?: effectiveDefaultMinLocationAccuracyMetersDuringSignalMeasurement
         set(value) {
             sessionMinLocationAccuracyMetersOverride = value
         }
