@@ -36,6 +36,8 @@ import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.util.formatAccuracy
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.CoverageRegistrationTimeoutException
@@ -88,6 +90,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     // immediately on a PiP mode change (otherwise the full-screen card lingers in the PiP window
     // until the next data update).
     private var lastInfoVisible = false
+    // Identity of the last serving cell seen on the live signal stream, to detect cell changes.
+    private var lastCellComparisonUuid: String? = null
     private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
@@ -151,9 +155,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
         // Keep the active-network info current on this screen's own view-model instance so the
         // expert-mode cell-info block (bound to state.activeNetworkInfo) has data to show. This is set
-        // on the home/terms screens but not otherwise on this one.
+        // on the home/terms screens but not otherwise on this one. It also drives the live signal
+        // display (numeric + technology pill + chart), which updates independently of GPS.
         viewModel.signalStrengthLiveData.listen(this) { info ->
             viewModel.state.activeNetworkInfo.set(info?.copy())
+            updateLiveSignal(info)
         }
 
         binding.buttonStart.setOnClickListener {
@@ -306,10 +312,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         }
 
         // On a mobile network: show the usual measurement info and dismiss the wrong-network alert.
+        // The technology pill, signal value and chart are driven by the live signal-strength stream
+        // (see updateLiveSignal), not by the coverage data, so they keep updating even without GPS.
         clearWrongNetworkAlert()
         setInfoVisible(true)
         updatePingValue(coverageMeasurementData)
-        showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
         // Launch a coroutine to safely update the map
         updateUnfinishedMeasurementJob?.cancel()
@@ -457,21 +464,48 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         }
     }
 
-    private fun showCurrentNetworkType(coverageMeasurementData: CoverageMeasurementData?) {
-        val networkType =
-            coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
-        val frequencyBand = coverageMeasurementData?.currentNetworkInfo
-            ?.getFrequencyBand(coverageMeasurementData.currentSecondaryNetworkInfo)
+    /**
+     * Updates the live signal display from the signal-strength stream (independent of GPS): the
+     * technology pill (type | band, or "No signal"), the combined signal value + bars, and the
+     * signal-over-time chart. Also marks a serving-cell change on the chart with a grey X.
+     */
+    private fun updateLiveSignal(info: DetailedNetworkInfo?) {
+        val networkInfo = info?.networkInfo
+        val secondary = info?.secondary5GActiveCellNetworks?.firstOrNull()
+
+        val networkType = coverageViewModel.getCurrentNetworkTypeName(networkInfo)
+        val frequencyBand = networkInfo?.getFrequencyBand(secondary)
         val networkStringRaw = listOfNotNull(networkType, frequencyBand).joinToString(" | ")
         // With no mobile network the type/band are empty; show "No signal" instead of a blank pill.
-        val networkString = networkStringRaw.ifEmpty {
-            getString(R.string.noSignal)
-        }
+        val networkString = networkStringRaw.ifEmpty { getString(R.string.noSignal) }
         binding.technologyValue.text = networkString
         binding.technologyValuePip.text = networkString
+        updateTechnologyPill(networkInfo)
 
-        updateTechnologyPill(coverageMeasurementData?.currentNetworkInfo)
-        updateSignalIndicator(coverageMeasurementData)
+        // For 5G NSA combine the LTE anchor and NR secondary signals - the same value recorded for the
+        // fences.
+        val signal = networkInfo.getCombinedSignalStrengthValue(secondary)
+        binding.signalValue.text = signal?.let { getString(R.string.home_signal_value, it) }
+            ?: getString(R.string.measurement_dash)
+
+        val mobileNetworkType = networkInfo.getMobileNetworkType()
+        val cellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
+        val technologyRange = NetworkTypeCompat.fromType(networkInfo?.type, cellTechnology)
+        binding.signalBarsIndicator.setRange(technologyRange.minSignalValue, technologyRange.maxSignalValue)
+        binding.signalBarsIndicator.maxColor = mobileNetworkType.colorInt()
+        binding.signalBarsIndicator.signalValue = signal
+
+        // Feed the expert-mode signal-over-time chart, coloured by the current technology.
+        binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
+
+        // Mark a serving-cell change (small grey X on the chart).
+        val cellId = (networkInfo as? CellNetworkInfo)?.comparisonCellUuid
+        if (cellId != null) {
+            if (lastCellComparisonUuid != null && cellId != lastCellComparisonUuid) {
+                binding.signalTimeChart.addCellChangeMarker()
+            }
+            lastCellComparisonUuid = cellId
+        }
     }
 
     private fun updateTechnologyPill(networkInfo: NetworkInfo?) {
@@ -484,26 +518,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         // Prefer white text, only fall back to black when white wouldn't be readable enough.
         val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, backgroundColor)
         return if (whiteContrast >= MIN_WHITE_TEXT_CONTRAST_RATIO) Color.WHITE else Color.BLACK
-    }
-
-    private fun updateSignalIndicator(coverageMeasurementData: CoverageMeasurementData?) {
-        val networkInfo = coverageMeasurementData?.currentNetworkInfo
-        // For 5G NSA combine the LTE anchor and NR secondary signals (minimum when both are present,
-        // otherwise whichever one is reported) - the same value recorded for the fences.
-        val signal = networkInfo.getCombinedSignalStrengthValue(coverageMeasurementData?.currentSecondaryNetworkInfo)
-        binding.signalValue.text = signal?.let { getString(R.string.home_signal_value, it) }
-            ?: getString(R.string.measurement_dash)
-
-        val mobileNetworkType = networkInfo.getMobileNetworkType()
-        val cellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
-        val technologyRange = NetworkTypeCompat.fromType(networkInfo?.type, cellTechnology)
-        binding.signalBarsIndicator.setRange(technologyRange.minSignalValue, technologyRange.maxSignalValue)
-        binding.signalBarsIndicator.maxColor = mobileNetworkType.colorInt()
-        binding.signalBarsIndicator.signalValue = signal
-
-        // Feed the expert-mode signal-over-time chart with the same combined signal recorded for the
-        // fences, coloured by the current technology.
-        binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {

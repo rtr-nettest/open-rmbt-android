@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
@@ -36,6 +37,8 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
     private data class Sample(val timeMillis: Long, val signalDbm: Int?, val color: Int)
 
     private val samples = ArrayDeque<Sample>()
+    // Timestamps at which the serving cell changed; drawn as small grey X markers on the time axis.
+    private val cellChangeMarkers = ArrayDeque<Long>()
     private var startTimeMillis: Long = -1L
 
     private val density = resources.displayMetrics.density
@@ -55,6 +58,12 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         textSize = context.resources.getDimension(R.dimen.chart_label_text_size)
         color = context.getColor(R.color.text_dark_gray)
         typeface = ResourcesCompat.getFont(context, R.font.roboto_regular)
+    }
+    private val markerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 1.5f * density
+        strokeCap = Paint.Cap.ROUND
+        color = Color.GRAY
     }
 
     private val clockFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
@@ -89,8 +98,21 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         postDelayed(tickRunnable, TICK_INTERVAL_MILLIS)
     }
 
+    /**
+     * Marks the current time on the chart with a small grey X, to indicate that the serving cell
+     * changed. Kept in sync with the same 5-minute window as the samples.
+     */
+    fun addCellChangeMarker() {
+        val now = System.currentTimeMillis()
+        if (startTimeMillis < 0) startTimeMillis = now
+        cellChangeMarkers.addLast(now)
+        pruneOldMarkers(now)
+        invalidate()
+    }
+
     fun reset() {
         samples.clear()
+        cellChangeMarkers.clear()
         startTimeMillis = -1L
         removeCallbacks(tickRunnable)
         invalidate()
@@ -101,6 +123,14 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         // Keep one sample past the cutoff so the segment entering the visible window is still drawn.
         while (samples.size > 2 && samples[1].timeMillis < cutoff) {
             samples.removeFirst()
+        }
+        pruneOldMarkers(now)
+    }
+
+    private fun pruneOldMarkers(now: Long) {
+        val cutoff = now - MAX_WINDOW_MILLIS
+        while (cellChangeMarkers.isNotEmpty() && cellChangeMarkers.first() < cutoff) {
+            cellChangeMarkers.removeFirst()
         }
     }
 
@@ -171,6 +201,16 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
             prev = cur
         }
 
+        // Cell-change markers: a small grey X near the top of the plot at each change time.
+        val markerHalf = 4f * density
+        val markerY = chartTop + markerHalf + 1f * density
+        for (t in cellChangeMarkers) {
+            val x = xFor(t)
+            if (x < chartLeft || x > chartRight) continue
+            canvas.drawLine(x - markerHalf, markerY - markerHalf, x + markerHalf, markerY + markerHalf, markerPaint)
+            canvas.drawLine(x - markerHalf, markerY + markerHalf, x + markerHalf, markerY - markerHalf, markerPaint)
+        }
+
         // Time scale: clock time at the left and right edges of the visible window.
         val rightEdgeTime = leftTime + windowMillis
         val baseline = height.toFloat() - 2f * density
@@ -188,8 +228,8 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         private const val TICK_INTERVAL_MILLIS = 1_000L
         private const val LINE_STROKE_WIDTH_DP = 2f
         private const val GRID_ROWS = 4
-        private const val SIGNAL_MIN_DBM = -124
-        private const val SIGNAL_MAX_DBM = -44
+        private const val SIGNAL_MIN_DBM = -125
+        private const val SIGNAL_MAX_DBM = -65
         private const val SIGNAL_UNIT = "dBm"
     }
 }
