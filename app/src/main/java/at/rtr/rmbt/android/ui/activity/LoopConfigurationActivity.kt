@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -32,6 +33,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     private lateinit var binding: ActivityLoopConfigurationBinding
     private val viewModel: LoopConfigurationViewModel by viewModelLazy()
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_loop_configuration)
@@ -113,6 +115,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -135,6 +138,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     // means the system settings page appears at the right time - before the loop starts - and is
     // never buried behind a running measurement. Only offered when appropriate: enabled, requestable,
     // not already granted, and not previously declined in-app.
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun maybeRequestBackgroundPermission() {
         if (viewModel.shouldAskForBackgroundPermission(this)) {
             requestBackgroundLocationPermission.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
@@ -217,12 +221,18 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     }
 
     private fun checkNumber(): Boolean {
-        if (!viewModel.isNumberValid(
-                binding.count.text.toString().toInt(),
-                viewModel.config.loopModeMinTestsNumber,
-                viewModel.config.loopModeMaxTestsNumber
-            )
-        ) {
+        val count = binding.count.text
+            ?.toString()
+            ?.trim()
+            ?.toIntOrNull()
+
+        val isValid = count != null && viewModel.isNumberValid(
+            count,
+            viewModel.config.loopModeMinTestsNumber,
+            viewModel.config.loopModeMaxTestsNumber
+        )
+
+        if (!isValid) {
             SimpleDialog.Builder()
                 .messageText(
                     String.format(
