@@ -35,6 +35,7 @@ import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
+import at.rtr.rmbt.android.ui.view.SignalStrengthTimeChart
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.DetailedNetworkInfo
@@ -495,8 +496,19 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         binding.signalBarsIndicator.maxColor = mobileNetworkType.colorInt()
         binding.signalBarsIndicator.signalValue = signal
 
-        // Feed the expert-mode signal-over-time chart, coloured by the current technology.
-        binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
+        // Redraw the signal-over-time chart from the recorded buffer (not just this live sample), so
+        // the period while the screen was off - during which the buffer kept filling but this live
+        // feed was paused - is drawn in full instead of a straight line.
+        val chartSamples = viewModel.coverageSignalSamples().map { s ->
+            SignalStrengthTimeChart.ChartSample(s.timeMillis, s.signalDbm, s.networkType.colorInt())
+        }
+        if (chartSamples.isEmpty()) {
+            // No recorded samples yet (e.g. the very first live update before recording began):
+            // fall back to appending this one so the chart still starts immediately.
+            binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
+        } else {
+            binding.signalTimeChart.setSamples(chartSamples)
+        }
 
         // Mark a serving-cell change (small grey X on the chart).
         val cellId = (networkInfo as? CellNetworkInfo)?.comparisonCellUuid

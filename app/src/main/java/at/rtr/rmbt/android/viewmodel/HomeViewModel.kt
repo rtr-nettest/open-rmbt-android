@@ -34,6 +34,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
+import at.specure.measurement.signal.SignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
@@ -69,8 +70,16 @@ class HomeViewModel @Inject constructor(
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val controlServerModule: ControlServerModule,
     private val connectivityMonitor: ConnectivityMonitor,
+    private val signalMeasurementProcessor: SignalMeasurementProcessor,
     measurementServers: MeasurementServers,
 ) : BaseViewModel() {
+
+    /**
+     * Snapshot of the recorded signal-over-time series for the measurement chart. Sourced from the
+     * singleton processor (not the paused LiveData), so it includes samples recorded while the
+     * screen was off - letting the chart redraw that period instead of a straight line.
+     */
+    fun coverageSignalSamples() = signalMeasurementProcessor.coverageSignalSamples
 
     var shouldStartDedicatedMeasurementStateChecker: () -> Boolean = { false }
 

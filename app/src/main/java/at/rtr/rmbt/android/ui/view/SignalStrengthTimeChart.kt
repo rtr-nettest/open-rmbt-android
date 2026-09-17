@@ -36,6 +36,9 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
 
     private data class Sample(val timeMillis: Long, val signalDbm: Int?, val color: Int)
 
+    /** One sample for [setSamples]: time, combined signal (dBm, null = gap) and technology colour. */
+    data class ChartSample(val timeMillis: Long, val signalDbm: Int?, val color: Int)
+
     private val samples = ArrayDeque<Sample>()
     // Timestamps at which the serving cell changed; drawn as small grey X markers on the time axis.
     private val cellChangeMarkers = ArrayDeque<Long>()
@@ -108,6 +111,27 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         cellChangeMarkers.addLast(now)
         pruneOldMarkers(now)
         invalidate()
+    }
+
+    /**
+     * Replaces the whole series at once (used when the chart is driven by the recorded signal buffer
+     * rather than appended live sample-by-sample). This is what fills the gap after the screen was
+     * off: the buffer kept growing while the Activity's live feed was paused, so re-loading it here
+     * redraws the missing period instead of a straight line.
+     *
+     * Cell-change markers are left untouched (they are added separately by the caller).
+     */
+    fun setSamples(newSamples: List<ChartSample>) {
+        samples.clear()
+        for (s in newSamples) {
+            samples.addLast(Sample(s.timeMillis, s.signalDbm, s.color))
+        }
+        startTimeMillis = samples.firstOrNull()?.timeMillis ?: -1L
+        invalidate()
+        if (samples.isNotEmpty()) {
+            removeCallbacks(tickRunnable)
+            postDelayed(tickRunnable, TICK_INTERVAL_MILLIS)
+        }
     }
 
     fun reset() {

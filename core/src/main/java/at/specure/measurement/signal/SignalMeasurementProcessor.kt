@@ -17,6 +17,8 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
+import at.specure.measurement.coverage.data.getCombinedSignalStrengthValue
+import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
 import at.specure.temperature.BatteryInfoReceiver
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -35,6 +37,22 @@ import javax.inject.Singleton
 
 const val MAXIMUM_TIME_NETWORK_KEEP_MILLS = 3000
 const val MAXIMUM_TIME_LOCATION_KEEP_MILLS = 3000
+
+// How much signal-over-time history the in-memory chart buffer keeps. Matches the signal chart's
+// maximum visible window (5 min) so the chart can be redrawn in full after the screen was off.
+private const val SIGNAL_SAMPLE_RETENTION_MILLIS = 5 * 60_000L
+
+/**
+ * One point of the recorded signal-over-time series for the coverage chart: the combined signal
+ * (dBm, null = gap) and the technology at that moment. Buffered in [SignalMeasurementProcessor] so
+ * the chart survives the measurement screen being stopped (screen off), where the Activity's own
+ * LiveData feed is paused.
+ */
+data class CoverageSignalSample(
+    val timeMillis: Long,
+    val signalDbm: Int?,
+    val networkType: MobileNetworkType
+)
 
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
@@ -74,6 +92,17 @@ class SignalMeasurementProcessor @Inject constructor(
     private val _signalMeasurementSessionErrorLiveData = MutableLiveData<Exception?>()
 
     private var globalLocationInfo: LocationInfo? = null
+
+    // Rolling in-memory buffer of the combined signal over time, appended on every signal update
+    // (which keep arriving while the screen is off, because this singleton's signal listener stays
+    // registered for the whole run). The measurement chart renders from this so the screen-off period
+    // is filled in instead of drawn as a straight line. Guarded because appends (signal-listener
+    // thread) and reads (UI thread) can race.
+    private val signalSamples = ArrayDeque<CoverageSignalSample>()
+
+    /** Snapshot of the recorded signal-over-time series (most recent [SIGNAL_SAMPLE_RETENTION_MILLIS]). */
+    val coverageSignalSamples: List<CoverageSignalSample>
+        get() = synchronized(signalSamples) { signalSamples.toList() }
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, e ->
         if (e is HandledException) {
@@ -217,6 +246,31 @@ class SignalMeasurementProcessor @Inject constructor(
         }
         // A newly-available mobile network may now satisfy the start conditions - begin if preparing.
         maybeBeginCoverageSession()
+
+        // Record a signal-over-time sample while recording (screen-off safe: this runs off the
+        // always-registered signal listener, not the Activity's paused LiveData observer).
+        if (_isActive) recordSignalSample(newValue)
+    }
+
+    /**
+     * Appends the current combined signal (computed exactly as the chart/fences do) to the rolling
+     * buffer and prunes anything older than the retention window.
+     */
+    private fun recordSignalSample(info: DetailedNetworkInfo?) {
+        val primary = info?.networkInfo
+        val secondary = info?.secondary5GActiveCellNetworks?.firstOrNull()
+        val sample = CoverageSignalSample(
+            timeMillis = System.currentTimeMillis(),
+            signalDbm = primary.getCombinedSignalStrengthValue(secondary),
+            networkType = primary.getMobileNetworkType()
+        )
+        synchronized(signalSamples) {
+            signalSamples.addLast(sample)
+            val cutoff = sample.timeMillis - SIGNAL_SAMPLE_RETENTION_MILLIS
+            while (signalSamples.size > 1 && signalSamples.first().timeMillis < cutoff) {
+                signalSamples.removeFirst()
+            }
+        }
     }
 
     override fun startMeasurement(
@@ -263,6 +317,8 @@ class SignalMeasurementProcessor @Inject constructor(
         _isPreparing = false
         _isActive = true
         postStateData()
+        // Fresh chart history for this session (drop anything left from a previous one).
+        synchronized(signalSamples) { signalSamples.clear() }
         Timber.d("Conditions met - starting coverage session")
         rtrCoverageMeasurementProcessor.startCoverageSession(
             sessionCreated = measurementSessionInitializedCallback,
@@ -319,6 +375,7 @@ class SignalMeasurementProcessor @Inject constructor(
         _isPreparing = false
         _isPaused = false
         globalNetworkInfo = null
+        synchronized(signalSamples) { signalSamples.clear() }
     }
 
     private fun postStateData() {
