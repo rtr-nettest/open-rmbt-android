@@ -318,6 +318,8 @@
 
     <string name="notification_signal_test_title">Signal measurement is running</string>
     <string name="notification_signal_test_text">RTR-NetTest signal measurement is running in the background</string>
+    <string name="notification_signal_test_title_waiting">Signal measurement</string>
+    <string name="notification_signal_test_text_waiting">Waiting for signal measurement</string>
 
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 

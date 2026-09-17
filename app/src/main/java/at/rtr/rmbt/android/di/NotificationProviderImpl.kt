@@ -169,12 +169,15 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         return loopCountdownNotification?.build()!!
     }
 
-    override fun signalMeasurementService(stopMeasurementIntent: Intent?): Notification {
+    override fun signalMeasurementService(stopMeasurementIntent: Intent?, waiting: Boolean): Notification {
         val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val action = stopMeasurementIntent?.let {
             val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, PendingIntent.FLAG_IMMUTABLE)
             NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()
         }
+
+        val titleRes = if (waiting) R.string.notification_signal_test_title_waiting else R.string.notification_signal_test_title
+        val textRes = if (waiting) R.string.notification_signal_test_text_waiting else R.string.notification_signal_test_text
 
         return NotificationCompat.Builder(context, measurementChannelId())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -182,9 +185,9 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             .setSmallIcon(R.drawable.ic_cloud_upload)
             .extend(clearActionsNotificationExtender)
             .addAction(action)
-            .setContentText(context.getString(R.string.notification_signal_test_text))
+            .setContentText(context.getString(textRes))
             .setContentIntent(intent)
-            .setContentTitle(context.getString(R.string.notification_signal_test_title))
+            .setContentTitle(context.getString(titleRes))
             .build()
     }
 

@@ -1,6 +1,7 @@
 package at.specure.measurement.signal
 
 import at.specure.config.Config
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
@@ -40,6 +41,15 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTSignalWakeLock")
+
+        // Swap the "Waiting for signal measurement" text for the "running" text once the coverage
+        // session actually starts (GPS + mobile network became good). Registered once per service.
+        processor.activeStateLiveData.observe(this) { active ->
+            if (active == true) {
+                val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                nm.notify(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null, false))
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -79,10 +89,12 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         startForegroundService(intent(this))
 
+        // Begins in the "preparing" (waiting for GPS/network) phase unless conditions were already met.
+        val notification = notificationProvider.signalMeasurementService(null, processor.isPreparing)
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null))
+            startForeground(NOTIFICATION_ID, notification)
         }
     }
 

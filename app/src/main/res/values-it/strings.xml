@@ -241,6 +241,8 @@
     <string name="error_sync_code_short">Il codice deve essere composto da dodici caratteri</string>
     <string name="notification_signal_test_title">La misurazione del segnale è in esecuzione</string>
     <string name="notification_signal_test_text">La misurazione del segnale da parte di RTR-NetTest è in esecuzione in background</string>
+    <string name="notification_signal_test_title_waiting">Misurazione del segnale</string>
+    <string name="notification_signal_test_text_waiting">In attesa della misurazione del segnale</string>
     <string name="notification_loop_mode_finished_title">Modalità ciclo terminata</string>
     <string name="toast_signal_measurement_enabled">Misurazione del segnale avviata.</string>
     <string name="error_no_connection">Non è riuscito a caricare i dati. Controlla la tua connessione internet.</string>

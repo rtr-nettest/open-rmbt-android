@@ -16,6 +16,7 @@ import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.TermsAndConditions
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
+import at.specure.measurement.signal.SignalMeasurementProcessor
 import at.specure.worker.WorkLauncher
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
@@ -39,7 +40,8 @@ class MeasurementViewModel @Inject constructor(
     val config: AppConfig,
     private val tac: TermsAndConditions,
     private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
-    private val coverageMeasurementSettings: CoverageMeasurementSettings
+    private val coverageMeasurementSettings: CoverageMeasurementSettings,
+    private val signalMeasurementProcessor: SignalMeasurementProcessor
 ) : BaseViewModel(), MeasurementClient {
 
     /**
@@ -49,7 +51,18 @@ class MeasurementViewModel @Inject constructor(
      * the signal screen).
      */
     fun shouldRestoreSignalMeasurementScreen(): Boolean =
-        rtrCoverageMeasurementProcessor.stateManager.state.value.state != CoverageMeasurementState.IDLE
+        rtrCoverageMeasurementProcessor.stateManager.state.value.state != CoverageMeasurementState.IDLE ||
+            // The coverage state is still IDLE during the "waiting for GPS/network" (preparing) phase,
+            // so also restore while the signal measurement is merely running/preparing - otherwise a
+            // launcher resume from the waiting screen would drop the user back on Home.
+            signalMeasurementProcessor.isRunning
+
+    /**
+     * True while the signal measurement is still in the "waiting for GPS/network" (preparing) phase,
+     * i.e. before recording has begun. Used to decide whether to restore the waiting screen (terms
+     * activity) rather than the measurement (map) screen after a launcher resume.
+     */
+    fun isSignalMeasurementPreparing(): Boolean = signalMeasurementProcessor.isPreparing
 
     /**
      * Recovers a dedicated signal (coverage) measurement that was interrupted by process death - a

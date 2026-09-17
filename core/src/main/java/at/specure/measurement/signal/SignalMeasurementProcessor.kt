@@ -59,8 +59,15 @@ class SignalMeasurementProcessor @Inject constructor(
     private var pendingSignalMeasurementType: SignalMeasurementType = SignalMeasurementType.DEDICATED
 
     // The GPS/foreground listeners are held for the whole run - both while preparing and while active.
-    private val isRunning: Boolean
+    // Public so the UI can tell a measurement is still going (incl. the "waiting/preparing" phase,
+    // where the coverage state is still IDLE) and re-open the signal screen after a launcher resume.
+    val isRunning: Boolean
         get() = _isActive || _isPreparing
+
+    // True while in the "waiting for GPS/network" phase (service running, coverage session not yet
+    // started). Used to show a "Waiting..." notification and to restore the screen on resume.
+    val isPreparing: Boolean
+        get() = _isPreparing
     private val _activeStateLiveData = MutableLiveData<Boolean>()
     private val _pausedStateLiveData = MutableLiveData<Boolean>()
     private val _signalMeasurementSessionIdLiveData = MutableLiveData<String?>()

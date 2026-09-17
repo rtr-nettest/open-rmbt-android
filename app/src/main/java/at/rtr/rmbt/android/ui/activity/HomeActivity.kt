@@ -160,10 +160,16 @@ class HomeActivity : BaseActivity() {
             viewModel.config.pendingResultTestUUID = null
             ResultsActivity.start(this, pendingResult, ResultsActivity.ReturnPoint.HOME)
         } else if (viewModel.shouldRestoreSignalMeasurementScreen()) {
-            // Same singleTask situation for the signal (coverage) measurement: it is running or its
-            // finished result is still being shown, so re-open that screen instead of leaving the
-            // user on Home (bug: the result/session was lost on resume).
-            SignalMeasurementActivity.startForRestore(this)
+            // Same singleTask situation for the signal (coverage) measurement: it is preparing,
+            // running, or its finished result is still being shown, so re-open the right screen
+            // instead of leaving the user on Home (bug: the waiting/result/session was lost on resume).
+            if (viewModel.isSignalMeasurementPreparing()) {
+                // Still waiting for GPS/network: restore the waiting screen, not the map screen (which
+                // is only meaningful once recording has begun).
+                SignalMeasurementTermsActivity.startForResumeWaiting(this)
+            } else {
+                SignalMeasurementActivity.startForRestore(this)
+            }
         }
     }
 

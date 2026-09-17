@@ -241,6 +241,8 @@
     <string name="error_sync_code_short">El código debe tener 12 caracteres</string>
     <string name="notification_signal_test_title">Medida de señal en marcha</string>
     <string name="notification_signal_test_text">RTR-NetTest medida de señal activa en segundo plano</string>
+    <string name="notification_signal_test_title_waiting">Medida de señal</string>
+    <string name="notification_signal_test_text_waiting">Esperando la medida de señal</string>
     <string name="notification_loop_mode_finished_title">El modo bucle ha terminado</string>
     <string name="toast_signal_measurement_enabled">Medida de señal iniciada.</string>
     <string name="error_no_connection">No se pudo cargar datos. Por favor, revisa tu conexión a internet.</string>

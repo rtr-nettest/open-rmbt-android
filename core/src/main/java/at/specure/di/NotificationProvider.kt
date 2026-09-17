@@ -15,8 +15,10 @@ interface NotificationProvider {
      * [loopModeRecord] loop mode record
      * [loopModeTestsCount] count of tests that should be performed during the loop measurement
      * [stopMeasurementIntent] - intent that should be called to stop signal measurement
+     * [waiting] - true while still waiting for a good GPS fix / mobile network (the "preparing"
+     * phase), so the notification can say "Waiting for signal measurement" instead of "running".
      */
-    fun signalMeasurementService(stopMeasurementIntent: Intent?): Notification
+    fun signalMeasurementService(stopMeasurementIntent: Intent?, waiting: Boolean): Notification
 
     fun measurementServiceNotification(
         progress: Int,

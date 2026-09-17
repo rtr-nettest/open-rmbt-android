@@ -228,6 +228,8 @@
     <string name="error_sync_code_short">يجب أن يتكون الرمز من اثني عشر حرفاً</string>
     <string name="notification_signal_test_title">قياس التغطية جارٍ</string>
     <string name="notification_signal_test_text">قياس تغطية RTR-NetTest يعمل في الخلفية</string>
+    <string name="notification_signal_test_title_waiting">قياس التغطية</string>
+    <string name="notification_signal_test_text_waiting">في انتظار قياس التغطية</string>
     <string name="notification_loop_mode_finished_title">انتهى وضع الحلقة</string>
     <string name="toast_signal_measurement_enabled">بدأ قياس التغطية.</string>
     <string name="error_no_connection">تعذّر تحميل البيانات. يرجى التحقق من اتصالك بالإنترنت.</string>

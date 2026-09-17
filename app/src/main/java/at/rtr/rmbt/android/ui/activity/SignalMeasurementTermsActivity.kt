@@ -134,7 +134,13 @@ class SignalMeasurementTermsActivity : BaseActivity() {
             if (active && waitingForStatus) handOffToMeasurement()
         }
 
-        if (viewModel.shouldShowSignalMeasurementTerms()) {
+        if (intent.getBooleanExtra(EXTRA_RESUME_WAITING, false)) {
+            // Restoring the waiting screen after a launcher resume cleared it off the singleTask
+            // HomeActivity. Consent + the background-permission flow already happened when the
+            // measurement was first started and the service is still running (preparing), so skip
+            // straight to the waiting UI and just re-bind to the running service.
+            proceedAfterConsent()
+        } else if (viewModel.shouldShowSignalMeasurementTerms()) {
             // Display the usage-terms page (the default layout) and count it.
             viewModel.signalMeasurementTermsDisplayed()
         } else {
@@ -282,6 +288,20 @@ class SignalMeasurementTermsActivity : BaseActivity() {
 
     companion object {
 
+        // Marks a launch as "re-open the waiting screen for a measurement that is already preparing"
+        // (from HomeActivity after a singleTask resume cleared this screen) rather than a fresh start.
+        private const val EXTRA_RESUME_WAITING = "EXTRA_RESUME_WAITING"
+
         fun start(context: Context): Intent = Intent(context, SignalMeasurementTermsActivity::class.java)
+
+        /**
+         * Re-opens this screen directly in its "waiting for GPS/network" state, skipping the terms and
+         * background-permission steps (already done for the in-progress, still-preparing measurement).
+         */
+        fun startForResumeWaiting(context: Context) =
+            context.startActivity(
+                Intent(context, SignalMeasurementTermsActivity::class.java)
+                    .putExtra(EXTRA_RESUME_WAITING, true)
+            )
     }
 }

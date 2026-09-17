@@ -228,6 +228,8 @@
     <string name="error_sync_code_short">Kód musí obsahovat dvanáct znaků</string>
     <string name="notification_signal_test_title">Probíhá měření pokrytí</string>
     <string name="notification_signal_test_text">Měření pokrytí RTR-NetTest běží na pozadí</string>
+    <string name="notification_signal_test_title_waiting">Měření pokrytí</string>
+    <string name="notification_signal_test_text_waiting">Čekání na měření pokrytí</string>
     <string name="notification_loop_mode_finished_title">Opakované měření dokončeno</string>
     <string name="toast_signal_measurement_enabled">Měření pokrytí zahájeno.</string>
     <string name="error_no_connection">Data nelze načíst. Zkontrolujte prosím své připojení k internetu.</string>

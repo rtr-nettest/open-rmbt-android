@@ -228,6 +228,8 @@
     <string name="error_sync_code_short">Le code doit comporter douze caractères</string>
     <string name="notification_signal_test_title">Mesure de couverture en cours</string>
     <string name="notification_signal_test_text">La mesure de couverture RTR-NetTest s\'exécute en arrière-plan</string>
+    <string name="notification_signal_test_title_waiting">Mesure de couverture</string>
+    <string name="notification_signal_test_text_waiting">En attente de la mesure de couverture</string>
     <string name="notification_loop_mode_finished_title">Mode boucle terminé</string>
     <string name="toast_signal_measurement_enabled">Mesure de couverture démarrée.</string>
     <string name="error_no_connection">Impossible de charger les données. Veuillez vérifier votre connexion Internet.</string>

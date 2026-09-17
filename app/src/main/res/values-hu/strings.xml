@@ -241,6 +241,8 @@
     <string name="error_sync_code_short">A kód 12 karakter hosszúságú!</string>
     <string name="notification_signal_test_title">Jelszint mérés folyamatban</string>
     <string name="notification_signal_test_text">RTR-NetTest jelszint mérés fut a háttérben</string>
+    <string name="notification_signal_test_title_waiting">Jelszint mérés</string>
+    <string name="notification_signal_test_text_waiting">Várakozás a jelszint mérésre</string>
     <string name="notification_loop_mode_finished_title">Ismétlődő mérési mód befejeződött</string>
     <string name="toast_signal_measurement_enabled">Jelszint mérés elkezdődött.</string>
     <string name="error_no_connection">Nem tudtam adatokat betölteni. Kérlek, ellenőrizd az internetkapcsolatodat.</string>
