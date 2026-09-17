@@ -34,6 +34,8 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
+import at.specure.data.dao.CoverageSignalSampleDao
+import at.specure.measurement.signal.CoverageSignalSample
 import at.specure.measurement.signal.SignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
@@ -45,6 +47,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -71,6 +74,7 @@ class HomeViewModel @Inject constructor(
     private val controlServerModule: ControlServerModule,
     private val connectivityMonitor: ConnectivityMonitor,
     private val signalMeasurementProcessor: SignalMeasurementProcessor,
+    private val coverageSignalSampleDao: CoverageSignalSampleDao,
     measurementServers: MeasurementServers,
 ) : BaseViewModel() {
 
@@ -80,6 +84,26 @@ class HomeViewModel @Inject constructor(
      * screen was off - letting the chart redraw that period instead of a straight line.
      */
     fun coverageSignalSamples() = signalMeasurementProcessor.coverageSignalSamples
+
+    /** Persisted signal history of the running session within [fromMillis, toMillis] (for scroll/zoom). */
+    suspend fun loadCoverageSignalHistory(fromMillis: Long, toMillis: Long): List<CoverageSignalSample> =
+        withContext(Dispatchers.IO) {
+            val sessionId = signalMeasurementProcessor.currentCoverageSessionLocalId
+                ?: return@withContext emptyList()
+            coverageSignalSampleDao.getRange(sessionId, fromMillis, toMillis).map {
+                CoverageSignalSample(it.timeMillis, it.signalDbm, it.networkType)
+            }
+        }
+
+    /** Earliest and latest persisted sample time of the running session, or null if none yet. */
+    suspend fun loadCoverageSignalBounds(): Pair<Long, Long>? =
+        withContext(Dispatchers.IO) {
+            val sessionId = signalMeasurementProcessor.currentCoverageSessionLocalId
+                ?: return@withContext null
+            val min = coverageSignalSampleDao.getMinTime(sessionId) ?: return@withContext null
+            val max = coverageSignalSampleDao.getMaxTime(sessionId) ?: return@withContext null
+            min to max
+        }
 
     var shouldStartDedicatedMeasurementStateChecker: () -> Boolean = { false }
 

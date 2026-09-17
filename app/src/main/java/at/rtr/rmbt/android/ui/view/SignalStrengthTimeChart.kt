@@ -5,6 +5,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import at.rtr.rmbt.android.R
@@ -13,21 +16,22 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * A rolling line chart of the combined mobile signal strength (dBm) over time, used by the signal
- * (coverage) measurement expert view.
+ * A line chart of the combined mobile signal strength (dBm) over time, used by the signal (coverage)
+ * measurement view.
  *
  * The plotted value is the same combined signal recorded for the fences (for 5G NSA the weaker of the
- * LTE anchor and the NR secondary), fed via [addSample].
+ * LTE anchor and the NR secondary).
  *
- * Time window behaviour (as requested):
- *  - starts at [MIN_WINDOW_MILLIS] (10 s) wide,
- *  - grows with the elapsed measurement time up to [MAX_WINDOW_MILLIS] (5 min) - the existing data
- *    visibly compresses as the window widens,
- *  - once 5 min have elapsed the window stays 5 min wide and slides so it always shows the most
- *    recent 5 min.
+ * Two modes:
+ *  - **Live (follow)** - the default. Fed via [setSamples]/[addSample] from the recorded buffer. The
+ *    window starts at [MIN_WINDOW_MILLIS] (10 s) wide, grows with elapsed time up to
+ *    [MAX_WINDOW_MILLIS] (5 min), then slides to always show the most recent 5 min.
+ *  - **Browse** - entered by dragging (pan) or pinching (zoom). The visible window is user-controlled
+ *    and data is loaded on demand via [onWindowRequested] (from the persisted session history), so any
+ *    period of the session can be inspected. Panning back to "now" (the right edge reaching the current
+ *    time) snaps back to Live, where the chart resumes auto-scrolling with new samples.
  *
- * Each segment is drawn in the technology colour of its sample, so a technology change shows up as a
- * colour change in the line. A sample with no signal produces a gap.
+ * Each segment is drawn in the technology colour of its sample; a null-signal sample is a gap.
  */
 class SignalStrengthTimeChart @JvmOverloads constructor(
     context: Context,
@@ -36,13 +40,33 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
 
     private data class Sample(val timeMillis: Long, val signalDbm: Int?, val color: Int)
 
-    /** One sample for [setSamples]: time, combined signal (dBm, null = gap) and technology colour. */
+    /** One sample for [setSamples]/[setBrowseData]: time, combined signal (dBm, null = gap) and colour. */
     data class ChartSample(val timeMillis: Long, val signalDbm: Int?, val color: Int)
 
     private val samples = ArrayDeque<Sample>()
     // Timestamps at which the serving cell changed; drawn as small grey X markers on the time axis.
     private val cellChangeMarkers = ArrayDeque<Long>()
     private var startTimeMillis: Long = -1L
+
+    // --- Browse (scroll/zoom) state -------------------------------------------------------------
+    // While true the chart follows live data (auto-slide, last 5 min); false while the user browses.
+    private var followLive = true
+    // The user-controlled window when browsing: [browseEndTime - browseDurationMillis, browseEndTime].
+    private var browseEndTime = 0L
+    private var browseDurationMillis = MAX_WINDOW_MILLIS
+    // Earliest persisted sample time, used to clamp how far back the user can pan/zoom. Null = unknown.
+    private var minTimeMillis: Long? = null
+
+    // Geometry of the last draw, so the gesture handlers can convert pixels <-> time.
+    private var lastChartLeft = 0f
+    private var lastChartWidth = 0f
+    private var lastWindowMillis = MAX_WINDOW_MILLIS
+    private var lastLeftTime = 0L
+
+    /** Called when the browse window changes; the host should load persisted samples for [from, to]. */
+    var onWindowRequested: ((fromMillis: Long, toMillis: Long) -> Unit)? = null
+    /** Called when the chart snaps back to live (window right edge reached "now"); host resumes live feed. */
+    var onReturnedToLive: (() -> Unit)? = null
 
     private val density = resources.displayMetrics.density
 
@@ -76,22 +100,74 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
     private val maxDbmLabel = SIGNAL_MAX_DBM.toString()
     private val minDbmLabel = SIGNAL_MIN_DBM.toString()
 
-    // Redraws while data is present so the window keeps sliding even between samples.
+    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onDown(e: MotionEvent): Boolean = true
+
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            if (lastChartWidth <= 0f) return false
+            enterBrowseIfLive()
+            // distanceX is (previous - current) focus x: dragging the finger right (revealing earlier
+            // data) is negative, so this moves browseEndTime back in time. Natural "drag to scrub".
+            browseEndTime += (distanceX / lastChartWidth * browseDurationMillis).toLong()
+            clampBrowseWindow()
+            requestBrowseData()
+            invalidate()
+            return true
+        }
+    })
+
+    private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            if (lastChartWidth <= 0f) return false
+            enterBrowseIfLive()
+            val leftTime = browseEndTime - browseDurationMillis
+            // Time under the pinch focus, kept fixed while the duration changes (zoom around the finger).
+            val focalFraction = ((detector.focusX - lastChartLeft) / lastChartWidth).coerceIn(0f, 1f)
+            val focalTime = leftTime + (focalFraction * browseDurationMillis).toLong()
+            val newDuration = (browseDurationMillis / detector.scaleFactor).toLong()
+                .coerceIn(MIN_WINDOW_MILLIS, maxBrowseDuration())
+            browseDurationMillis = newDuration
+            browseEndTime = focalTime + ((1f - focalFraction) * newDuration).toLong()
+            clampBrowseWindow()
+            requestBrowseData()
+            invalidate()
+            return true
+        }
+    })
+
+    // Redraws while following live so the window keeps sliding even between samples.
     private val tickRunnable = object : Runnable {
         override fun run() {
-            if (samples.isNotEmpty()) {
+            if (followLive && samples.isNotEmpty()) {
                 invalidate()
                 postDelayed(this, TICK_INTERVAL_MILLIS)
             }
         }
     }
 
+    // Debounced browse-data request so a fast drag/pinch doesn't fire a query per pixel.
+    private val browseRequestRunnable = Runnable {
+        if (!followLive) {
+            val leftTime = browseEndTime - browseDurationMillis
+            // Widen slightly on the left so the segment entering the window from off-screen is drawn.
+            val margin = browseDurationMillis / 10
+            onWindowRequested?.invoke(leftTime - margin, browseEndTime)
+        }
+    }
+
+    /** True while the chart is following live data (so the host should keep feeding [setSamples]). */
+    fun isFollowingLive(): Boolean = followLive
+
+    /** Sets the earliest known sample time of the session, to clamp how far back browsing can go. */
+    fun setSessionMinTime(minMillis: Long) {
+        minTimeMillis = minMillis
+    }
+
     /**
-     * Appends a new signal sample at the current time. [signalDbm] may be null (no signal - a gap is
-     * drawn); [technologyColor] is the current technology's colour used to draw the segment ending at
-     * this sample.
+     * Appends a new signal sample at the current time (live mode only). [signalDbm] may be null (gap).
      */
     fun addSample(signalDbm: Int?, technologyColor: Int) {
+        if (!followLive) return
         val now = System.currentTimeMillis()
         if (startTimeMillis < 0) startTimeMillis = now
         samples.addLast(Sample(now, signalDbm, technologyColor))
@@ -102,8 +178,7 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
     }
 
     /**
-     * Marks the current time on the chart with a small grey X, to indicate that the serving cell
-     * changed. Kept in sync with the same 5-minute window as the samples.
+     * Marks the current time on the chart with a small grey X (serving-cell change). Live overlay only.
      */
     fun addCellChangeMarker() {
         val now = System.currentTimeMillis()
@@ -114,14 +189,12 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
     }
 
     /**
-     * Replaces the whole series at once (used when the chart is driven by the recorded signal buffer
-     * rather than appended live sample-by-sample). This is what fills the gap after the screen was
-     * off: the buffer kept growing while the Activity's live feed was paused, so re-loading it here
-     * redraws the missing period instead of a straight line.
-     *
-     * Cell-change markers are left untouched (they are added separately by the caller).
+     * Replaces the whole series at once for the LIVE view (from the recorded buffer). This is what
+     * fills the gap after the screen was off. Ignored while browsing so it doesn't clobber the user's
+     * scrolled/zoomed window.
      */
     fun setSamples(newSamples: List<ChartSample>) {
+        if (!followLive) return
         samples.clear()
         for (s in newSamples) {
             samples.addLast(Sample(s.timeMillis, s.signalDbm, s.color))
@@ -134,12 +207,69 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Provides the samples for the current BROWSE window (loaded from the persisted history). Ignored
+     * once the chart has snapped back to live, so a late query result can't overwrite the live view.
+     */
+    fun setBrowseData(newSamples: List<ChartSample>) {
+        if (followLive) return
+        samples.clear()
+        for (s in newSamples) {
+            samples.addLast(Sample(s.timeMillis, s.signalDbm, s.color))
+        }
+        invalidate()
+    }
+
     fun reset() {
         samples.clear()
         cellChangeMarkers.clear()
         startTimeMillis = -1L
+        followLive = true
+        minTimeMillis = null
         removeCallbacks(tickRunnable)
+        removeCallbacks(browseRequestRunnable)
         invalidate()
+    }
+
+    private fun enterBrowseIfLive() {
+        if (followLive) {
+            browseDurationMillis = lastWindowMillis.coerceIn(MIN_WINDOW_MILLIS, maxBrowseDuration())
+            browseEndTime = System.currentTimeMillis()
+            followLive = false
+            removeCallbacks(tickRunnable)
+        }
+    }
+
+    private fun returnToLive() {
+        if (!followLive) {
+            followLive = true
+            removeCallbacks(browseRequestRunnable)
+            onReturnedToLive?.invoke()
+            removeCallbacks(tickRunnable)
+            postDelayed(tickRunnable, TICK_INTERVAL_MILLIS)
+        }
+    }
+
+    private fun maxBrowseDuration(): Long {
+        val min = minTimeMillis
+        val span = if (min != null) System.currentTimeMillis() - min else MAX_WINDOW_MILLIS
+        return span.coerceAtLeast(MAX_WINDOW_MILLIS)
+    }
+
+    private fun clampBrowseWindow() {
+        val now = System.currentTimeMillis()
+        browseDurationMillis = browseDurationMillis.coerceIn(MIN_WINDOW_MILLIS, maxBrowseDuration())
+        val minEnd = minTimeMillis ?: (now - maxBrowseDuration())
+        browseEndTime = browseEndTime.coerceIn(minEnd, now)
+        // Reaching (near) "now" on the right edge snaps back to the live, auto-scrolling view.
+        if (now - browseEndTime <= LIVE_SNAP_THRESHOLD_MILLIS) {
+            returnToLive()
+        }
+    }
+
+    private fun requestBrowseData() {
+        removeCallbacks(browseRequestRunnable)
+        postDelayed(browseRequestRunnable, BROWSE_REQUEST_DEBOUNCE_MILLIS)
     }
 
     private fun pruneOldSamples(now: Long) {
@@ -160,7 +290,22 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         removeCallbacks(tickRunnable)
+        removeCallbacks(browseRequestRunnable)
         super.onDetachedFromWindow()
+    }
+
+    @Suppress("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            // Keep our parent (if any is scrollable) from stealing the horizontal drag.
+            parent?.requestDisallowInterceptTouchEvent(true)
+        }
+        var handled = scaleDetector.onTouchEvent(event)
+        handled = gestureDetector.onTouchEvent(event) || handled
+        if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) {
+            parent?.requestDisallowInterceptTouchEvent(false)
+        }
+        return handled || super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -193,12 +338,25 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         canvas.drawText(minDbmLabel, dbmLabelX, chartBottom + labelPaint.textSize / 3f, labelPaint)
         canvas.drawText(SIGNAL_UNIT, dbmLabelX, chartBottom + labelPaint.textSize / 3f + labelPaint.textSize, labelPaint)
 
-        if (samples.isEmpty()) return
+        // Nothing to place a time axis against yet in live mode.
+        if (samples.isEmpty() && followLive) return
 
         val now = System.currentTimeMillis()
-        val elapsed = now - startTimeMillis
-        val windowMillis = elapsed.coerceIn(MIN_WINDOW_MILLIS, MAX_WINDOW_MILLIS)
-        val leftTime = if (elapsed <= MAX_WINDOW_MILLIS) startTimeMillis else now - MAX_WINDOW_MILLIS
+        val windowMillis: Long
+        val leftTime: Long
+        if (followLive) {
+            val elapsed = now - startTimeMillis
+            windowMillis = elapsed.coerceIn(MIN_WINDOW_MILLIS, MAX_WINDOW_MILLIS)
+            leftTime = if (elapsed <= MAX_WINDOW_MILLIS) startTimeMillis else now - MAX_WINDOW_MILLIS
+        } else {
+            windowMillis = browseDurationMillis.coerceAtLeast(MIN_WINDOW_MILLIS)
+            leftTime = browseEndTime - windowMillis
+        }
+        // Cache geometry so the gesture handlers can convert between pixels and time.
+        lastChartLeft = chartLeft
+        lastChartWidth = chartWidth
+        lastWindowMillis = windowMillis
+        lastLeftTime = leftTime
 
         fun xFor(t: Long): Float = chartLeft + chartWidth * (t - leftTime).toFloat() / windowMillis.toFloat()
         fun yFor(dbm: Int): Float {
@@ -255,5 +413,8 @@ class SignalStrengthTimeChart @JvmOverloads constructor(
         private const val SIGNAL_MIN_DBM = -125
         private const val SIGNAL_MAX_DBM = -65
         private const val SIGNAL_UNIT = "dBm"
+        // Right edge within this of "now" counts as "at the live edge" -> snap back to live.
+        private const val LIVE_SNAP_THRESHOLD_MILLIS = 1_500L
+        private const val BROWSE_REQUEST_DEBOUNCE_MILLIS = 120L
     }
 }

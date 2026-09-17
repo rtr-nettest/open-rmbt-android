@@ -9,7 +9,9 @@ import androidx.lifecycle.MutableLiveData
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.rmbt.util.exception.HandledException
 import at.specure.config.Config
+import at.specure.data.dao.CoverageSignalSampleDao
 import at.specure.data.entity.CoverageMeasurementSession
+import at.specure.data.entity.CoverageSignalSampleRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.MobileNetworkType
@@ -62,6 +64,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
     private val config: Config,
+    private val coverageSignalSampleDao: CoverageSignalSampleDao,
 ) : Binder(), SignalMeasurementProducer, CoroutineScope {
 
     private var globalNetworkInfo: DetailedNetworkInfo? = null
@@ -104,6 +107,14 @@ class SignalMeasurementProcessor @Inject constructor(
     val coverageSignalSamples: List<CoverageSignalSample>
         get() = synchronized(signalSamples) { signalSamples.toList() }
 
+    // Local id of the running coverage session, known once registration completes. While null (the
+    // brief pre-registration window) samples are only buffered in memory, not persisted.
+    private var currentSessionLocalId: String? = null
+
+    /** Local id of the running coverage session, for querying its persisted signal history. */
+    val currentCoverageSessionLocalId: String?
+        get() = currentSessionLocalId
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, e ->
         if (e is HandledException) {
             // do nothing
@@ -134,6 +145,12 @@ class SignalMeasurementProcessor @Inject constructor(
     val measurementSessionInitializedCallback: (sessionId: CoverageMeasurementSession) -> Unit =
         { coverageMeasurementSession ->
             _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.localMeasurementId)
+            // Remember the session id so signal samples can be persisted under it, and clear any
+            // leftover samples from a previous run of the same session id before recording fresh.
+            currentSessionLocalId = coverageMeasurementSession.localMeasurementId
+            coverageMeasurementSession.localMeasurementId?.let { sessionId ->
+                launch(Dispatchers.IO) { coverageSignalSampleDao.deleteForSession(sessionId) }
+            }
             // Only re-record if we already have a real fix; otherwise the next GPS update records the
             // first fence (avoids persisting a null/stale cached position when the session registers).
             globalLocationInfo?.let {
@@ -271,6 +288,20 @@ class SignalMeasurementProcessor @Inject constructor(
                 signalSamples.removeFirst()
             }
         }
+        // Persist for the scroll/zoom history (whole session, screen-off included). Only once the
+        // session is registered and we have its id.
+        currentSessionLocalId?.let { sessionId ->
+            launch(Dispatchers.IO) {
+                coverageSignalSampleDao.insert(
+                    CoverageSignalSampleRecord(
+                        sessionId = sessionId,
+                        timeMillis = sample.timeMillis,
+                        signalDbm = sample.signalDbm,
+                        networkType = sample.networkType
+                    )
+                )
+            }
+        }
     }
 
     override fun startMeasurement(
@@ -375,6 +406,7 @@ class SignalMeasurementProcessor @Inject constructor(
         _isPreparing = false
         _isPaused = false
         globalNetworkInfo = null
+        currentSessionLocalId = null
         synchronized(signalSamples) { signalSamples.clear() }
     }
 

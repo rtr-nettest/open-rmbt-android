@@ -163,6 +163,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             updateLiveSignal(info)
         }
 
+        setupSignalChartBrowsing()
+
         binding.buttonStart.setOnClickListener {
             viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
         }
@@ -498,16 +500,19 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
         // Redraw the signal-over-time chart from the recorded buffer (not just this live sample), so
         // the period while the screen was off - during which the buffer kept filling but this live
-        // feed was paused - is drawn in full instead of a straight line.
-        val chartSamples = viewModel.coverageSignalSamples().map { s ->
-            SignalStrengthTimeChart.ChartSample(s.timeMillis, s.signalDbm, s.networkType.colorInt())
-        }
-        if (chartSamples.isEmpty()) {
-            // No recorded samples yet (e.g. the very first live update before recording began):
-            // fall back to appending this one so the chart still starts immediately.
-            binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
-        } else {
-            binding.signalTimeChart.setSamples(chartSamples)
+        // feed was paused - is drawn in full instead of a straight line. Skipped while the user is
+        // browsing (scrolled/zoomed away from "now"), so the live feed doesn't clobber their view.
+        if (binding.signalTimeChart.isFollowingLive()) {
+            val chartSamples = viewModel.coverageSignalSamples().map { s ->
+                SignalStrengthTimeChart.ChartSample(s.timeMillis, s.signalDbm, s.networkType.colorInt())
+            }
+            if (chartSamples.isEmpty()) {
+                // No recorded samples yet (e.g. the very first live update before recording began):
+                // fall back to appending this one so the chart still starts immediately.
+                binding.signalTimeChart.addSample(signal, mobileNetworkType.colorInt())
+            } else {
+                binding.signalTimeChart.setSamples(chartSamples)
+            }
         }
 
         // Mark a serving-cell change (small grey X on the chart).
@@ -517,6 +522,33 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
                 binding.signalTimeChart.addCellChangeMarker()
             }
             lastCellComparisonUuid = cellId
+        }
+    }
+
+    /**
+     * Wires the chart's scroll/zoom (browse) callbacks:
+     *  - when the user pans/zooms, load the persisted session history for the requested window and
+     *    hand it to the chart (and refresh the clamp bound to the session start);
+     *  - when the chart snaps back to the live edge, immediately repaint from the live buffer so the
+     *    view resumes auto-scrolling with new samples without waiting for the next signal update.
+     */
+    private fun setupSignalChartBrowsing() {
+        binding.signalTimeChart.onWindowRequested = { from, to ->
+            lifecycleScope.launch {
+                viewModel.loadCoverageSignalBounds()?.let { (min, _) ->
+                    binding.signalTimeChart.setSessionMinTime(min)
+                }
+                val history = viewModel.loadCoverageSignalHistory(from, to).map { s ->
+                    SignalStrengthTimeChart.ChartSample(s.timeMillis, s.signalDbm, s.networkType.colorInt())
+                }
+                binding.signalTimeChart.setBrowseData(history)
+            }
+        }
+        binding.signalTimeChart.onReturnedToLive = {
+            val chartSamples = viewModel.coverageSignalSamples().map { s ->
+                SignalStrengthTimeChart.ChartSample(s.timeMillis, s.signalDbm, s.networkType.colorInt())
+            }
+            binding.signalTimeChart.setSamples(chartSamples)
         }
     }
 

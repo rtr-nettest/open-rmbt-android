@@ -25,6 +25,7 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.HistoryFilterOptions
+import at.specure.data.dao.CoverageSignalSampleDao
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.HistoryRepositoryImpl
 import at.specure.data.repository.IpCheckRepository
@@ -67,6 +68,10 @@ class DatabaseModule {
     @Provides
     fun provideTestDataRepository(database: CoreDatabase): TestDataRepository =
         TestDataRepositoryImpl(database)
+
+    @Provides
+    fun provideCoverageSignalSampleDao(database: CoreDatabase): CoverageSignalSampleDao =
+        database.coverageSignalSampleDao()
 
     @Provides
     fun provideResultsRepository(

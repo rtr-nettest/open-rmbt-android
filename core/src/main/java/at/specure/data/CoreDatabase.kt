@@ -7,6 +7,7 @@ import at.specure.data.dao.CapabilitiesDao
 import at.specure.data.dao.CellInfoDao
 import at.specure.data.dao.CellLocationDao
 import at.specure.data.dao.ConnectivityStateDao
+import at.specure.data.dao.CoverageSignalSampleDao
 import at.specure.data.dao.FencesResultItemDao
 import at.specure.data.dao.GeoLocationDao
 import at.specure.data.dao.GraphItemDao
@@ -50,6 +51,7 @@ import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
+import at.specure.data.entity.CoverageSignalSampleRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TacRecord
@@ -94,11 +96,12 @@ import at.specure.data.entity.VoipTestResultRecord
         SignalMeasurementChunk::class,
         CoverageMeasurementFenceRecord::class,
         CoverageMeasurementSession::class,
+        CoverageSignalSampleRecord::class,
         ConnectivityStateRecord::class,
         HistoryReference::class,
                ],
     // Needs to upgraded when schema changes - else: "Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number."
-    version = 176
+    version = 177
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -128,4 +131,5 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun mapDao(): MapDao
     abstract fun signalMeasurementDao(): SignalMeasurementDao
     abstract fun connectivityStateDao(): ConnectivityStateDao
+    abstract fun coverageSignalSampleDao(): CoverageSignalSampleDao
 }
