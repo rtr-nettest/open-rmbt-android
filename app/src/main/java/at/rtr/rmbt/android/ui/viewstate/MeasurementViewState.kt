@@ -84,6 +84,15 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
         loopProgress.set("$current/$total")
     }
 
+    /**
+     * Loop progress with an optional runtime suffix (expert mode), e.g. "1/50 00:12:48".
+     */
+    fun setLoopProgress(current: Int, total: Int, runtime: String?) {
+        loopProgress.set(
+            if (runtime.isNullOrEmpty()) "$current/$total" else "$current/$total $runtime"
+        )
+    }
+
     private fun setLoopState(loopState: LoopModeState) {
         Timber.i("Measurement state from set loop state: loop: $loopState")
         if ((loopState != LoopModeState.RUNNING) && (loopState == LoopModeState.RUNNING)) {

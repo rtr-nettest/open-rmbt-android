@@ -16,7 +16,10 @@ data class LoopModeRecord(
     var lastTestLatitude: Double? = null,
     var lastTestFinishedTimeMillis: Long = 0,
     var movementDistanceMeters: Int = 0,
-    var status: LoopModeState = LoopModeState.RUNNING
+    var status: LoopModeState = LoopModeState.RUNNING,
+    // Wall-clock time the loop started (set once when the record is created). Used for the loop
+    // runtime display and the maximum-total-duration termination.
+    val startTimeMillis: Long = System.currentTimeMillis()
 )
 
 enum class LoopModeState(val valueInt: Int) {

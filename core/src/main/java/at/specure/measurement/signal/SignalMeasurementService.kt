@@ -108,7 +108,10 @@ class SignalMeasurementService : CustomLifecycleService() {
 
     private fun acquireWakeLock() {
         if (!wakeLock.isHeld) {
-            wakeLock.acquire(TimeUnit.MINUTES.toMillis(config.signalMeasurementDurationMin.toLong()))
+            // Timeout is only a safeguard so the wake lock cannot be held forever if the service is
+            // ever torn down without releasing it - the coverage measurement releases it explicitly on
+            // stop/destroy. Kept generous because a coverage measurement may legitimately run long.
+            wakeLock.acquire(TimeUnit.MINUTES.toMillis(WAKE_LOCK_SAFEGUARD_TIMEOUT_MINUTES))
         }
     }
 
@@ -153,6 +156,8 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         private const val NOTIFICATION_ID = 3
         private const val ACTION_STOP = "KEY_ACTION_STOP"
+        // Safeguard auto-release for the wake lock (48 h) - normal stop releases it immediately.
+        private const val WAKE_LOCK_SAFEGUARD_TIMEOUT_MINUTES = 2880L
 
         fun stopIntent(context: Context): Intent = Intent(context, SignalMeasurementService::class.java).setAction(ACTION_STOP)
 

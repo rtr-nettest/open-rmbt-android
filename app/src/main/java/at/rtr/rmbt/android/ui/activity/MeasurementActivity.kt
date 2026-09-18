@@ -26,6 +26,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 import android.util.Rational
 import android.view.View
 import android.view.WindowManager
@@ -76,6 +78,42 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             updateSpeedFromLocation()
             speedRefreshHandler.postDelayed(this, SPEED_REFRESH_INTERVAL_MS)
         }
+    }
+
+    /** Latest loop record, so the per-second runtime ticker can recompute the elapsed time. */
+    private var lastLoopRecord: LoopModeRecord? = null
+    private val loopRuntimeHandler = Handler(Looper.getMainLooper())
+    private val loopRuntimeRunnable = object : Runnable {
+        override fun run() {
+            updateLoopRuntime()
+            loopRuntimeHandler.postDelayed(this, 1_000L)
+        }
+    }
+
+    /**
+     * In expert mode, prefixes the loop progress ("1/50") with the total loop runtime as HH:MM:SS
+     * (e.g. "00:12:48 1/50"). This is the elapsed time since the loop started - the same clock that
+     * triggers the maximum-duration termination. No-op outside loop mode / before a record exists.
+     */
+    private fun updateLoopRuntime() {
+        val record = lastLoopRecord ?: return
+        if (!viewModel.state.isLoopModeActive.get()) return
+        viewModel.state.setLoopProgress(
+            record.testsPerformed,
+            viewModel.config.loopModeNumberOfTests,
+            loopRuntimePrefix(record)
+        )
+    }
+
+    /** Loop runtime as HH:MM:SS (hours always shown, e.g. "00:12:48" / "47:59:59"), or null if not expert mode. */
+    private fun loopRuntimePrefix(record: LoopModeRecord): String? {
+        if (!viewModel.config.expertModeEnabled) return null
+        val elapsed = (System.currentTimeMillis() - record.startTimeMillis).coerceAtLeast(0L)
+        val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsed)
+        return String.format(
+            Locale.US, "%02d:%02d:%02d",
+            totalSeconds / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60
+        )
     }
 
     /**
@@ -302,12 +340,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         Timber.d("curve updated")
         viewModel.state.setLoopRecord(loopRecord)
         Timber.d("setting loop record in view model state")
-        loopRecord?.testsPerformed?.let { testsPerformed ->
+        lastLoopRecord = loopRecord
+        loopRecord?.let { record ->
             viewModel.state.setLoopProgress(
-                testsPerformed,
-                viewModel.config.loopModeNumberOfTests
+                record.testsPerformed,
+                viewModel.config.loopModeNumberOfTests,
+                loopRuntimePrefix(record)
             )
-            Timber.d("setting loop record test performed: $testsPerformed")
+            Timber.d("setting loop record test performed: ${record.testsPerformed}")
         }
         binding.measurementBottomView?.loopMeasurementNextTestMetersProgress?.progress =
             viewModel.state.loopNextTestPercent.get()
@@ -357,12 +397,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         Timber.d("MeasurementViewModel START")
         viewModel.attach(this)
         speedRefreshHandler.post(speedRefreshRunnable)
+        loopRuntimeHandler.post(loopRuntimeRunnable)
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
         speedRefreshHandler.removeCallbacks(speedRefreshRunnable)
+        loopRuntimeHandler.removeCallbacks(loopRuntimeRunnable)
     }
 
     override fun onResume() {

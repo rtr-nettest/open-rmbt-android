@@ -558,6 +558,37 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         runTest()
     }
 
+    /**
+     * True once the loop has been running for at least [Config.loopMeasurementMaxDurationMinutes].
+     * Evaluated at the between-tests decision points so an in-progress test is never interrupted.
+     * A max of 0 disables the cap.
+     */
+    private fun isLoopModeMaxDurationReached(): Boolean {
+        if (!config.loopModeEnabled) return false
+        val maxMillis = TimeUnit.MINUTES.toMillis(config.loopMeasurementMaxDurationMinutes.toLong())
+        if (maxMillis <= 0L) return false
+        val startMillis = stateRecorder.loopModeRecord?.startTimeMillis ?: return false
+        return System.currentTimeMillis() - startMillis >= maxMillis
+    }
+
+    /**
+     * Ends the loop because its total run time reached the maximum, following exactly the same path
+     * as reaching the configured number of tests: persist FINISHED (which drives the UI to the
+     * completion alert and then the results overview), post the finished notification, and release.
+     */
+    private fun finishLoopModeByMaxDuration() {
+        Timber.i("LOOP MODE: maximum total duration reached -> finishing loop")
+        loopCountdownTimer?.cancel()
+        loopCountdownTimer = null
+        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+        loopModeState = LoopModeState.FINISHED
+        stateRecorder.onLoopTestStatusChanged(LoopModeState.FINISHED)
+        stopForeground(true)
+        stateRecorder.finish()
+        unlock()
+    }
+
     private fun scheduleNextLoopTest() {
         stateRecorder.onLoopTestScheduled()
         try {
@@ -585,6 +616,12 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
+                        // End the loop promptly if the max total duration is reached during this
+                        // between-tests pause, rather than waiting for the countdown to elapse.
+                        if (isLoopModeMaxDurationReached()) {
+                            finishLoopModeByMaxDuration()
+                            return
+                        }
                         Timber.d("LoopModeRecord status: ${stateRecorder.loopModeRecord?.status}, executed tests:  ${stateRecorder.loopModeRecord?.testsPerformed}")
                         if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED || (stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeNumberOfTests && config.loopModeNumberOfTests > 0)) {
                             Timber.d("CountDownTimer cancelled according to conditions.")
@@ -639,6 +676,14 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         }
 
     private fun runTest() {
+        // Loop mode: if the total run time has reached the maximum, end the loop instead of starting
+        // another test. Only affects starting a NEW test (an already-running test is never cut off);
+        // the first test still runs because the loop has just started. Covers both the time- and the
+        // distance-triggered next test, since both funnel through here.
+        if (isLoopModeMaxDurationReached()) {
+            finishLoopModeByMaxDuration()
+            return
+        }
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
 
         Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
