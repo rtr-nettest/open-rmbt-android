@@ -109,6 +109,13 @@
     <string name="location_dialog_label_signal">Signal (%1$s)</string>
     <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Satellites</string>
+    <string name="location_dialog_label_raster_title">ID de raster</string>
+    <string name="location_dialog_label_raster_100">Raster (100 m)</string>
+    <string name="location_dialog_label_raster_short_100">ID de raster (100 m)</string>
+    <string name="location_dialog_label_raster_long_100">ID de raster, long (100 m)</string>
+    <string name="location_dialog_label_raster_250">Raster (250 m)</string>
+    <string name="location_dialog_label_raster_short_250">ID de raster (250 m)</string>
+    <string name="location_dialog_label_raster_long_250">ID de raster, long (250 m)</string>
     <string name="location_dialog_label_location_progress_message">Détermination de la localisation, veuillez patienter…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Les services de localisation ne sont pas activés. Souhaitez-vous modifier les paramètres de localisation ?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Ouvrir les paramètres de localisation</string>

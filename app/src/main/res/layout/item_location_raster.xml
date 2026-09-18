@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/margin_medium"
+    android:baselineAligned="false"
+    android:orientation="horizontal">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/labelRaster"
+        style="@style/RobotoMediumStyle.Small"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:gravity="end|center_vertical"
+        android:textColor="@color/text_gray_transparency_60"
+        tools:text="Raster (100 m)" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/valueRaster"
+        style="@style/RobotoRegularStyle.Medium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:layout_marginStart="@dimen/margin_small"
+        android:textColor="@color/text_black_transparency_60"
+        tools:text="100mN27726E46817" />
+
+</LinearLayout>

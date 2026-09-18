@@ -122,6 +122,13 @@
     <string name="location_dialog_label_signal">Jel (%1$s)</string>
     <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">Műholdak</string>
+    <string name="location_dialog_label_raster_title">Raszterazonosítók</string>
+    <string name="location_dialog_label_raster_100">Raszter (100 m)</string>
+    <string name="location_dialog_label_raster_short_100">Raszterazonosító (100 m)</string>
+    <string name="location_dialog_label_raster_long_100">Raszterazonosító, hosszú (100 m)</string>
+    <string name="location_dialog_label_raster_250">Raszter (250 m)</string>
+    <string name="location_dialog_label_raster_short_250">Raszterazonosító (250 m)</string>
+    <string name="location_dialog_label_raster_long_250">Raszterazonosító, hosszú (250 m)</string>
     <string name="location_dialog_label_location_progress_message">Helymeghatározás folyamatban, kérem, várjon!</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Helymeghatározási szolgáltatás nem elérhető, kívánja engedélyezni?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Helymeghatározási beállítások megnyitása</string>

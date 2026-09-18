@@ -109,6 +109,13 @@
     <string name="location_dialog_label_signal">الإشارة (%1$s)</string>
     <string name="location_dialog_signal_value">%1$d dB Hz</string>
     <string name="location_dialog_label_satellites">الأقمار الاصطناعية</string>
+    <string name="location_dialog_label_raster_title">معرّفات راستر</string>
+    <string name="location_dialog_label_raster_100">راستر (100 م)</string>
+    <string name="location_dialog_label_raster_short_100">معرّف راستر (100 م)</string>
+    <string name="location_dialog_label_raster_long_100">معرّف راستر، طويل (100 م)</string>
+    <string name="location_dialog_label_raster_250">راستر (250 م)</string>
+    <string name="location_dialog_label_raster_short_250">معرّف راستر (250 م)</string>
+    <string name="location_dialog_label_raster_long_250">معرّف راستر، طويل (250 م)</string>
     <string name="location_dialog_label_location_progress_message">جارٍ تحديد الموقع، يرجى الانتظار…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">خدمات الموقع غير مفعّلة. هل تريد تعديل إعدادات الموقع؟</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">فتح إعدادات الموقع</string>

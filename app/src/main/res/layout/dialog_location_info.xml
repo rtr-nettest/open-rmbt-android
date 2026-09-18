@@ -340,6 +340,31 @@
             app:layout_constraintTop_toBottomOf="@+id/textSatellites"
             app:gnssSignals="@{locationInfo}" />
 
+        <!-- Coverage raster ids (from frq.rtr.at), one row per non-empty id. Populated at runtime. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelRasterTitle"
+            style="@style/RobotoBoldStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="center"
+            android:text="@string/location_dialog_label_raster_title"
+            android:textColor="@color/text_black_transparency_60"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/signalContainer"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/rasterContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelRasterTitle" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
