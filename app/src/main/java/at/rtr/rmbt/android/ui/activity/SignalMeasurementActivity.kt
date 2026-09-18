@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +30,6 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
-import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
 import at.rtr.rmbt.android.map.DefaultLocation
@@ -73,6 +73,9 @@ const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
 const val GPS_CHECK_GRACE_PERIOD = 6000L
 const val MIN_WHITE_TEXT_CONTRAST_RATIO = 2.5
+// After a technology change, hide the frequency band this long: the API reports the technology and
+// the matching frequency change out of sync, so the band briefly still belongs to the old technology.
+const val BAND_SUPPRESSION_AFTER_TECH_CHANGE_MILLIS = 1000L
 
 class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     CoverageSettingsDialog.Callback {
@@ -93,6 +96,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     private var lastInfoVisible = false
     // Identity of the last serving cell seen on the live signal stream, to detect cell changes.
     private var lastCellComparisonUuid: String? = null
+    // Technology-change tracking for the pill, to briefly hide the (out-of-sync) frequency band.
+    private var lastTechnologyLabel: String? = null
+    private var bandSuppressedUntilElapsedMillis: Long = 0L
+    private var lastPillNetworkInfo: NetworkInfo? = null
+    private var lastPillSecondary: NetworkInfo? = null
+    // Re-renders the pill when the band suppression window elapses, so the band reappears at ~1 s even
+    // if no new signal update has arrived in the meantime.
+    private val bandRefreshRunnable = Runnable { applyTechnologyPill(lastPillNetworkInfo, lastPillSecondary) }
     private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
@@ -476,14 +487,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
         val networkInfo = info?.networkInfo
         val secondary = info?.secondary5GActiveCellNetworks?.firstOrNull()
 
-        val networkType = coverageViewModel.getCurrentNetworkTypeName(networkInfo)
-        val frequencyBand = networkInfo?.getFrequencyBand(secondary)
-        val networkStringRaw = listOfNotNull(networkType, frequencyBand).joinToString(" | ")
-        // With no mobile network the type/band are empty; show "No signal" instead of a blank pill.
-        val networkString = networkStringRaw.ifEmpty { getString(R.string.noSignal) }
-        binding.technologyValue.text = networkString
-        binding.technologyValuePip.text = networkString
-        updateTechnologyPill(networkInfo)
+        applyTechnologyPill(networkInfo, secondary)
 
         // For 5G NSA combine the LTE anchor and NR secondary signals - the same value recorded for the
         // fences.
@@ -550,6 +554,39 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             }
             binding.signalTimeChart.setSamples(chartSamples)
         }
+    }
+
+    /**
+     * Sets the technology pill text ("type | band", or "No signal") and colour.
+     *
+     * The frequency band is withheld for [BAND_SUPPRESSION_AFTER_TECH_CHANGE_MILLIS] after a
+     * technology change: the API reports the technology change and the matching frequency change out
+     * of sync, so for a brief moment the band still belongs to the previous technology. During the
+     * suppression the pill shows just the technology; a delayed refresh re-adds the band when it
+     * elapses (even if no new signal update arrives in the meantime).
+     */
+    private fun applyTechnologyPill(networkInfo: NetworkInfo?, secondary: NetworkInfo?) {
+        lastPillNetworkInfo = networkInfo
+        lastPillSecondary = secondary
+
+        val networkType = coverageViewModel.getCurrentNetworkTypeName(networkInfo)
+        val frequencyBand = networkInfo?.getFrequencyBand(secondary)
+
+        val nowElapsed = SystemClock.elapsedRealtime()
+        if (networkType != lastTechnologyLabel) {
+            lastTechnologyLabel = networkType
+            bandSuppressedUntilElapsedMillis = nowElapsed + BAND_SUPPRESSION_AFTER_TECH_CHANGE_MILLIS
+            binding.technologyValue.removeCallbacks(bandRefreshRunnable)
+            binding.technologyValue.postDelayed(bandRefreshRunnable, BAND_SUPPRESSION_AFTER_TECH_CHANGE_MILLIS)
+        }
+        val bandToShow = if (nowElapsed < bandSuppressedUntilElapsedMillis) null else frequencyBand
+
+        val networkStringRaw = listOfNotNull(networkType, bandToShow).joinToString(" | ")
+        // With no mobile network the type/band are empty; show "No signal" instead of a blank pill.
+        val networkString = networkStringRaw.ifEmpty { getString(R.string.noSignal) }
+        binding.technologyValue.text = networkString
+        binding.technologyValuePip.text = networkString
+        updateTechnologyPill(networkInfo)
     }
 
     private fun updateTechnologyPill(networkInfo: NetworkInfo?) {
@@ -891,6 +928,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     }
 
     override fun onDestroy() {
+        binding.technologyValue.removeCallbacks(bandRefreshRunnable)
         coverageViewModel.clearPerformanceImprovementLists(map)
         infoWindowMarker?.remove()
         map?.setInfoWindowAdapter(null)
