@@ -61,7 +61,11 @@ class DatabaseModule {
     @Singleton
     fun provideCoreDatabase(context: Context): CoreDatabase {
         val builder = Room.databaseBuilder(context, CoreDatabase::class.java, "CoreDatabase.db")
-        builder.fallbackToDestructiveMigration()
+        // Wipe-and-recreate on any schema-version mismatch instead of crashing. dropAllTables = true
+        // covers BOTH a missing forward migration (upgrade) AND a downgrade (an older build opened on
+        // top of a DB written by a newer build) - the latter otherwise throws "Cannot downgrade
+        // database ...". The app has no real migrations, so a destructive reset is the intended path.
+        builder.fallbackToDestructiveMigration(dropAllTables = true)
         return builder.build()
     }
 
