@@ -111,9 +111,11 @@ interface Config {
     var loopModeMinTestsNumber: Int
 
     /**
-     * Duration of the signal measurement activity time after user enable it, in minutes
+     * Maximum total run time of a loop-mode measurement in minutes. Once the loop has been running
+     * this long, it terminates at the next between-tests decision point (as if the configured number
+     * of tests had been reached). 0 disables the cap.
      */
-    var signalMeasurementDurationMin: Int
+    var loopMeasurementMaxDurationMinutes: Int
 
     /**
      * Shows an expert menu to the user if enabled in settings screen

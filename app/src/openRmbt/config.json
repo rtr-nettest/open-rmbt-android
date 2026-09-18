@@ -146,7 +146,7 @@
       "visible": false
     },
     {
-      "name": "SIGNAL_MEASUREMENT_DURATION_MIN",
+      "name": "LOOP_MEASUREMENT_MAX_DURATION_MINUTES",
       "value": "2880",
       "visible": false
     },
