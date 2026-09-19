@@ -458,14 +458,20 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     /**
      * One /ip poll: fetches the current public IPv4/IPv6 (each with a short timeout) and returns true
-     * only if a family that has a start baseline now returns a *different* address. A family with no
-     * response is ignored.
+     * if either family now returns a response that differs from its start baseline. "Differs" includes
+     * a family that was unavailable at start (null baseline) becoming available now. Rules per family:
+     *  - unavailable -> available  => changed (restart)
+     *  - available   -> different  => changed (restart)
+     *  - available   -> same       => not changed
+     *  - available   -> unavailable (no response now) => not changed (a missing response is ignored)
      */
     private suspend fun checkPublicIpChangedFromStart(): Boolean {
         val network = currentNetwork() ?: return false
         val (v4, v6) = fetchPublicIps(network)
-        val v4Changed = v4 != null && startPublicIpV4 != null && v4 != startPublicIpV4
-        val v6Changed = v6 != null && startPublicIpV6 != null && v6 != startPublicIpV6
+        // Only a present ("available") response counts; a null current value is a missing response
+        // and is ignored. A null baseline means "was unavailable", so present-now != null-baseline.
+        val v4Changed = v4 != null && v4 != startPublicIpV4
+        val v6Changed = v6 != null && v6 != startPublicIpV6
         return v4Changed || v6Changed
     }
 
