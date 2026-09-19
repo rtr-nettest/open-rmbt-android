@@ -1,5 +1,6 @@
 package at.specure.measurement.coverage.presentation.monitors
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -88,6 +89,9 @@ class RtrConnectivityMonitor @Inject constructor(
             }
         }.distinctUntilChanged()
 
+    // TelephonyManager.isDataEnabled needs READ_PHONE_STATE; a missing/revoked permission surfaces as
+    // a SecurityException, which the try/catch below already handles by returning false.
+    @SuppressLint("MissingPermission")
     override fun isMobileDataEnabled(): Boolean {
         val defaultDataSubId = SubscriptionManager.getDefaultDataSubscriptionId()
         try{
@@ -144,6 +148,28 @@ class RtrConnectivityMonitor @Inject constructor(
         awaitClose { connectivityManager.unregisterNetworkCallback(networkCallback) }
     }.distinctUntilChanged()
 
+    // -------------------- VPN ACTIVE --------------------
+
+    // Emits whether the current default network is a VPN. A VPN going up/down changes the public IP
+    // (and can silently break IPv6), so the coverage measurement restarts its session on a change.
+    private fun vpnActiveFlow(context: Context) = callbackFlow<Boolean> {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                trySend(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
+            }
+
+            override fun onLost(network: Network) {
+                // Default network gone (e.g. VPN torn down before the underlying one is reported).
+                trySend(false)
+            }
+        }
+
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        awaitClose { connectivityManager.unregisterNetworkCallback(networkCallback) }
+    }.distinctUntilChanged()
+
     override fun getCurrentIpAddress(): String? {
         return try {
             NetworkInterface.getNetworkInterfaces()
@@ -176,13 +202,22 @@ class RtrConnectivityMonitor @Inject constructor(
         onAirplaneDisabled: () -> Unit,
         onMobileDataEnabled: () -> Unit,
         onMobileDataDisabled: () -> Unit,
-        onIpAddressChanged: (ipAddress: String?) -> Unit
+        onIpAddressChanged: (ipAddress: String?) -> Unit,
+        onVpnStateChanged: (vpnActive: Boolean) -> Unit
     ) {
         if (monitorJob != null) return
 
         monitorJob = scope.launch {
 
             merge(
+
+                vpnActiveFlow(context)
+                    .onEach { Timber.d("VPN active changed to: $it") }
+                    .drop(1)
+                    .debounce { 1_000 }
+                    .onEach {
+                        onVpnStateChanged(it)
+                    },
                 airplaneModeFlow()
                     .onEach { Timber.d("Airplane mode changed to: $it") }
                     .drop(1)

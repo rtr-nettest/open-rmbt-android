@@ -79,4 +79,46 @@ class IpClient @Inject constructor(
     fun getPublicIpV6Address(body: IpRequestBody, network: Network): Maybe<IpInfoResponse> {
         return api.ipCheck(endpoint.checkPublicIPv6Url, body).exec(true)
     }
+
+    /**
+     * Network-bound public-IP lookups with an explicit (short) timeout, used by the coverage
+     * measurement to poll the current public IP without long blocking. Both IPv4 and IPv6 go through
+     * the given [network] (so they reflect the active/VPN route), and a blocked family simply fails
+     * within [timeoutMs] (the caller ignores a failure - it is not treated as an IP change).
+     */
+    fun getPublicIpV4Address(body: IpRequestBody, network: Network, timeoutMs: Int): Maybe<IpInfoResponse> =
+        getPublicIpAddressViaNetwork(endpoint.checkPublicIPv4Url, body, network, timeoutMs)
+
+    fun getPublicIpV6Address(body: IpRequestBody, network: Network, timeoutMs: Int): Maybe<IpInfoResponse> =
+        getPublicIpAddressViaNetwork(endpoint.checkPublicIPv6Url, body, network, timeoutMs)
+
+    private fun getPublicIpAddressViaNetwork(
+        url: String,
+        body: IpRequestBody,
+        network: Network,
+        timeoutMs: Int
+    ): Maybe<IpInfoResponse> {
+        return try {
+            val connection = network.openConnection(URL(url)) as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.doInput = true
+            connection.doOutput = true
+            connection.connectTimeout = timeoutMs
+            connection.readTimeout = timeoutMs
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+            connection.setRequestProperty("Accept", "application/json")
+
+            val gson = Gson()
+            connection.outputStream.writer(Charset.forName("UTF-8")).use { it.write(gson.toJson(body)) }
+            val statusCode = connection.responseCode
+            Timber.d("IP status code ($url): $statusCode")
+            val output = connection.inputStream.bufferedReader().readText()
+            Maybe(gson.fromJson(output, IpInfoResponse::class.java))
+        } catch (ex: Exception) {
+            if (ex is CancellationException) {
+                throw ex
+            }
+            Maybe<IpInfoResponse>(NoConnectionException())
+        }
+    }
 }

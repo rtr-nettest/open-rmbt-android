@@ -1,6 +1,8 @@
 package at.specure.measurement.coverage
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.os.SystemClock
 import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.specure.client.PingServerException
@@ -8,6 +10,7 @@ import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
+import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
@@ -41,7 +44,10 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -52,6 +58,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.collections.set
@@ -66,6 +73,14 @@ import kotlin.time.Duration.Companion.seconds
 // The ping server (via an error-response) and the OS network API report the same network change a
 // few hundred ms apart; new-session requests within this window are coalesced into one.
 private const val NETWORK_CHANGE_DEBOUNCE_MILLIS = 500L
+
+// If no ping response is received for this long, the coverage measurement starts polling the public
+// IP (/ip) to detect a silent network change (e.g. a VPN that blocked IPv6 without an OS-level report).
+private const val PING_SILENCE_THRESHOLD_MILLIS = 5_000L
+// While ping is silent, poll /ip this often, until the IP changes or ping responses resume.
+private const val IP_POLL_INTERVAL_MILLIS = 5_000L
+// Per-request timeout for the /ip lookups, so a blocked family fails fast and requests never overlap.
+private const val IP_REQUEST_TIMEOUT_MILLIS = 3_000
 
 const val MAXIMUM_FENCES_IN_SINGLE_MEASUREMENT = 400
 const val MAXIMUM_LOCATIONS_IN_SINGLE_MEASUREMENT = 700
@@ -90,6 +105,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val scope: CoroutineScope,
     val stateManager: CoverageMeasurementDataStateManager,
     private val ipChangeWatcher: IpChangeWatcher,
+    private val ipCheckRepository: IpCheckRepository,
 ) : CoverageMeasurementProcessor, CoroutineScope {
 
     private val coverageSessionTimer = CoverageTimer(scope = scope)
@@ -105,6 +121,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private var sessionCollectorJob: Job? = null
     private var pingJob: Job? = null
     private var processingLocationsJob: Job? = null
+
+    // Public-IP watchdog: while ping is silent, polls /ip and restarts the session if the public IP
+    // differs from the one captured at session start. See onStartAndRegistrationCompleted.
+    private var ipWatchdogJob: Job? = null
+    private val ipCheckInProgress = AtomicBoolean(false)
+    @Volatile private var lastPingResponseElapsedMillis = 0L
+    @Volatile private var startPublicIpV4: String? = null
+    @Volatile private var startPublicIpV6: String? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
@@ -160,6 +184,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             onIpAddressChanged = {
                 Timber.d("🌐 IP address changed to $it")
                 requestNewSessionOnNetworkChange("ip-changed")
+            },
+            onVpnStateChanged = {
+                Timber.d("🔒 VPN active changed to $it -> restarting session")
+                requestNewSessionOnNetworkChange("vpn-changed")
             },
         )
         dataSimMonitorJob = scope.launch() {
@@ -344,6 +372,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
         Timber.d("Starting ping")
         cancelPingJob()
+        // Fresh baseline for the public-IP watchdog: treat "now" as the last ping so we don't flag
+        // silence before the first ping arrives, and re-capture the start IP for this session.
+        lastPingResponseElapsedMillis = SystemClock.elapsedRealtime()
+        startPublicIpV4 = null
+        startPublicIpV6 = null
+        captureStartPublicIp()
         pingJob = scope.launch(CoroutineName("PingJobCoroutine")) {
             coveragePingProcessor.startPing(registeredAndStartedSession).collect { pingData ->
                 // A ping server error-response means our source IP is no longer valid: the ping server
@@ -353,10 +387,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 if (pingData.error is PingServerException) {
                     requestNewSessionOnNetworkChange("ping-error-response")
                 } else {
+                    // Remember when a real ping response last arrived, so the watchdog can detect
+                    // ping silence (and stop polling once responses resume).
+                    if ((pingData.pingStatistics?.totalCountWithoutNulls ?: 0) > 0) {
+                        lastPingResponseElapsedMillis = SystemClock.elapsedRealtime()
+                    }
                     stateManager.updatePingData(pingData)
                 }
             }
         }
+        startPublicIpWatchdogJob()
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
         Timber.d("Starting cancellation jobs")
@@ -365,7 +405,83 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private fun cancelPingJob() {
         pingJob?.cancel()
         pingJob = null
+        ipWatchdogJob?.cancel()
+        ipWatchdogJob = null
     }
+
+    /** The active (default) network, used to bind the /ip lookups to the current route (incl. a VPN). */
+    private fun currentNetwork() =
+        (appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetwork
+
+    /** Resolves the public IPv4/IPv6 at session start as the baseline the watchdog compares against. */
+    private fun captureStartPublicIp() {
+        scope.launch(Dispatchers.IO) {
+            val network = currentNetwork() ?: return@launch
+            val (v4, v6) = fetchPublicIps(network)
+            // Keep whatever we could resolve; a family with no response stays null (no baseline).
+            if (v4 != null) startPublicIpV4 = v4
+            if (v6 != null) startPublicIpV6 = v6
+            Timber.d("Coverage start public IP -> v4=$startPublicIpV4 v6=$startPublicIpV6")
+        }
+    }
+
+    /**
+     * Watches for ping silence: once no ping response has arrived for [PING_SILENCE_THRESHOLD_MILLIS],
+     * it polls the public IP every [IP_POLL_INTERVAL_MILLIS] and restarts the session if the IP now
+     * differs from the start baseline. Polling continues until either the IP changed (restart) or ping
+     * responses resume. A missing /ip response is ignored (not treated as a change).
+     */
+    private fun startPublicIpWatchdogJob() {
+        ipWatchdogJob?.cancel()
+        ipWatchdogJob = scope.launch(Dispatchers.IO + CoroutineName("PublicIpWatchdog")) {
+            var lastPollElapsed = 0L
+            while (isActive) {
+                delay(1_000L)
+                val now = SystemClock.elapsedRealtime()
+                val pingSilent = now - lastPingResponseElapsedMillis >= PING_SILENCE_THRESHOLD_MILLIS
+                if (!pingSilent) continue
+                if (now - lastPollElapsed < IP_POLL_INTERVAL_MILLIS) continue
+                if (!ipCheckInProgress.compareAndSet(false, true)) continue
+                lastPollElapsed = now
+                try {
+                    if (checkPublicIpChangedFromStart()) {
+                        Timber.d("Coverage public IP changed while ping silent -> restarting session")
+                        requestNewSessionOnNetworkChange("public-ip-changed-ping-silent")
+                        break
+                    }
+                } finally {
+                    ipCheckInProgress.set(false)
+                }
+            }
+        }
+    }
+
+    /**
+     * One /ip poll: fetches the current public IPv4/IPv6 (each with a short timeout) and returns true
+     * only if a family that has a start baseline now returns a *different* address. A family with no
+     * response is ignored.
+     */
+    private suspend fun checkPublicIpChangedFromStart(): Boolean {
+        val network = currentNetwork() ?: return false
+        val (v4, v6) = fetchPublicIps(network)
+        val v4Changed = v4 != null && startPublicIpV4 != null && v4 != startPublicIpV4
+        val v6Changed = v6 != null && startPublicIpV6 != null && v6 != startPublicIpV6
+        return v4Changed || v6Changed
+    }
+
+    /** Fetches public IPv4 and IPv6 in parallel over [network]; a failed/timed-out family returns null. */
+    private suspend fun fetchPublicIps(network: android.net.Network): Pair<String?, String?> =
+        coroutineScope {
+            val v4 = async {
+                ipCheckRepository.getPublicIpV4Address(network, IP_REQUEST_TIMEOUT_MILLIS)
+                    .let { if (it.ok) it.success.ipAddress else null }
+            }
+            val v6 = async {
+                ipCheckRepository.getPublicIpV6Address(network, IP_REQUEST_TIMEOUT_MILLIS)
+                    .let { if (it.ok) it.success.ipAddress else null }
+            }
+            (v4.await()) to (v6.await())
+        }
 
     private fun onError(e: Exception) {
         stateManager.onException(e)

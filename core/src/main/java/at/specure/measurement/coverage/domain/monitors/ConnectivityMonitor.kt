@@ -7,7 +7,8 @@ interface ConnectivityMonitor {
         onAirplaneDisabled: () -> Unit,
         onMobileDataEnabled: () -> Unit,
         onMobileDataDisabled: () -> Unit,
-        onIpAddressChanged: (ipAddress: String?) -> Unit
+        onIpAddressChanged: (ipAddress: String?) -> Unit,
+        onVpnStateChanged: (vpnActive: Boolean) -> Unit
     )
 
     fun stop()

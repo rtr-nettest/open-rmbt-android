@@ -39,6 +39,12 @@ class IpCheckRepositoryImpl(
 
     override fun getPublicIpV6Address(network: Network): Maybe<IpInfoResponse> = client.getPublicIpV6Address(ipRequestBody, network)
 
+    override fun getPublicIpV4Address(network: Network, timeoutMs: Int): Maybe<IpInfoResponse> =
+        client.getPublicIpV4Address(ipRequestBody, network, timeoutMs)
+
+    override fun getPublicIpV6Address(network: Network, timeoutMs: Int): Maybe<IpInfoResponse> =
+        client.getPublicIpV6Address(ipRequestBody, network, timeoutMs)
+
     override fun getPrivateIpV4Address(): Maybe<IpInfoResponse> = client.getPrivateIpV4Address()
 
     override fun getPrivateIpV6Address(): Maybe<IpInfoResponse> = client.getPrivateIpV6Address()
