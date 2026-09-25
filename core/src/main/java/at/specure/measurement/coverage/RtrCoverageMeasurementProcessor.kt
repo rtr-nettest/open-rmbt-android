@@ -32,6 +32,7 @@ import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
+import at.specure.measurement.coverage.domain.models.RestrictedProtocolUnavailableException
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
@@ -427,9 +428,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     /**
      * Watches for ping silence: once no ping response has arrived for [PING_SILENCE_THRESHOLD_MILLIS],
-     * it polls the public IP every [IP_POLL_INTERVAL_MILLIS] and restarts the session if the IP now
-     * differs from the start baseline. Polling continues until either the IP changed (restart) or ping
-     * responses resume. A missing /ip response is ignored (not treated as a change).
+     * it polls the public IP every [IP_POLL_INTERVAL_MILLIS]. Each poll can do one of:
+     *  - if the measurement is restricted to one IP protocol (IPv4-only / IPv6-only) and that protocol
+     *    is now unavailable while the other one IS available -> terminate with an alert (never continue
+     *    on the other protocol, which would record grey points);
+     *  - else if the public IP now differs from the start baseline -> restart with a fresh session;
+     *  - else keep polling until the IP changes or ping responses resume. A missing /ip response is
+     *    ignored (not treated as a change).
      */
     private fun startPublicIpWatchdogJob() {
         ipWatchdogJob?.cancel()
@@ -444,7 +449,15 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 if (!ipCheckInProgress.compareAndSet(false, true)) continue
                 lastPollElapsed = now
                 try {
-                    if (checkPublicIpChangedFromStart()) {
+                    val network = currentNetwork() ?: continue
+                    val (v4, v6) = fetchPublicIps(network)
+                    if (isRestrictedProtocolLostWhileOtherAvailable(v4, v6)) {
+                        Timber.d("Coverage restricted IP protocol lost while the other is available -> terminating")
+                        stateManager.onException(RestrictedProtocolUnavailableException())
+                        stopCoverageSession(CoverageMeasurementTerminationCause.EndedByRestrictedProtocolUnavailable())
+                        break
+                    }
+                    if (isPublicIpChangedFromStart(v4, v6)) {
                         Timber.d("Coverage public IP changed while ping silent -> restarting session")
                         requestNewSessionOnNetworkChange("public-ip-changed-ping-silent")
                         break
@@ -457,17 +470,30 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     /**
-     * One /ip poll: fetches the current public IPv4/IPv6 (each with a short timeout) and returns true
-     * if either family now returns a response that differs from its start baseline. "Differs" includes
-     * a family that was unavailable at start (null baseline) becoming available now. Rules per family:
+     * True when the measurement is restricted to a single IP protocol (expert-mode IPv4-only /
+     * IPv6-only) and that protocol's public IP is now unavailable while the OTHER protocol is still
+     * available. That specifically means the restricted protocol is gone (not a general outage, where
+     * both would be unavailable), so the measurement must terminate instead of continuing.
+     */
+    private fun isRestrictedProtocolLostWhileOtherAvailable(v4: String?, v6: String?): Boolean {
+        val v4Only = config.expertModeEnabled && config.expertModeUseIpV4Only
+        val v6Only = config.expertModeEnabled && config.expertModeUseIpV6Only
+        return when {
+            v4Only -> v4 == null && v6 != null
+            v6Only -> v6 == null && v4 != null
+            else -> false
+        }
+    }
+
+    /**
+     * True if either family now returns a response that differs from its start baseline. "Differs"
+     * includes a family that was unavailable at start (null baseline) becoming available now. Rules:
      *  - unavailable -> available  => changed (restart)
      *  - available   -> different  => changed (restart)
      *  - available   -> same       => not changed
      *  - available   -> unavailable (no response now) => not changed (a missing response is ignored)
      */
-    private suspend fun checkPublicIpChangedFromStart(): Boolean {
-        val network = currentNetwork() ?: return false
-        val (v4, v6) = fetchPublicIps(network)
+    private fun isPublicIpChangedFromStart(v4: String?, v6: String?): Boolean {
         // Only a present ("available") response counts; a null current value is a missing response
         // and is ignored. A null baseline means "was unavailable", so present-now != null-baseline.
         val v4Changed = v4 != null && v4 != startPublicIpV4

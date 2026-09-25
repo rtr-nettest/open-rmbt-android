@@ -12,4 +12,5 @@ sealed class CoverageMeasurementTerminationCause(val cause: String) {
     class EndedByAirplaneModeEnabled(): CoverageMeasurementTerminationCause("ended by airplane mode enabled")
     class EndedByMobileDataDisabled(): CoverageMeasurementTerminationCause("ended by mobile data disabled")
     class EndedByBackOnMobileData(): CoverageMeasurementTerminationCause("ended by back on mobile data")
+    class EndedByRestrictedProtocolUnavailable(): CoverageMeasurementTerminationCause("ended by restricted protocol unavailable")
 }

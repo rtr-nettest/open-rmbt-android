@@ -42,6 +42,7 @@ import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.CoverageRegistrationTimeoutException
+import at.specure.measurement.coverage.domain.models.RestrictedProtocolUnavailableException
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -90,6 +91,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     private var showMeasurementResultsJob: Job? = null
     private var updateUnfinishedMeasurementJob: Job? = null
     private var wrongNetworkAlertActive = false
+    // Guards the one-shot "restricted protocol unavailable" alert.
+    private var restrictedProtocolAlertShown = false
     // Last value passed to setInfoVisible, so the pip/full card visibility can be re-applied
     // immediately on a PiP mode change (otherwise the full-screen card lingers in the PiP window
     // until the next data update).
@@ -211,12 +214,29 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
     }
 
     private fun updateMapState(data: CoverageMeasurementData?) {
+        maybeShowRestrictedProtocolAlert(data)
         if (data?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             showMeasurementResults(data)
         } else {
             updateUnfinishedMeasurement(data)
         }
         updateResultSendStatus(data)
+    }
+
+    /**
+     * Shows the "restricted IP protocol no longer available" alert once, on top of the results overview
+     * that the terminated measurement transitions to. The measurement is already stopped by the time
+     * this exception is set, so the alert just informs the user (dismiss returns to the results).
+     */
+    private fun maybeShowRestrictedProtocolAlert(data: CoverageMeasurementData?) {
+        if (data?.signalMeasurementException !is RestrictedProtocolUnavailableException) return
+        if (restrictedProtocolAlertShown) return
+        restrictedProtocolAlertShown = true
+        MessageDialog.show(
+            supportFragmentManager,
+            getString(R.string.coverage_measurement_error_restricted_protocol),
+            "CoverageRestrictedProtocolDialog"
+        )
     }
 
     private fun updateResultSendStatus(data: CoverageMeasurementData?) {
@@ -450,6 +470,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
 
     private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
         coverageMeasurementData?.signalMeasurementException?.also { exception ->
+            // The "restricted protocol unavailable" case has its own alert (shown over the results),
+            // and the measurement is already terminated - don't also show the generic error dialog.
+            if (exception is RestrictedProtocolUnavailableException) return
             // A registration timeout means there was simply no connectivity for the whole retry
             // budget - show that clearly instead of a generic "unknown" error. On dismiss the
             // measurement is stopped and the screen finishes, returning to the start screen.
