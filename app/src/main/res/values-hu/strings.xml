@@ -460,4 +460,6 @@
     <string name="segment_result_title">Szegmens eredménye</string>
     <string name="velocity">Sebesség</string>
     <string name="velocity_kmh">%1$d km/h</string>
+    <string name="label_expert_mode">Szakértői mód</string>
+    <string name="server_label">Kiszolgáló: %1$s</string>
 </resources>

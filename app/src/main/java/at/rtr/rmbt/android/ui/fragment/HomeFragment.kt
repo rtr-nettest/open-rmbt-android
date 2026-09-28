@@ -4,8 +4,16 @@ import android.Manifest
 import android.content.res.ColorStateList
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -49,6 +57,35 @@ class HomeFragment : BaseFragment() {
     private val binding: FragmentHomeBinding by bindingLazy()
 
     override val layoutResId = R.layout.fragment_home
+
+    // Live environment sensors for the expert-mode right-side info (battery temperature, barometric
+    // pressure). Registered only while the fragment is resumed.
+    private val sensorManager: SensorManager? by lazy {
+        context?.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+    }
+    private val pressureSensor: Sensor? by lazy {
+        sensorManager?.getDefaultSensor(Sensor.TYPE_PRESSURE)
+    }
+    private val pressureListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            if (event.sensor.type == Sensor.TYPE_PRESSURE) {
+                homeViewModel.state.barometricPressureHpa.set(event.values.firstOrNull())
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+    private val batteryInfoReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            homeViewModel.state.batteryTemperatureCelsius.set(intent.batteryTemperatureCelsius())
+        }
+    }
+
+    /** Battery temperature in °C from an ACTION_BATTERY_CHANGED intent, or null if unavailable. */
+    private fun Intent?.batteryTemperatureCelsius(): Float? {
+        val raw = this?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE) ?: Int.MIN_VALUE
+        return if (raw == Int.MIN_VALUE) null else raw / 10f // reported in tenths of a degree
+    }
 
     private val getSignalMeasurementResult =
         registerForActivityResult(
@@ -389,6 +426,24 @@ class HomeFragment : BaseFragment() {
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
 
+        // Barometric pressure via the pressure sensor (if the device has one).
+        pressureSensor?.let {
+            sensorManager?.registerListener(pressureListener, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+        // Battery temperature: the sticky ACTION_BATTERY_CHANGED gives the current value immediately,
+        // and the receiver keeps it updated while resumed.
+        val sticky = context?.registerReceiver(batteryInfoReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        homeViewModel.state.batteryTemperatureCelsius.set(sticky.batteryTemperatureCelsius())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager?.unregisterListener(pressureListener)
+        try {
+            context?.unregisterReceiver(batteryInfoReceiver)
+        } catch (e: IllegalArgumentException) {
+            Timber.w(e, "Battery receiver was not registered")
+        }
     }
 
     private fun continueInSignalMeasurementIfShould() {

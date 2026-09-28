@@ -161,9 +161,11 @@
             style="@style/RobotoRegularStyle.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="140dp"
+            android:gravity="end"
             android:paddingStart="@dimen/padding_very_small"
             android:paddingEnd="@dimen/padding_large"
-            android:text='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
+            android:text='@{@string/server_label(state.selectedMeasurementServer != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection)}'
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
@@ -242,8 +244,6 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblNoConnection"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:drawableEnd="@{state.developerModeIsEnabled ? @drawable/ic_developer_mode : null}"
-            android:drawablePadding="@dimen/padding_small"
             app:layout_constraintTop_toBottomOf="@+id/tvNetworkType"
             tools:text="Android Network"
             tools:textColor="@android:color/white" />
@@ -294,15 +294,32 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
-            android:layout_marginBottom="@dimen/padding_small"
             android:gravity="start"
             android:textColor="@android:color/white"
             android:textSize="11sp"
-            app:layout_constraintBottom_toTopOf="@+id/waveView"
+            app:layout_constraintTop_toTopOf="@+id/tvNetworkType"
             app:layout_constraintStart_toStartOf="parent"
             app:primaryCellInfo="@{state.activeNetworkInfo}"
             app:primaryCellInfoExpert="@{state.expertModeIsEnabled}"
             tools:text="EARFCN: 1850\nCI: 12345\neNB: 48\nCID: 57\nTAC: 12345\nPCI: 305\nBW: 20 MHz" />
+
+        <!-- Right-side overlay (bottom-right of the S curve): DEVELOPER / Expert Mode flags plus the
+             live temperature and barometric pressure (expert mode). Populated by a binding adapter. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvExpertRightInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:gravity="end"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            app:layout_constraintTop_toTopOf="@+id/tvPrimaryCellInfo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:expertInfoDeveloper="@{state.developerModeIsEnabled}"
+            app:expertInfoExpert="@{state.expertModeIsEnabled}"
+            app:expertInfoTemperature="@{state.batteryTemperatureCelsius}"
+            app:expertInfoPressure="@{state.barometricPressureHpa}"
+            tools:text="DEVELOPER\nExpert Mode\nT = 27.5 °C\nP = 1013 hPa" />
 
         <View
             android:layout_width="0dp"

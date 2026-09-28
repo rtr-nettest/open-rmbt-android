@@ -55,6 +55,10 @@ class HomeViewState(
     val showSignalMeasurementGraph = ObservableField(config.showSignalMeasurementGraph)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
     val coverageModeIsEnabled = ObservableField(config.coverageModeEnabled)
+    // Expert-mode right-side info: live battery temperature (°C) and barometric pressure (hPa).
+    // Null when the value is unavailable (then the corresponding line is hidden).
+    val batteryTemperatureCelsius = ObservableField<Float?>()
+    val barometricPressureHpa = ObservableField<Float?>()
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
     val informationAccessProblem = ObservableField(InformationAccessProblem.NO_PROBLEM)
     val locationChanged = ObservableBoolean(false)

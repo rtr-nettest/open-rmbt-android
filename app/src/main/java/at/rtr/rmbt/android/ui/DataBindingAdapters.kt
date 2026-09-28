@@ -1558,6 +1558,32 @@ fun AppCompatTextView.setSpeedMps(speedMps: Float?) {
     }
 }
 
+/**
+ * Right-side home-screen info block. Shows "DEVELOPER" while developer mode is on, and (only in
+ * expert mode) the "Expert Mode" label plus the live battery temperature ("T = x °C") and barometric
+ * pressure ("P = x hPa"). Lines whose value is unavailable are omitted; the view is hidden if empty.
+ */
+@BindingAdapter(
+    value = ["expertInfoDeveloper", "expertInfoExpert", "expertInfoTemperature", "expertInfoPressure"],
+    requireAll = false
+)
+fun AppCompatTextView.setExpertRightInfo(
+    developer: Boolean?,
+    expert: Boolean?,
+    temperatureCelsius: Float?,
+    pressureHpa: Float?
+) {
+    val lines = mutableListOf<String>()
+    if (developer == true) lines.add("DEVELOPER")
+    if (expert == true) {
+        lines.add(context.getString(R.string.label_expert_mode))
+        if (temperatureCelsius != null) lines.add(String.format(Locale.getDefault(), "T = %.1f °C", temperatureCelsius))
+        if (pressureHpa != null) lines.add(String.format(Locale.getDefault(), "P = %.0f hPa", pressureHpa))
+    }
+    text = lines.joinToString("\n")
+    visibility = if (lines.isEmpty()) View.GONE else View.VISIBLE
+}
+
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)
 fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signalStrengthClassificationResult: Classification) {
 

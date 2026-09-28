@@ -580,6 +580,8 @@
     <string name="segment_result_title">Segment result</string>
     <string name="velocity">Velocity</string>
     <string name="velocity_kmh">%1$d km/h</string>
+    <string name="label_expert_mode">Expert Mode</string>
+    <string name="server_label">Server: %1$s</string>
     <string name="text_fence_radius">Point radius factor:</string>
     <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Point radius slider value %1$d meters</string>

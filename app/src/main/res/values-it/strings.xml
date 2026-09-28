@@ -460,4 +460,6 @@
     <string name="segment_result_title">Risultato del segmento</string>
     <string name="velocity">Velocità</string>
     <string name="velocity_kmh">%1$d km/h</string>
+    <string name="label_expert_mode">Modalità esperto</string>
+    <string name="server_label">Server: %1$s</string>
 </resources>
