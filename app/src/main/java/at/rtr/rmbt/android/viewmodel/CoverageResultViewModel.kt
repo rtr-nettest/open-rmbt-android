@@ -12,7 +12,6 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.viewstate.CoverageResultViewState
 import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
-import at.specure.data.ControlServerSettings
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.FencesResultItemRecord
@@ -31,14 +30,17 @@ import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
-import at.specure.util.map.CustomMarker
 import at.specure.util.map.blendedColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import android.location.Location
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.StyleSpan
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,24 +54,31 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.floor
+import kotlin.coroutines.resume
 import kotlin.math.max
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.math.pow
 import kotlin.math.round
 
-const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 300
 const val MIN_MAP_UPDATE_RATE =
     700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
+
+// At/above this zoom the map shows individual point circles (only those in the current viewport);
+// below it, the whole run is drawn as one colored track polyline instead. This keeps the number of
+// live map overlays bounded regardless of how many fences the measurement produced (fixes OOM).
+const val POINTS_ZOOM_THRESHOLD = 14f
+// Break the track line where two consecutive fences are farther apart than this (avoids long
+// bridging lines across gaps, e.g. after a pause or loss of coverage).
+const val TRACK_GAP_BREAK_METERS = 500f
+const val TRACK_LINE_WIDTH_PX = 12f
 
 
 class CoverageResultViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val testResultsRepository: TestResultsRepository,
-    private val controlServerSettings: ControlServerSettings,
     private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
-    private val customMarker: CustomMarker,
     private val locationValidator: LocationValidator,
 ) : BaseViewModel() {
 
@@ -188,37 +197,17 @@ class CoverageResultViewModel @Inject constructor(
     private var lastMarkerRadius: Double? = null
     fun updateMarkersRadius(zoom: Float) {
         zoomUpdateJob?.cancel()
-        zoomUpdateJob = viewModelScope.launch {
-            delay(100)
+        zoomUpdateJob = viewModelScope.launch(Dispatchers.Main) {
+            delay(100.milliseconds)
+            state.zoom = zoom
             val newRadius = calculateMarkerRadius(zoom)
-            if (newRadius == lastMarkerRadius) return@launch
-            lastMarkerRadius = newRadius
-            state.markers.forEach { circle ->
-                circle.radius = newRadius
+            if (newRadius != lastMarkerRadius) {
+                lastMarkerRadius = newRadius
+                circlesByHash.values.forEach { it.radius = newRadius }
             }
-        }
-    }
-
-    suspend fun zoomMapToShowAllMarkers(markersOptions: List<CircleOptions>, map: GoogleMap) {
-        if (markersOptions.isEmpty()) return
-
-        withContext(Dispatchers.Main) {
-            map.awaitMapLoad()
-        }
-
-        val boundsBuilder = LatLngBounds.Builder()
-        markersOptions.forEach {
-            it.center?.let { point -> boundsBuilder.include(point) }
-        }
-        val bounds = boundsBuilder.build()
-        val padding = 100 // padding in pixels from edges
-
-        viewModelScope.launch(Dispatchers.Main) {
-            map.setMaxZoomPreference(DefaultLocation.defaultMaximumZoomLevelForCoverage)
-            map.animateCamera(
-                CameraUpdateFactory.newLatLngBounds(bounds, padding)
-            )
-            map.resetMinMaxZoomPreference()
+            // A zoom may cross the line/points threshold and a pan may change the visible viewport, so
+            // re-render from the cached data (no new fences needed).
+            cachedMap?.let { renderForCurrentZoom(it, cachedPoints) }
         }
     }
 
@@ -232,13 +221,26 @@ class CoverageResultViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun GoogleMap.awaitMapLoad() = suspendCancellableCoroutine<Unit> { cont ->
-        setOnMapLoadedCallback { cont.resume(Unit) {} }
+        setOnMapLoadedCallback { cont.resume(Unit) }
     }
+
+    private enum class RenderMode { LINE, POINTS }
 
     private var lastMarker: Circle? = null
     private var lastMapUpdate = 0L
     private var updateMapJob: Job? = null
-    private var lastVisibilityStep: Int? = null
+    // Point circles currently on the map, keyed by point hash so the viewport cull can add/remove
+    // individual ones. In LINE mode this is empty and the track is drawn as polyline(s) instead.
+    private val circlesByHash = LinkedHashMap<String, Circle>()
+    private val trackPolylines = mutableListOf<Polyline>()
+    private var currentRenderMode: RenderMode? = null
+    private var polylinePointCount = -1 // point count the track line was last built for
+    private var lastKnownPointCount = 0 // to detect a new (reset) measurement
+    private var lastPointWasOngoing = false
+    // Cached inputs so a camera zoom/pan can re-render without new fence data arriving.
+    private var cachedMap: GoogleMap? = null
+    private var cachedPoints: List<FencesResultItemRecord> = emptyList()
+    private val distanceResult = FloatArray(1)
 
     private fun shouldUpdateMap(): Boolean {
         val now = SystemClock.elapsedRealtime()
@@ -262,61 +264,201 @@ class CoverageResultViewModel @Inject constructor(
         val shouldForceUpdate = hasRecentlyClosedLastPoint(pts)
         if (!shouldUpdateMap() && isMeasurementInProgress && !shouldForceUpdate) return
 
+        cachedMap = currentMap
+        cachedPoints = pts
+
         updateMapJob?.cancel()
-        updateMapJob = viewModelScope.launch(Dispatchers.Default) {
-            clearPerformanceListsIfTheyAreFromPreviousMeasurement(currentMap, pts)
+        updateMapJob = viewModelScope.launch(Dispatchers.Main) {
+            // A new (reset) measurement: the point list shrank -> drop all overlays and start fresh.
+            if (pts.size < lastKnownPointCount) clearOverlaysForNewMeasurement(currentMap)
+            lastKnownPointCount = pts.size
 
-            // Filter only points that haven't been displayed yet
-            val newPoints = pts.filter { !state.displayedPointIds.contains(it.generateHash()) }
-            if (newPoints.isEmpty()) {
-                return@launch
+            renderForCurrentZoom(currentMap, pts)
+
+            if (
+                coverageMeasurementState == null
+                || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+            ) {
+                zoomMapToFitPoints(pts, currentMap)
             }
 
-            // Switch to main thread to add markers and circles
-            withContext(Dispatchers.Main) {
-                val liveNetworkInfo =
-                    coverageMeasurementDataLiveData.value?.currentNetworkInfo as? CellNetworkInfo
-                val liveNetworkType: MobileNetworkType? = if (isMeasurementInProgress) {
-                    liveNetworkInfo?.networkType
-                } else null
-                val liveSignal: Int? = if (isMeasurementInProgress) {
-                    liveNetworkInfo?.signalStrength?.value
-                } else null
-                val livePing: Double? = if (isMeasurementInProgress) {
-                    coverageMeasurementDataLiveData.value?.currentPingMs
-                } else null
+            // The live "current fence" circle (big radius) is drawn separately and shown in both modes.
+            val liveNetworkInfo =
+                coverageMeasurementDataLiveData.value?.currentNetworkInfo as? CellNetworkInfo
+            updateLastPointCircle(
+                pts.lastOrNull(),
+                isMeasurementInProgress,
+                if (isMeasurementInProgress) liveNetworkInfo?.networkType else null,
+                if (isMeasurementInProgress) liveNetworkInfo?.signalStrength?.value else null,
+                if (isMeasurementInProgress) coverageMeasurementDataLiveData.value?.currentPingMs else null,
+                currentMap
+            )
+        }
+    }
 
-                updateFinishedPoints(pts)
-
-                val markerOptionsList =
-                    addNewMarkers(
-                        currentMap,
-                        newPoints,
-                        isMeasurementInProgress,
-                        liveNetworkType,
-                        liveSignal,
-                        livePing,
-                    )
-
-                if (
-                    coverageMeasurementState == null
-                    || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
-                ) {
-                    zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
+    /**
+     * Renders the run according to the current zoom: below [POINTS_ZOOM_THRESHOLD] as one (or a few,
+     * gap-broken) colored track polyline(s); at/above it as individual point circles, but only those
+     * inside the current viewport, so the number of live overlays stays bounded (no decimation).
+     */
+    private fun renderForCurrentZoom(
+        map: GoogleMap,
+        pts: List<FencesResultItemRecord>
+    ) {
+        val mode = if (state.zoom >= POINTS_ZOOM_THRESHOLD) RenderMode.POINTS else RenderMode.LINE
+        when (mode) {
+            RenderMode.LINE -> {
+                removeAllCircles()
+                // Rebuild the line only when entering line mode or when the point set changed.
+                if (currentRenderMode != RenderMode.LINE || polylinePointCount != pts.size) {
+                    buildTrackPolylines(map, pts)
+                    polylinePointCount = pts.size
                 }
-
-                val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
-                updateLastPointCircle(
-                    lastPoint,
-                    isMeasurementInProgress,
-                    liveNetworkType,
-                    liveSignal,
-                    livePing,
-                    currentMap
-                )
-
-                togglePointsVisibility()
             }
+            RenderMode.POINTS -> {
+                removeTrackPolylines()
+                renderPointsInViewport(map, pts)
+            }
+        }
+        currentRenderMode = mode
+    }
+
+    /** Draws the run as colored polyline(s): one span per segment, colored by signal; broken on gaps. */
+    private fun buildTrackPolylines(map: GoogleMap, pts: List<FencesResultItemRecord>) {
+        removeTrackPolylines()
+        val segLatLngs = ArrayList<LatLng>()
+        val segColors = ArrayList<Int>()
+
+        fun flush() {
+            if (segLatLngs.size >= 2) {
+                val options = PolylineOptions()
+                    .width(TRACK_LINE_WIDTH_PX)
+                    .clickable(false)
+                    .geodesic(false)
+                    .zIndex(50f)
+                    .addAll(segLatLngs)
+                // One span per segment (i-1)->i, colored by the destination point's signal.
+                for (i in 1 until segLatLngs.size) options.addSpan(StyleSpan(segColors[i]))
+                trackPolylines.add(map.addPolyline(options))
+            }
+            segLatLngs.clear()
+            segColors.clear()
+        }
+
+        var prev: LatLng? = null
+        for (point in pts) {
+            val latLng = point.toLatLng() ?: continue
+            if (prev != null && distanceMeters(prev, latLng) > TRACK_GAP_BREAK_METERS) flush()
+            segLatLngs.add(latLng)
+            segColors.add(pointColor(point))
+            prev = latLng
+        }
+        flush()
+    }
+
+    /** Adds circles only for points inside the current viewport, removing those that scrolled out. */
+    private fun renderPointsInViewport(map: GoogleMap, pts: List<FencesResultItemRecord>) {
+        val bounds = try {
+            map.projection.visibleRegion.latLngBounds
+        } catch (e: Exception) {
+            Timber.d(e, "Map projection not ready; skipping viewport point render")
+            null
+        } ?: return
+
+        val radius = calculateMarkerRadius(state.zoom)
+        val visible = HashSet<String>()
+        for (point in pts) {
+            val latLng = point.toLatLng() ?: continue
+            if (!bounds.contains(latLng)) continue
+            val hash = point.generateHash()
+            visible.add(hash)
+            if (circlesByHash.containsKey(hash)) continue
+
+            val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+            val icon = getIcon(tech, point.signalMainDbm, point.averagePingMillis)
+            val circle = map.addCircle(
+                CircleOptions()
+                    .center(latLng)
+                    .radius(radius)
+                    .strokeColor(icon["strokeColor"]!!)
+                    .strokeWidth(icon["strokeWidth"]!!.toFloat())
+                    .fillColor(icon["fillColor"]!!)
+                    .clickable(true)
+                    .zIndex(100f)
+            )
+            circle.tag = CoverageMarkerDetailsData(
+                id = point.id,
+                networkType = tech.intValue,
+                tech.displayName,
+                provider = null,
+                signalClass = null,
+                signalStrength = point.signalMainDbm,
+                pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
+                timestamp = point.fenceTimestampMillis,
+                isNotFinished = point.isNotFinished(),
+                hash = hash
+            )
+            circlesByHash[hash] = circle
+        }
+        val iterator = circlesByHash.entries.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (entry.key !in visible) {
+                entry.value.remove()
+                iterator.remove()
+            }
+        }
+    }
+
+    private fun pointColor(point: FencesResultItemRecord): Int {
+        val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+        return getIcon(tech, point.signalMainDbm, point.averagePingMillis)["fillColor"]!!
+    }
+
+    private fun distanceMeters(a: LatLng, b: LatLng): Float {
+        Location.distanceBetween(a.latitude, a.longitude, b.latitude, b.longitude, distanceResult)
+        return distanceResult[0]
+    }
+
+    private fun removeAllCircles() {
+        if (circlesByHash.isEmpty()) return
+        circlesByHash.values.forEach { it.remove() }
+        circlesByHash.clear()
+    }
+
+    private fun removeTrackPolylines() {
+        if (trackPolylines.isEmpty()) {
+            polylinePointCount = -1
+            return
+        }
+        trackPolylines.forEach { it.remove() }
+        trackPolylines.clear()
+        polylinePointCount = -1
+    }
+
+    private fun clearOverlaysForNewMeasurement(map: GoogleMap) {
+        removeAllCircles()
+        removeTrackPolylines()
+        lastMarker = null
+        currentRenderMode = null
+        map.clear()
+    }
+
+    private suspend fun zoomMapToFitPoints(pts: List<FencesResultItemRecord>, map: GoogleMap) {
+        val latLngs = pts.mapNotNull { it.toLatLng() }
+        if (latLngs.isEmpty()) return
+
+        withContext(Dispatchers.Main) { map.awaitMapLoad() }
+
+        val boundsBuilder = LatLngBounds.Builder()
+        latLngs.forEach { boundsBuilder.include(it) }
+        val bounds = boundsBuilder.build()
+        val padding = 100 // pixels
+
+        viewModelScope.launch(Dispatchers.Main) {
+            map.setMaxZoomPreference(DefaultLocation.defaultMaximumZoomLevelForCoverage)
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding))
+            map.resetMinMaxZoomPreference()
         }
     }
 
@@ -369,129 +511,28 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    private fun updateFinishedPoints(pts: List<FencesResultItemRecord>) {
-        val marker = state.markers.lastOrNull() ?: return
-        val point =
-            pts.findLast { it.generateHash() == (marker.tag as? CoverageMarkerDetailsData)?.hash } ?: return
-        if (point.isNotFinished()) return
-        val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-        val updatedData = CoverageMarkerDetailsData(
-            id = point.id,
-            networkType = tech.intValue,
-            tech.displayName,
-            provider = null,
-            signalClass = null,
-            signalStrength = point.signalMainDbm,
-            pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
-            timestamp = point.fenceTimestampMillis,
-            isNotFinished = false,
-            hash = point.generateHash()
-        )
-        marker.tag = updatedData
-
-        // refresh icon in case the technology has changed
-        val icon = getIcon(tech, point.signalMainDbm, point.averagePingMillis)
-        marker.fillColor = icon["fillColor"]!!
-    }
-
     private fun hasRecentlyClosedLastPoint(pts: List<FencesResultItemRecord>): Boolean {
-        val marker = state.markers.lastOrNull() ?: return false
-        val markerTag = marker.tag as? CoverageMarkerDetailsData ?: return false
-        if (!markerTag.isNotFinished) return false
-
-        val point = pts.findLast { it.generateHash() == markerTag.hash } ?: return false
-        return !point.isNotFinished()
-    }
-
-    private fun togglePointsVisibility() {
-        val step =
-            floor(state.displayedPointIds.size.toDouble() / MAX_MARKER_COUNT_DISPLAYED_THRESHOLD).toInt() + 1
-        if (step == lastVisibilityStep) return
-        lastVisibilityStep = step
-        state.markers.forEachIndexed { index, circle ->
-            val shouldBeVisible = index % step == 0
-            if (circle.isVisible != shouldBeVisible) {
-                circle.isVisible = shouldBeVisible
-            }
-        }
-    }
-
-    private fun addNewMarkers(
-        map: GoogleMap,
-        newPoints: List<FencesResultItemRecord>,
-        isMeasurementInProgress: Boolean,
-        liveNetworkType: MobileNetworkType?,
-        liveSignal: Int?,
-        livePing: Double?,
-    ): List<CircleOptions> {
-        val markerOptionsList = newPoints.mapIndexedNotNull { index, point ->
-            val isLastOngoingPoint = index == newPoints.lastIndex
-                    && isMeasurementInProgress
-                    && point.isNotFinished()
-            val tech = if (isLastOngoingPoint && liveNetworkType != null) {
-                liveNetworkType
-            } else {
-                MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-            }
-            val signal = if (isLastOngoingPoint) liveSignal else point.signalMainDbm
-            val ping = if (isLastOngoingPoint) livePing else point.averagePingMillis
-
-            val tagData = CoverageMarkerDetailsData(
-                id = point.id,
-                networkType = tech.intValue,
-                tech.displayName,
-                provider = null, // todo: map provider
-                signalClass = null,
-                signalStrength = signal,
-                pingMillis = (ping?.times(1000000))?.toLong(),
-                timestamp = point.fenceTimestampMillis,
-                isNotFinished = isLastOngoingPoint,
-                hash = point.generateHash()
-            )
-            val latLng = point.toLatLng() ?: return@mapIndexedNotNull null
-            val icon = getIcon(tech, signal, ping)
-            val options = CircleOptions()
-                .center(latLng)
-                .radius(calculateMarkerRadius(state.zoom))
-                .strokeColor(icon["strokeColor"]!!)
-                .strokeWidth(icon["strokeWidth"]!!.toFloat())
-                .fillColor(icon["fillColor"]!!)
-                .clickable(true)
-                .zIndex(100f)
-
-            map.addCircle(options).let { marker ->
-                marker.tag = tagData
-                state.displayedPointIds.add(point.generateHash())
-                state.markers.addLast(marker)
-            }
-            options
-        }
-        return markerOptionsList
-    }
-
-    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(
-        map: GoogleMap?,
-        pts: List<FencesResultItemRecord>
-    ) {
-        if (state.displayedPointIds.size > pts.size) {
-            clearPerformanceImprovementLists(map)
-        }
+        val last = pts.lastOrNull() ?: return false
+        val nowOngoing = last.isNotFinished()
+        val closed = lastPointWasOngoing && !nowOngoing
+        lastPointWasOngoing = nowOngoing
+        return closed
     }
 
     fun clearPerformanceImprovementLists(map: GoogleMap?) {
         updateMapJob?.cancel()
         updateMapJob = null
-        state.displayedPointIds.clear()
         state.markerDetailsDisplayed.set(false)
         viewModelScope.launch(Dispatchers.Main) {
-            // markers and map.clear() must both run on Main to avoid
-            // ConcurrentModificationException with togglePointsVisibility
-            state.markers.clear()
-            lastVisibilityStep = null
+            // Overlay mutations must run on Main to avoid concurrent modification.
+            removeAllCircles()
+            removeTrackPolylines()
+            currentRenderMode = null
+            lastKnownPointCount = 0
             lastMarker = null
             map?.clear()
         }
-        Timber.d("Lists optimisation cleared")
+        Timber.d("Coverage map overlays cleared")
     }
 
     fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String? {
