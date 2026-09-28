@@ -11,11 +11,14 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -157,6 +160,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
             updateMapState(it)
         }
 
+        // Legend of the technologies present; only re-emits (and redraws) when the set changes, so a
+        // new fence that adds no new technology causes no repaint.
+        coverageViewModel.legendLiveData.listen(this) { entries -> renderLegend(entries) }
+
         viewModel.activeSignalMeasurementLiveData.listen(this) {
             binding.isActive = it
         }
@@ -297,6 +304,42 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback,
                 coverageMeasurementData.state
             )
         }
+    }
+
+    /** Renders one legend row per technology present: a coloured dot + short generation label. */
+    private fun renderLegend(entries: List<CoverageResultViewModel.CoverageLegendEntry>) {
+        val container = binding.legendContainer
+        container.removeAllViews()
+        if (entries.isEmpty()) {
+            binding.legendCard.visibility = View.GONE
+            return
+        }
+        val density = resources.displayMetrics.density
+        val dotSize = (12 * density).toInt()
+        val gap = (6 * density).toInt()
+        val rowGap = (2 * density).toInt()
+        entries.forEach { entry ->
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, rowGap, 0, rowGap)
+            }
+            val dot = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(dotSize, dotSize).apply { marginEnd = gap }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(entry.colorInt)
+                }
+            }
+            val label = TextView(this).apply {
+                text = entry.label
+                setTextColor(ContextCompat.getColor(this@SignalMeasurementActivity, R.color.text_dark_gray))
+            }
+            row.addView(dot)
+            row.addView(label)
+            container.addView(row)
+        }
+        binding.legendCard.visibility = View.VISIBLE
     }
 
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {

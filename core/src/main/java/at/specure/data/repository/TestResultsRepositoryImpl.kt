@@ -14,6 +14,7 @@ import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.FencesResultItemRecord
+import at.specure.data.entity.History
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
@@ -28,8 +29,13 @@ import at.specure.data.toQoeModel
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import at.specure.util.exception.DataMissingException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Locale
 
@@ -48,6 +54,7 @@ class TestResultsRepositoryImpl(
     private val testResultDetailsDao = db.testResultDetailsDao()
     private val testResultGraphItemDao = db.testResultGraphItemDao()
     private val fencesResultItemDao = db.fencesResultItemDao()
+    private val historyDao = db.historyDao()
 
     override fun getQoEItems(testOpenUUID: String): LiveData<List<QoeInfoRecord>> {
         return qoeInfoDao.get(testOpenUUID)
@@ -62,6 +69,31 @@ class TestResultsRepositoryImpl(
 
     override fun getFencesDataLiveData(testUUID: String): LiveData<List<FencesResultItemRecord>> =
         fencesResultItemDao.getFencesLiveData(testUUID)
+
+    override fun getCoverageLoopSegments(loopUUID: String): List<History> =
+        historyDao.getItemByLoopUUID(loopUUID)
+            .filter { it.isCoverageResult == true }
+            .sortedBy { it.time } // chronological -> track order
+
+    override suspend fun loadWholeLoopFences(loopUUID: String): List<FencesResultItemRecord> =
+        withContext(Dispatchers.IO) {
+            val segments = getCoverageLoopSegments(loopUUID)
+            // Fetch (in parallel) any segment whose fences aren't cached locally yet.
+            segments.map { segment ->
+                async {
+                    if (fencesResultItemDao.getFences(segment.testUUID).isEmpty()) {
+                        try {
+                            loadTestResults(segment.testUUID).collect { }
+                        } catch (e: Exception) {
+                            if (e is CancellationException) throw e
+                            Timber.w(e, "Failed to load fences for loop segment ${segment.testUUID}")
+                        }
+                    }
+                }
+            }.awaitAll()
+            // Concatenate in segment (chronological) order; each segment's fences are offset-ordered.
+            segments.flatMap { fencesResultItemDao.getFences(it.testUUID) }
+        }
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
 
@@ -78,6 +110,7 @@ class TestResultsRepositoryImpl(
     }
 
     @Deprecated("use open data instead")
+    @Suppress("DEPRECATION") // this function is itself deprecated; it still uses the legacy endpoint
     override fun loadTestDetailsResult(testUUID: String) = flow {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {

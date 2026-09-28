@@ -98,6 +98,11 @@
             android:theme="@style/PreferenceTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <activity
+            android:name=".ui.activity.CoverageLoopSegmentsActivity"
+            android:theme="@style/PreferenceTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
         <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
 
         <activity android:name=".ui.activity.ShowWebViewActivity" />

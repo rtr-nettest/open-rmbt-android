@@ -455,4 +455,9 @@
     <string name="signal_measurement_mobile_network_required_title">Rete mobile necessaria</string>
     <string name="signal_measurement_airplane_mode_active">La modalità aereo è attiva. Disattivala — la misurazione del segnale richiede una rete mobile attiva.</string>
     <string name="signal_measurement_mobile_data_disabled">I dati mobili sono disattivati. Attivali — la misurazione del segnale richiede una rete mobile attiva.</string>
+    <string name="coverage_details_button">Dettagli</string>
+    <string name="coverage_segments_title">Segmenti di misura</string>
+    <string name="segment_result_title">Risultato del segmento</string>
+    <string name="velocity">Velocità</string>
+    <string name="velocity_kmh">%1$d km/h</string>
 </resources>

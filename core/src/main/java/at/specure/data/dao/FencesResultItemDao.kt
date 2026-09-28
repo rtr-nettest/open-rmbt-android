@@ -16,6 +16,9 @@ abstract class FencesResultItemDao {
     @Query("SELECT * from ${Tables.FENCES_RESULT_ITEM} WHERE testUUID == :testUUID ORDER BY offsetMillis ASC ")
     abstract fun getFencesLiveData(testUUID: String): LiveData<List<FencesResultItemRecord>>
 
+    @Query("SELECT * from ${Tables.FENCES_RESULT_ITEM} WHERE testUUID == :testUUID ORDER BY offsetMillis ASC ")
+    abstract fun getFences(testUUID: String): List<FencesResultItemRecord>
+
     @Query("DELETE FROM ${Tables.FENCES_RESULT_ITEM} WHERE (testUUID == :testOpenUUID)")
     abstract fun removeFenceItem(testOpenUUID: String): Int
 

@@ -38,23 +38,24 @@
                 android:id="@+id/buttonBack"
                 android:layout_width="@dimen/toolbar_button_size"
                 android:layout_height="@dimen/toolbar_button_size"
-                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@null"
                 android:scaleType="center"
-                android:src="@drawable/ic_back"
+                android:src="@drawable/ic_close"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/title"
                 style="@style/TextAppearance.AppCompat.Title"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
                 android:contentDescription="@string/title_test_details"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/buttonBack"
+                app:layout_constraintEnd_toStartOf="@+id/buttonBack"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Test details" />
 

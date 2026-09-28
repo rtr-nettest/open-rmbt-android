@@ -1234,6 +1234,8 @@ data class FenceResponseBody(
     val averagePingMillis: Double?,
     @SerializedName("fence_time")
     val fenceTimeMillis: Long?, // absolute client time in millis
+    @SerializedName("speed")
+    val speedMetersPerSecond: Float? = null, // travel velocity within the fence, in meters per second
 )
 
 @Keep

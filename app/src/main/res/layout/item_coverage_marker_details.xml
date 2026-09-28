@@ -126,16 +126,30 @@
                 style="@style/RobotoRegularStyle.VerySmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_large"
                 android:text="@string/label_signal_strength"
                 android:textColor="@color/text_gray_transparency_60"
                 app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomPing"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/labelVelocity"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_weight="2"
                 app:layout_constraintStart_toEndOf="@+id/labelResultBottomPing"
                 app:layout_constraintTop_toBottomOf="@id/testTime"
                 app:layout_constraintTop_toTopOf="@+id/labelResultBottomPing" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelVelocity"
+                style="@style/RobotoRegularStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:text="@string/velocity"
+                android:textColor="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomPing"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/labelResultBottomSignal"
+                app:layout_constraintTop_toTopOf="@+id/labelResultBottomSignal" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/textProvider"
@@ -192,10 +206,9 @@
                 style="@style/RobotoMediumStyle.VerySmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_large"
                 android:drawablePadding="@dimen/padding_very_small"
                 android:maxLines="1"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textVelocity"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_weight="2"
                 app:layout_constraintStart_toEndOf="@+id/textPing"
@@ -205,6 +218,21 @@
                 app:finalValue="@{!item.notFinished}"
                 tools:drawableStart="@drawable/ic_small_wifi_gray"
                 tools:text="-86 dBm" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textVelocity"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:maxLines="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/textSignal"
+                app:layout_constraintTop_toBottomOf="@+id/labelVelocity"
+                app:speedMps="@{item.speedMetersPerSecond}"
+                tools:text="42 km/h" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

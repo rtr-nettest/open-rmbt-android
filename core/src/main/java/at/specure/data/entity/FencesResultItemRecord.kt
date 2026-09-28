@@ -23,6 +23,7 @@ data class FencesResultItemRecord(
     val averagePingMillis: Double?,
     val fenceTimestampMillis: Long?,
     val signalMainDbm: Int?,
+    val speedMetersPerSecond: Float? = null, // travel velocity within the fence, in meters per second
 )
 
 fun FencesResultItemRecord.generateHash(): String {

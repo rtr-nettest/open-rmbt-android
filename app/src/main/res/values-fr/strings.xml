@@ -442,4 +442,9 @@
     <string name="signal_measurement_mobile_network_required_title">Réseau mobile requis</string>
     <string name="signal_measurement_airplane_mode_active">Le mode avion est activé. Veuillez le désactiver — une mesure du signal nécessite un réseau mobile actif.</string>
     <string name="signal_measurement_mobile_data_disabled">Les données mobiles sont désactivées. Veuillez les activer — une mesure du signal nécessite un réseau mobile actif.</string>
+    <string name="coverage_details_button">Détails</string>
+    <string name="coverage_segments_title">Segments de mesure</string>
+    <string name="segment_result_title">Résultat du segment</string>
+    <string name="velocity">Vitesse</string>
+    <string name="velocity_kmh">%1$d km/h</string>
 </resources>

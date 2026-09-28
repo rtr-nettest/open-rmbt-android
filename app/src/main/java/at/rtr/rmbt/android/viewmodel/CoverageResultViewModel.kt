@@ -15,6 +15,7 @@ import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.FencesResultItemRecord
+import at.specure.data.entity.History
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.generateHash
@@ -31,6 +32,7 @@ import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementSt
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
 import at.specure.util.map.blendedColorInt
+import at.specure.util.map.colorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import android.location.Location
@@ -109,6 +111,73 @@ class CoverageResultViewModel @Inject constructor(
         get() {
             return testResultsRepository.getFencesDataLiveData(state.testUUID)
         }
+
+    /** loopUUID of the measurement currently shown in "whole loop" mode (null in single-segment mode). */
+    var loopUUID: String? = null
+        private set
+
+    // Fences of every segment of a loop, concatenated in track order. Populated in whole-loop mode.
+    private val _wholeLoopFencesLiveData = MutableLiveData<List<FencesResultItemRecord>>()
+    val wholeLoopFencesLiveData: LiveData<List<FencesResultItemRecord>>
+        get() = _wholeLoopFencesLiveData
+
+    // The individual segments (History rows) of a loop, for the "Details" segment list.
+    private val _loopSegmentsLiveData = MutableLiveData<List<History>>()
+    val loopSegmentsLiveData: LiveData<List<History>>
+        get() = _loopSegmentsLiveData
+
+    /** Loads and aggregates all fences of every segment of [loopUUID] into [wholeLoopFencesLiveData]. */
+    fun loadWholeLoopMeasurement(loopUUID: String) = launch(CoroutineName("LoadWholeLoopFences")) {
+        this@CoverageResultViewModel.loopUUID = loopUUID
+        val fences = testResultsRepository.loadWholeLoopFences(loopUUID)
+        _wholeLoopFencesLiveData.postValue(fences)
+    }
+
+    /** Loads the segment (History) rows of [loopUUID] into [loopSegmentsLiveData]. */
+    fun loadLoopSegments(loopUUID: String) = launch(CoroutineName("LoadLoopSegments")) {
+        val segments = withContext(Dispatchers.IO) {
+            testResultsRepository.getCoverageLoopSegments(loopUUID)
+        }
+        _loopSegmentsLiveData.postValue(segments)
+    }
+
+    /** One legend row: the (full-signal) technology colour and its short generation label. */
+    data class CoverageLegendEntry(val colorInt: Int, val label: String)
+
+    private val _legendLiveData = MutableLiveData<List<CoverageLegendEntry>>()
+    val legendLiveData: LiveData<List<CoverageLegendEntry>>
+        get() = _legendLiveData
+
+    // Fixed ordering so the legend reads 2G -> 5G SA regardless of the order points were recorded.
+    private val legendRank = listOf("2G", "3G", "4G", "5G NSA", "5G", "5G SA")
+    // Last legend emitted, so a live measurement only re-emits (and the UI only redraws) when the set
+    // of technologies actually changes - a new fence usually adds no new technology.
+    private var lastLegend: List<CoverageLegendEntry>? = null
+
+    /**
+     * Builds the map legend from the technologies actually present in [pts] (colours used only).
+     * Each distinct generation ("2G".."5G SA") contributes one entry with its base technology colour.
+     * Only emits when the result differs from the previously emitted legend.
+     */
+    fun buildLegend(pts: List<FencesResultItemRecord>?) {
+        val points = pts ?: return
+        val labelToColor = LinkedHashMap<String, Int>()
+        for (point in points) {
+            val type = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+            val label = type.generationDisplayName(nrFlavor = true)
+            // Ignore the generic "MOBILE" and "OFFLINE" buckets - they carry no meaningful
+            // technology colour.
+            if (label.equals("MOBILE", ignoreCase = true) || label.equals("OFFLINE", ignoreCase = true)) continue
+            labelToColor.getOrPut(label) { type.colorInt() }
+        }
+        val entries = labelToColor.entries
+            .sortedBy { entry -> legendRank.indexOf(entry.key).let { if (it < 0) Int.MAX_VALUE else it } }
+            .map { CoverageLegendEntry(it.value, it.key) }
+        if (entries != lastLegend) {
+            lastLegend = entries
+            _legendLiveData.postValue(entries)
+        }
+    }
 
     val testResultDetailsLiveData: LiveData<List<TestResultDetailsRecord>>
         get() {
@@ -259,6 +328,9 @@ class CoverageResultViewModel @Inject constructor(
 
         val currentMap = map ?: return
         val pts = points ?: return
+        // Keep the legend in sync with the technologies present (both on the result map and during a
+        // live measurement); cheap and independent of the map-render throttle below.
+        buildLegend(pts)
         val isMeasurementInProgress =
             coverageMeasurementState != null && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
         val shouldForceUpdate = hasRecentlyClosedLastPoint(pts)
@@ -389,14 +461,17 @@ class CoverageResultViewModel @Inject constructor(
             circle.tag = CoverageMarkerDetailsData(
                 id = point.id,
                 networkType = tech.intValue,
-                tech.displayName,
+                // Generation-flavoured label (e.g. "5G NSA", "4G", "5G SA") rather than the raw
+                // radio-access name ("NR NSA", "LTE", "NR").
+                tech.generationDisplayName(nrFlavor = true),
                 provider = null,
                 signalClass = null,
                 signalStrength = point.signalMainDbm,
                 pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                 timestamp = point.fenceTimestampMillis,
                 isNotFinished = point.isNotFinished(),
-                hash = hash
+                hash = hash,
+                speedMetersPerSecond = point.speedMetersPerSecond
             )
             circlesByHash[hash] = circle
         }

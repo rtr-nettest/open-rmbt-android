@@ -30,7 +30,6 @@ import at.rtr.rmbt.android.databinding.ItemHistoryFencesLoopBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.util.gone
-import at.rtr.rmbt.android.util.invisible
 import at.rtr.rmbt.android.util.visible
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
@@ -46,6 +45,8 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
     private val expandedItemsMap = mutableMapOf<Int, Boolean>()
 
     var actionCallback: ((History) -> Unit)? = null
+    // Tapping a coverage loop row opens the whole-loop view instead of the inline segment list.
+    var loopActionCallback: ((History) -> Unit)? = null
     var pendingAnimationCallback: (() -> Unit)? = null
 
     override fun getItemViewType(position: Int): Int {
@@ -80,6 +81,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         getItem(position)?.let { item ->
+            if (holder is CoverageLoopHolder) holder.loopActionCallback = loopActionCallback
             holder.bind(position, item, expandedItemsMap, actionCallback, pendingAnimationCallback)
         }
     }
@@ -176,13 +178,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
 
     class CoverageLoopHolder(val binding: ItemHistoryFencesLoopBinding) : Holder(binding.root) {
 
-        private var animation: ViewPropertyAnimator? = null
-        private val adapter = HistoryAdapter()
-
-        init {
-            binding.recyclerView.layoutManager = LinearLayoutManager(binding.recyclerView.context)
-            binding.recyclerView.adapter = adapter
-        }
+        var loopActionCallback: ((History) -> Unit)? = null
 
         override fun bind(
             position: Int,
@@ -195,63 +191,25 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
                 return
             }
 
-            val fencesSum = item.items
-                .mapNotNull { it.fencesCount }
-                .sum() ?: 0
-
-            binding.fencesCountSum.text = fencesSum.toString()
-
             binding.fencesCountSum.text = item.items
-                ?.mapNotNull { it?.fencesCount }
-                ?.sum()
-                ?.toString()
-                ?: "0"
+                .mapNotNull { it.fencesCount }
+                .sum()
+                .toString()
 
             binding.item = item.items.last()
 
-            animation?.cancel()
-
-            adapter.items = item.items
-            adapter.actionCallback = actionCallback
-
-            val isExpanded = expandedItemsMap[position] ?: false
-
-            if (isExpanded) {
-                binding.imageSignal.invisible()
-                binding.fencesCountSum.invisible()
-                binding.points.invisible()
-                binding.imageExpand.rotation = 180f
-                binding.recyclerView.visible()
-            } else {
-                binding.imageSignal.visible()
-                binding.fencesCountSum.visible()
-                binding.points.visible()
-                binding.imageExpand.rotation = 0f
-                binding.recyclerView.gone()
-            }
+            // The inline segment list is no longer shown here; a tap opens the whole-loop map view.
+            // The segment list is reachable from there via the "Details" button. The expand chevron
+            // (which indicated the obsolete "open inline list" affordance) is hidden.
+            binding.imageSignal.visible()
+            binding.fencesCountSum.visible()
+            binding.points.visible()
+            binding.imageExpand.gone()
+            binding.recyclerView.gone()
             binding.invalidateAll()
 
             binding.root.setOnClickListener {
-                val expanded = expandedItemsMap[position] ?: false
-                expandedItemsMap[position] = !expanded
-
-                val anim = binding.imageExpand.animate()
-                if (expanded) {
-                    anim.rotation(0f)
-                    binding.recyclerView.gone()
-                    binding.imageSignal.visible()
-                    binding.fencesCountSum.visible()
-                    binding.points.visible()
-                } else {
-                    anim.rotation(180f)
-                    binding.recyclerView.visible()
-                    binding.imageSignal.invisible()
-                    binding.fencesCountSum.invisible()
-                    binding.points.invisible()
-                }
-                pendingAnimationCallback?.invoke()
-                animation = anim
-                anim.start()
+                loopActionCallback?.invoke(item.items.first())
             }
         }
     }

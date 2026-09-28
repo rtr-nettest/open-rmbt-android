@@ -575,6 +575,11 @@
     <string name="coverage_measurement_error_no_connectivity">There was no network connectivity for %1$d min, giving up. Please try in an area with coverage.</string>
     <string name="dismiss">Dismiss</string>
     <string name="signal_result_title">Signal measurement result</string>
+    <string name="coverage_details_button">Details</string>
+    <string name="coverage_segments_title">Measurement segments</string>
+    <string name="segment_result_title">Segment result</string>
+    <string name="velocity">Velocity</string>
+    <string name="velocity_kmh">%1$d km/h</string>
     <string name="text_fence_radius">Point radius factor:</string>
     <string name="text_meters">%1$d m</string>
     <string name="fence_radius_slider_content_description">Point radius slider value %1$d meters</string>

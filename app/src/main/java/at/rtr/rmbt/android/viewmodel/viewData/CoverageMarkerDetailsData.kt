@@ -13,4 +13,5 @@ data class CoverageMarkerDetailsData(
     val timestamp: Long?,
     val isNotFinished: Boolean,
     val hash: String? = null,
+    val speedMetersPerSecond: Float? = null,
 )

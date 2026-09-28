@@ -1548,6 +1548,16 @@ fun AppCompatTextView.setTimeAs24h(time: Long) {
     text = SimpleDateFormat("dd.MM.yy, HH:mm:ss", Locale.US).format(Date(time))
 }
 
+/** Formats a travel velocity given in meters per second as an integer km/h value (dash if null). */
+@BindingAdapter("speedMps")
+fun AppCompatTextView.setSpeedMps(speedMps: Float?) {
+    text = if (speedMps == null) {
+        context.getString(R.string.measurement_dash)
+    } else {
+        context.getString(R.string.velocity_kmh, Math.round(speedMps * 3.6f))
+    }
+}
+
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)
 fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signalStrengthClassificationResult: Classification) {
 

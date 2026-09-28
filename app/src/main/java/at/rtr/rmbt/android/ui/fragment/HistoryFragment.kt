@@ -3,11 +3,9 @@ package at.rtr.rmbt.android.ui.fragment
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -75,6 +73,17 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
                 ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
             }
 
+        }
+
+        // Tapping a coverage loop row opens the whole-loop map (all segments combined). If the loop
+        // has no loopUUID (shouldn't happen), fall back to the single segment result.
+        adapter.loopActionCallback = {
+            val loopUUID = it.loopUUID
+            if (loopUUID.isNullOrEmpty()) {
+                CoverageResultsActivity.start(requireContext(), it.testUUID)
+            } else {
+                CoverageResultsActivity.startWholeLoop(requireContext(), loopUUID)
+            }
         }
 
         adapter.pendingAnimationCallback = {

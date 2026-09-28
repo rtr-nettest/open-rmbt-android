@@ -134,9 +134,9 @@ fun Float.toSpeedValue(): String {
     val value = this / 1000f // from kbps to Mbps
     return when {
         value <= 0 -> value.roundToInt().toString()
-        value < 1 -> String.format("%.3f", value)
-        value < 10 -> String.format("%.2f", value)
-        value < 100 -> String.format("%.1f", value)
+        value < 1 -> String.format(Locale.getDefault(), "%.3f", value)
+        value < 10 -> String.format(Locale.getDefault(), "%.2f", value)
+        value < 100 -> String.format(Locale.getDefault(), "%.1f", value)
         else -> value.roundToInt().toString()
     }
 }
@@ -144,8 +144,8 @@ fun Float.toSpeedValue(): String {
 private fun Float.toFormattedPing(): String {
     return when {
         this <= 0 -> this.roundToInt().toString()
-        this < 10 -> String.format("%.2f", this)
-        this < 100 -> String.format("%.1f", this)
+        this < 10 -> String.format(Locale.getDefault(), "%.2f", this)
+        this < 100 -> String.format(Locale.getDefault(), "%.1f", this)
         else -> this.roundToInt().toString()
     }
 }
@@ -253,6 +253,7 @@ fun FenceResponseBody.toModel(testUUID: String): FencesResultItemRecord {
         averagePingMillis = this.averagePingMillis,
         fenceTimestampMillis = this.fenceTimeMillis,
         signalMainDbm = this.signalMainDbm,
+        speedMetersPerSecond = this.speedMetersPerSecond,
     )
 }
 
