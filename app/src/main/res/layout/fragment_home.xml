@@ -169,7 +169,7 @@
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
-            app:visibleOrGone='@{state.expertModeIsEnabled}' />
+            app:visibleOrGone='@{state.developerModeIsEnabled &amp;&amp; state.selectedMeasurementServer != null}' />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_info"
