@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.viewmodel
 
+import android.graphics.Color
 import android.os.SystemClock
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.LiveData
@@ -31,8 +32,9 @@ import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
-import at.specure.util.map.blendedColorInt
+import at.specure.util.map.OFFLINE_GRAY
 import at.specure.util.map.colorInt
+import at.specure.util.map.signalBlendedColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import android.location.Location
@@ -73,6 +75,9 @@ const val POINTS_ZOOM_THRESHOLD = 14f
 // bridging lines across gaps, e.g. after a pause or loss of coverage).
 const val TRACK_GAP_BREAK_METERS = 500f
 const val TRACK_LINE_WIDTH_PX = 12f
+// Outline width of an ongoing ("current") fence, drawn as a hollow ring until it is finished.
+// Wide enough to read clearly as a ring (not just a thin-outlined circle).
+const val RING_STROKE_WIDTH_PX = 8f
 
 
 class CoverageResultViewModel @Inject constructor(
@@ -244,18 +249,31 @@ class CoverageResultViewModel @Inject constructor(
     private fun getIcon(
         type: MobileNetworkType,
         signalDbm: Int? = null,
-        pingMillis: Double? = null
+        pingMillis: Double? = null,
+        isFinished: Boolean = true
     ): Map<String, Int> {
-        val fillColor = type.blendedColorInt(
-            signalDbm,
-            pingMillis
-        )
-
         return mapOf(
             "strokeColor" to "#ffffff".toColorInt(),
             "strokeWidth" to 1,
-            "fillColor" to fillColor,
+            "fillColor" to fenceFillColor(type, signalDbm, pingMillis, isFinished),
         )
+    }
+
+    /**
+     * Fence fill colour rules:
+     *  - While the fence is still ongoing, a missing ping does NOT mean grey: colour by technology,
+     *    blended by signal when the signal is known, full technology colour when it isn't.
+     *  - Only once the fence is finished and it never got a ping response is it painted grey
+     *    (no confirmed connectivity). A finished fence with a ping is coloured by technology + signal.
+     */
+    private fun fenceFillColor(
+        type: MobileNetworkType,
+        signalDbm: Int?,
+        pingMillis: Double?,
+        isFinished: Boolean
+    ): Int {
+        if (isFinished && pingMillis == null) return OFFLINE_GRAY.toColorInt()
+        return if (signalDbm == null) type.colorInt() else type.signalBlendedColorInt(signalDbm)
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
@@ -444,35 +462,42 @@ class CoverageResultViewModel @Inject constructor(
             if (!bounds.contains(latLng)) continue
             val hash = point.generateHash()
             visible.add(hash)
-            if (circlesByHash.containsKey(hash)) continue
 
             val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-            val icon = getIcon(tech, point.signalMainDbm, point.averagePingMillis)
+            val ongoing = point.isNotFinished()
+            val color = fenceFillColor(tech, point.signalMainDbm, point.averagePingMillis, !ongoing)
+            // Current (ongoing) fence: draw as a hollow ring (coloured outline, transparent fill) so
+            // its final fill colour - which may turn grey if no ping response ever arrives - is only
+            // shown once the fence is finished. Finished fence: filled disc with a thin white outline.
+            val fill = if (ongoing) Color.TRANSPARENT else color
+            val stroke = if (ongoing) color else "#ffffff".toColorInt()
+            val strokeWidth = if (ongoing) RING_STROKE_WIDTH_PX else 1f
+
+            val existing = circlesByHash[hash]
+            if (existing != null) {
+                // The point hash (id/radius/offset) does not depend on signal/ping/finished-state, so
+                // refresh the appearance in place as the fence gains signal/ping and finishes -
+                // otherwise a point only corrected itself on a zoom/pan-triggered full redraw.
+                if (existing.fillColor != fill || existing.strokeColor != stroke) {
+                    existing.fillColor = fill
+                    existing.strokeColor = stroke
+                    existing.strokeWidth = strokeWidth
+                    existing.tag = buildMarkerData(point, tech, hash)
+                }
+                continue
+            }
+
             val circle = map.addCircle(
                 CircleOptions()
                     .center(latLng)
                     .radius(radius)
-                    .strokeColor(icon["strokeColor"]!!)
-                    .strokeWidth(icon["strokeWidth"]!!.toFloat())
-                    .fillColor(icon["fillColor"]!!)
+                    .strokeColor(stroke)
+                    .strokeWidth(strokeWidth)
+                    .fillColor(fill)
                     .clickable(true)
                     .zIndex(100f)
             )
-            circle.tag = CoverageMarkerDetailsData(
-                id = point.id,
-                networkType = tech.intValue,
-                // Generation-flavoured label (e.g. "5G NSA", "4G", "5G SA") rather than the raw
-                // radio-access name ("NR NSA", "LTE", "NR").
-                tech.generationDisplayName(nrFlavor = true),
-                provider = null,
-                signalClass = null,
-                signalStrength = point.signalMainDbm,
-                pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
-                timestamp = point.fenceTimestampMillis,
-                isNotFinished = point.isNotFinished(),
-                hash = hash,
-                speedMetersPerSecond = point.speedMetersPerSecond
-            )
+            circle.tag = buildMarkerData(point, tech, hash)
             circlesByHash[hash] = circle
         }
         val iterator = circlesByHash.entries.iterator()
@@ -485,9 +510,30 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
+    /** Tooltip data for a fence point (generation-flavoured tech label, signal, ping, speed, ...). */
+    private fun buildMarkerData(
+        point: FencesResultItemRecord,
+        tech: MobileNetworkType,
+        hash: String
+    ) = CoverageMarkerDetailsData(
+        id = point.id,
+        networkType = tech.intValue,
+        // Generation-flavoured label (e.g. "5G NSA", "4G", "5G SA") rather than the raw
+        // radio-access name ("NR NSA", "LTE", "NR").
+        tech.generationDisplayName(nrFlavor = true),
+        provider = null,
+        signalClass = null,
+        signalStrength = point.signalMainDbm,
+        pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
+        timestamp = point.fenceTimestampMillis,
+        isNotFinished = point.isNotFinished(),
+        hash = hash,
+        speedMetersPerSecond = point.speedMetersPerSecond
+    )
+
     private fun pointColor(point: FencesResultItemRecord): Int {
         val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-        return getIcon(tech, point.signalMainDbm, point.averagePingMillis)["fillColor"]!!
+        return getIcon(tech, point.signalMainDbm, point.averagePingMillis, !point.isNotFinished())["fillColor"]!!
     }
 
     private fun distanceMeters(a: LatLng, b: LatLng): Float {
@@ -560,7 +606,7 @@ class CoverageResultViewModel @Inject constructor(
             val ping =
                 if (isMeasurementInProgress && point.isNotFinished()) livePing else point.averagePingMillis
 
-            val icon = getIcon(tech, signal, ping)
+            val icon = getIcon(tech, signal, ping, !point.isNotFinished())
             val colorInt = icon["fillColor"]!!
             val fillColor = makeSemiTransparent(colorInt)
             val radius = point.fenceRadiusMeters ?: 0.0

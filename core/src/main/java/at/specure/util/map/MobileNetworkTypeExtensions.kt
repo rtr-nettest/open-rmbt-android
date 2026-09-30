@@ -53,11 +53,19 @@ fun MobileNetworkType.colorInt(): Int {
 }
 
 fun MobileNetworkType.blendedColorInt(signalDbm: Int?, ping: Double?): Int {
+    if (ping == null || signalDbm == null) {
+        return OFFLINE_GRAY.toColorInt()
+    }
+    return this.signalBlendedColorInt(signalDbm)
+}
+
+/**
+ * Technology colour scaled by signal strength only (no ping gate): [OFFLINE_GRAY] at/below
+ * [MIN_SIGNAL], the full technology colour at/above [MAX_SIGNAL], blended in between.
+ */
+fun MobileNetworkType.signalBlendedColorInt(signalDbm: Int): Int {
     val colorMax = this.colorInt()
     val colorMin = OFFLINE_GRAY.toColorInt()
-    if (ping == null || signalDbm == null) {
-        return colorMin
-    }
     val clampedSignal = signalDbm.coerceIn(MIN_SIGNAL, MAX_SIGNAL)
 
     // Calculate blend factor (0 at min, 1 at max)
