@@ -391,6 +391,14 @@ class HomeViewModel @Inject constructor(
         return state.isSignalMeasurementActive.get() == true
     }
 
+    /**
+     * True once the signal measurement has actually begun recording (past the waiting/preparing
+     * phase). Read synchronously from the singleton processor, so it is reliable even when the
+     * active-state LiveData edge was missed because the screen was off when recording began - the
+     * waiting screen uses it to reconcile and hand off on resume.
+     */
+    fun isSignalMeasurementActive(): Boolean = signalMeasurementProcessor.isActive
+
     fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
         coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
     }

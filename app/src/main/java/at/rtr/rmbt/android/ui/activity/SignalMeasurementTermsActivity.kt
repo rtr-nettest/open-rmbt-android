@@ -267,6 +267,18 @@ class SignalMeasurementTermsActivity : BaseActivity() {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Reconcile the hand-off on resume: if recording already began while this screen was off/locked
+        // (the "GPS good" trigger fired without the active-state observer delivering the edge), hand off
+        // to the measurement UI now instead of leaving the user on a stale "waiting" screen. Otherwise
+        // the user, still seeing the waiting screen, taps "Abort" - which actually stops an already
+        // running measurement and surprises them with its result screen.
+        if (waitingForStatus && !handedOff && viewModel.isSignalMeasurementActive()) {
+            handOffToMeasurement()
+        }
+    }
+
     private fun handOffToMeasurement() {
         if (handedOff) return
         handedOff = true
