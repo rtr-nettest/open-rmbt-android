@@ -218,28 +218,23 @@ class SignalMeasurementTermsActivity : BaseActivity() {
     private fun updateReadinessStatus() {
         if (!waitingForStatus) return
 
-        // Three distinct GPS states, text and color derived from the SAME facts so they never disagree:
+        // Green/red is decided by the SAME predicate the measurement start uses
+        // (HomeViewModel.isGpsQualitySufficientForSignalMeasurement -> raw accuracy <= threshold and
+        // fresh enough), so the row can never read "ok" while recording is still waiting for a better
+        // fix. The accuracy number below is only shown in the failure message; rounding it there is
+        // cosmetic and never feeds the decision. Three distinct GPS states:
         //  - stale / no usable fix  -> "GPS: stale" (red)
         //  - fresh but too inaccurate -> the accuracy value vs. the limit (red)
         //  - fresh and within the limit -> "GPS: ok" (green)
-        // The green case is exactly the GPS half of the start criterion.
         val threshold = viewModel.signalMeasurementAccuracyThresholdMeters
         val accuracy = viewModel.currentGpsAccuracyMeters()
-        val gpsOk: Boolean
-        val gpsText: String
-        when {
-            accuracy == null || !viewModel.isGpsFixFresh() -> {
-                gpsOk = false
-                gpsText = getString(R.string.signal_readiness_gps_stale)
-            }
-            accuracy.roundToInt() > threshold -> {
-                gpsOk = false
-                gpsText = getString(R.string.signal_readiness_gps_accuracy, accuracy.roundToInt(), threshold)
-            }
-            else -> {
-                gpsOk = true
-                gpsText = getString(R.string.signal_readiness_gps_ok)
-            }
+        val gpsOk = viewModel.isGpsQualitySufficientForSignalMeasurement()
+        val gpsText: String = when {
+            gpsOk -> getString(R.string.signal_readiness_gps_ok)
+            accuracy == null || !viewModel.isGpsFixFresh() ->
+                getString(R.string.signal_readiness_gps_stale)
+            else ->
+                getString(R.string.signal_readiness_gps_accuracy, accuracy.roundToInt(), threshold)
         }
         applyStatusRow(binding.gpsStatusText, gpsOk, gpsText)
 

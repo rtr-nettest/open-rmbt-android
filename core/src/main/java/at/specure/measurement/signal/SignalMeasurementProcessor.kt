@@ -18,6 +18,7 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
+import at.specure.location.util.meetsSignalMeasurementGpsCriteria
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.data.getCombinedSignalStrengthValue
 import at.specure.measurement.coverage.data.getMobileNetworkType
@@ -375,10 +376,7 @@ class SignalMeasurementProcessor @Inject constructor(
      */
     private fun isReadyToBegin(): Boolean {
         val location = globalLocationInfo ?: locationWatcher.latestLocation ?: return false
-        if (!location.hasAccuracy) return false
-        val ageMillis = location.ageNanos / 1_000_000L
-        val gpsOk = location.accuracy <= config.minLocationAccuracyMetersDuringSignalMeasurement &&
-            ageMillis <= config.maxAgeOfLocationInformationForSignalMeasurementMillis
+        val gpsOk = location.meetsSignalMeasurementGpsCriteria(config)
 
         val network = (globalNetworkInfo ?: signalStrengthWatcher.lastDetailedNetworkInfo)?.networkInfo
         val networkOk = network is CellNetworkInfo &&

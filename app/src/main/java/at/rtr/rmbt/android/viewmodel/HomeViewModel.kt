@@ -33,6 +33,7 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
+import at.specure.location.util.meetsSignalMeasurementGpsCriteria
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.data.dao.CoverageSignalSampleDao
 import at.specure.measurement.signal.CoverageSignalSample
@@ -466,13 +467,8 @@ class HomeViewModel @Inject constructor(
      * The signal measurement uses GNSS only, so this is evaluated against the GPS-only watcher - never
      * the combined one, which could otherwise green-light a start on a network/fused fix.
      */
-    fun isGpsQualitySufficientForSignalMeasurement(): Boolean {
-        val location = currentGpsLocation() ?: return false
-        if (!location.hasAccuracy) return false
-        val ageMillis = location.ageNanos / 1_000_000L
-        return location.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement &&
-            ageMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
-    }
+    fun isGpsQualitySufficientForSignalMeasurement(): Boolean =
+        currentGpsLocation()?.meetsSignalMeasurementGpsCriteria(appConfig) ?: false
 
     /**
      * Latest GNSS-only fix, or null. Prefers the live LiveData value (what the still-observed source
