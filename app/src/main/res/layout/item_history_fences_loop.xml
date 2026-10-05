@@ -78,8 +78,8 @@
             android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
             android:textColor="@color/text_dark_gray"
             app:layout_constraintStart_toStartOf="@+id/pointsGuideline"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+            app:layout_constraintTop_toTopOf="@+id/textTime"
+            app:layout_constraintBottom_toBottomOf="@+id/textTime"
             tools:text="238" />
 
         <androidx.appcompat.widget.AppCompatTextView
