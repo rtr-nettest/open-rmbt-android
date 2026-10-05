@@ -374,9 +374,33 @@ class SignalMeasurementProcessor @Inject constructor(
      * own listeners to deliver the next callback. The cached values are only used for this decision -
      * they are never recorded as a fence.
      */
+    /**
+     * The GNSS-only fix the signal-measurement start logic is currently evaluating, or null. This is
+     * the single source of truth for "which location": the readiness UI reads it (through the view
+     * model) so the display and the actual start can never evaluate a different fix. Prefers the live
+     * value delivered to this processor's own listener (set while a measurement is running), falling
+     * back to the watcher's live LiveData value and finally its last-known cached fix.
+     */
+    fun currentSignalMeasurementGpsLocation(): LocationInfo? =
+        globalLocationInfo ?: locationWatcher.liveData.value ?: locationWatcher.latestLocation
+
+    /** Current GNSS accuracy (meters) of [currentSignalMeasurementGpsLocation], or null if no fix. */
+    fun currentSignalMeasurementGpsAccuracyMeters(): Float? =
+        currentSignalMeasurementGpsLocation()?.takeIf { it.hasAccuracy }?.accuracy
+
+    /** True when the current GNSS fix is fresh enough (age within the configured limit) to be usable. */
+    fun isSignalMeasurementGpsFixFresh(): Boolean {
+        val location = currentSignalMeasurementGpsLocation() ?: return false
+        val ageMillis = location.ageNanos / 1_000_000L
+        return ageMillis <= config.maxAgeOfLocationInformationForSignalMeasurementMillis
+    }
+
+    /** True when the current GNSS fix meets the GPS criteria to begin a signal measurement. */
+    fun isGpsQualitySufficientForSignalMeasurement(): Boolean =
+        currentSignalMeasurementGpsLocation()?.meetsSignalMeasurementGpsCriteria(config) ?: false
+
     private fun isReadyToBegin(): Boolean {
-        val location = globalLocationInfo ?: locationWatcher.latestLocation ?: return false
-        val gpsOk = location.meetsSignalMeasurementGpsCriteria(config)
+        val gpsOk = isGpsQualitySufficientForSignalMeasurement()
 
         val network = (globalNetworkInfo ?: signalStrengthWatcher.lastDetailedNetworkInfo)?.networkInfo
         val networkOk = network is CellNetworkInfo &&

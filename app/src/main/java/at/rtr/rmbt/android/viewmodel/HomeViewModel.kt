@@ -33,7 +33,6 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import at.specure.location.util.meetsSignalMeasurementGpsCriteria
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.data.dao.CoverageSignalSampleDao
 import at.specure.measurement.signal.CoverageSignalSample
@@ -458,55 +457,32 @@ class HomeViewModel @Inject constructor(
     /** Connectivity for the protocol is assumed when a public address was reachable over it. */
     private fun hasConnectivity(ipInfo: IpInfo?): Boolean = ipInfo?.publicAddress != null
 
-    /**
-     * Returns true when the current GPS fix is good enough to START a signal (coverage) measurement.
-     * Uses exactly the same minimum quality that is required for a fix to be usable DURING the
-     * measurement: not older than [Config.maxAgeOfLocationInformationForSignalMeasurementMillis] and
-     * accuracy better than [Config.minLocationAccuracyMetersDuringSignalMeasurement].
-     *
-     * The signal measurement uses GNSS only, so this is evaluated against the GPS-only watcher - never
-     * the combined one, which could otherwise green-light a start on a network/fused fix.
-     */
+    // All of the GPS readiness accessors below delegate to the SignalMeasurementProcessor - the single
+    // owner of both the criterion AND the location data. The processor is what actually decides when
+    // recording may begin, so by reading its fix (and its predicate) the readiness display can never
+    // evaluate a different location or a different rule than the start does. See
+    // [SignalMeasurementProcessor.currentSignalMeasurementGpsLocation] and
+    // [at.specure.location.util.meetsSignalMeasurementGpsCriteria].
+
+    /** True when the current GPS fix is good enough to START a signal (coverage) measurement. */
     fun isGpsQualitySufficientForSignalMeasurement(): Boolean =
-        currentGpsLocation()?.meetsSignalMeasurementGpsCriteria(appConfig) ?: false
+        signalMeasurementProcessor.isGpsQualitySufficientForSignalMeasurement()
 
-    /**
-     * Latest GNSS-only fix, or null. Prefers the live LiveData value (what the still-observed source
-     * is actually delivering) and only falls back to the watcher's last-known "hot" value when there
-     * is no live value yet.
-     *
-     * The order matters: [gpsLocationWatcher.latestLocation] is backed by getLastKnownLocation(GPS),
-     * a system-cached fix that lingers on its own timer even after the live source has gone quiet.
-     * Preferring it made the signal-measurement start criteria stay "green" (a recent-enough cached
-     * fix) while the live location shown on the home screen had already gone yellow/grey. Any screen
-     * that needs a fresh fix therefore keeps its source observed (which keeps this LiveData current),
-     * rather than relying on the cached value.
-     */
+    /** The GNSS-only fix the signal-measurement start logic is currently evaluating, or null. */
     fun currentGpsLocation(): LocationInfo? =
-        gpsLocationLiveData.value ?: gpsLocationWatcher.latestLocation
+        signalMeasurementProcessor.currentSignalMeasurementGpsLocation()
 
-    /**
-     * Current GNSS accuracy (meters) for the signal-measurement readiness display, or null when there
-     * is no usable fix yet.
-     */
+    /** Current GNSS accuracy (meters) for the readiness display, or null when there is no fix yet. */
     fun currentGpsAccuracyMeters(): Float? =
-        currentGpsLocation()?.takeIf { it.hasAccuracy }?.accuracy
+        signalMeasurementProcessor.currentSignalMeasurementGpsAccuracyMeters()
 
     /** Accuracy threshold (meters) a fix must be at/below to start a signal measurement. */
     val signalMeasurementAccuracyThresholdMeters: Int
         get() = appConfig.minLocationAccuracyMetersDuringSignalMeasurement
 
-    /**
-     * Whether the current GNSS fix is fresh enough (age within
-     * [Config.maxAgeOfLocationInformationForSignalMeasurementMillis]) to be usable. A stale fix - even
-     * one with good accuracy - is not accepted for a start, so the readiness UI must treat it as "no
-     * current fix" rather than showing a misleadingly good (but old) accuracy value.
-     */
-    fun isGpsFixFresh(): Boolean {
-        val location = currentGpsLocation() ?: return false
-        val ageMillis = location.ageNanos / 1_000_000L
-        return ageMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
-    }
+    /** Whether the current GNSS fix is fresh enough (age within the configured limit) to be usable. */
+    fun isGpsFixFresh(): Boolean =
+        signalMeasurementProcessor.isSignalMeasurementGpsFixFresh()
 
     /**
      * Human-readable name of the currently active network for the readiness display (e.g. "5G" or
