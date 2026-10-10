@@ -207,6 +207,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
                 .show(activity)
         }
 
+        binding.termsVersions.value = settingsViewModel.termsVersionsDebugInfo
         binding.version.value = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_TIME})"
         binding.commitHash.value = buildString {
             append(BuildConfig.COMMIT_HASH)
@@ -236,30 +237,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
                     Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse(getString(R.string.preferences_developer_page))
-                    )
-                )
-            } catch (e: ActivityNotFoundException) {
-                showUnableToFindBrowserAppToast()
-            }
-        }
-        binding.designBy.root.setOnClickListener {
-            try {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(getString(R.string.preferences_design_page))
-                    )
-                )
-            } catch (e: ActivityNotFoundException) {
-                showUnableToFindBrowserAppToast()
-            }
-        }
-        binding.networkBy.root.setOnClickListener {
-            try {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(getString(R.string.preferences_network_info_page))
                     )
                 )
             } catch (e: ActivityNotFoundException) {

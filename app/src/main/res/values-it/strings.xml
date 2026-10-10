@@ -78,9 +78,7 @@
     <string name="preferences_about">Informazioni</string>
     <string name="preferences_source_code">Codice sorgente</string>
     <string name="preferences_data_protection">Informativa sulla privacy e termini di utilizzo</string>
-    <string name="preferences_developed_by">Sviluppato da Specure GmbH</string>
-    <string name="preferences_design_by">Design di Feinblick</string>
-    <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
+    <string name="preferences_developed_by">Sviluppato da RTR-Netztest-Team</string>
     <string name="preferences_version">Versione</string>
     <string name="preferences_commit_hash">Hash di commit</string>
     <string name="preferences_enter_code">Per favore inserisci il codice</string>

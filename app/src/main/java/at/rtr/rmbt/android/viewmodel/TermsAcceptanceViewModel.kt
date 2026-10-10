@@ -32,9 +32,12 @@ class TermsAcceptanceViewModel @Inject constructor(private val tac: TermsAndCond
         tac.tacAccepted = accepted
         if (accepted) {
             // Record which version was accepted: the version currently known from the server, or -
-            // when accepting offline before any server fetch - the bundled terms version. A later
-            // settings fetch then only re-prompts if the server has a strictly newer version.
-            tac.acceptedTacVersion = tac.tacVersion ?: tac.bundledTermsVersion
+            // when accepting offline before any server fetch - the bundled terms version. Never
+            // record below the bundled version (the server value can still be stale/lower than what
+            // this apk bundles at accept time), so the startup bundled-vs-accepted gate is satisfied
+            // and we don't re-prompt on every launch. A later settings fetch then only re-prompts if
+            // the server has a strictly newer version.
+            tac.acceptedTacVersion = maxOf(tac.tacVersion ?: tac.bundledTermsVersion, tac.bundledTermsVersion)
         }
     }
 }
