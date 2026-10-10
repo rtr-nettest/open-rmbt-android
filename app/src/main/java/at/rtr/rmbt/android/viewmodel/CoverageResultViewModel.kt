@@ -166,6 +166,7 @@ class CoverageResultViewModel @Inject constructor(
      */
     fun buildLegend(pts: List<FencesResultItemRecord>?) {
         val points = pts ?: return
+        val grayColor = OFFLINE_GRAY.toColorInt()
         val labelToColor = LinkedHashMap<String, Int>()
         for (point in points) {
             val type = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
@@ -173,6 +174,10 @@ class CoverageResultViewModel @Inject constructor(
             // Ignore the generic "MOBILE" and "OFFLINE" buckets - they carry no meaningful
             // technology colour.
             if (label.equals("MOBILE", ignoreCase = true) || label.equals("OFFLINE", ignoreCase = true)) continue
+            // Only surface a technology once at least one of its fences was actually painted in a
+            // real technology colour, not full-grey. A fence that never got a ping response - e.g.
+            // 2G, which usually fails ping - is painted grey, and on its own must not add a row.
+            if (pointColor(point) == grayColor) continue
             labelToColor.getOrPut(label) { type.colorInt() }
         }
         val entries = labelToColor.entries
