@@ -140,11 +140,13 @@ class SettingsRepositoryImpl(
     private fun updateTermsAndConditions(tac: TermsAndConditionsSettings?) = tac?.let { terms ->
         // Migration for clients that accepted BEFORE acceptedTacVersion existed: they have
         // tacAccepted=true but no accepted version recorded. Backfill it from the previously stored
-        // (already in-sync) version so they are NOT re-prompted for a version they already accepted.
+        // server version only - NEVER from bundledTermsVersion: assuming the bundled version would
+        // claim the user accepted the terms shipped in THIS apk (which they have not), and that
+        // defeats the startup bundled-vs-accepted gate (accepted == bundled -> never re-prompted).
+        // Leaving it null (unknown) instead lets the gate re-prompt for the bundled terms.
         // Done before tacVersion is overwritten with the server value below.
         if (termsAndConditions.tacAccepted && termsAndConditions.acceptedTacVersion == null) {
-            termsAndConditions.acceptedTacVersion =
-                termsAndConditions.tacVersion ?: termsAndConditions.bundledTermsVersion
+            termsAndConditions.tacVersion?.let { termsAndConditions.acceptedTacVersion = it }
         }
 
         // The URL is language-specific (…/%s/tc_android.html) and only decides which localized text is

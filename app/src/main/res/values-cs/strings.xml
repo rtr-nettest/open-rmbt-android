@@ -65,9 +65,7 @@
     <string name="preferences_about">O aplikaci</string>
     <string name="preferences_source_code">Zdrojový kód</string>
     <string name="preferences_data_protection">Zásady ochrany soukromí a podmínky použití</string>
-    <string name="preferences_developed_by">Vyvinuto společností Specure GmbH</string>
-    <string name="preferences_design_by">Design od Feinblick</string>
-    <string name="preferences_network_info_by">Síťové informace od NetMonster Core</string>
+    <string name="preferences_developed_by">Vyvinuto společností RTR-Netztest-Team</string>
     <string name="preferences_version">Verze</string>
     <string name="preferences_commit_hash">Hash commitu</string>
     <string name="preferences_enter_code">Zadejte prosím kód</string>

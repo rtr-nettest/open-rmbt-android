@@ -68,9 +68,10 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
         }
         viewModel.tacContentLiveData.listen(this) { tacContent ->
             with(binding.webViewDataPrivacyAndTermsOfUse) {
-                setInitialScale(1)
-                settings.loadWithOverviewMode = true
-                settings.useWideViewPort = true
+                // Do NOT enable useWideViewPort/loadWithOverviewMode here: the terms HTML has no
+                // mobile <meta viewport>, so a wide viewport lays it out at desktop width and then
+                // zooms the whole page out to fit, rendering it tiny. Loading it plainly (as the
+                // acceptance screen does) lets the WebView lay out at device width = readable.
                 settings.builtInZoomControls = true
                 settings.javaScriptEnabled = true
                 webViewClient = MyWebViewClient()

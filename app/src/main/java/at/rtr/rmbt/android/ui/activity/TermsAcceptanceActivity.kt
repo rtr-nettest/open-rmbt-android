@@ -24,6 +24,8 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
+import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isReadPhoneStatePermitted
 import at.specure.worker.WorkLauncher
 import timber.log.Timber
 import kotlin.math.max
@@ -102,7 +104,17 @@ class TermsAcceptanceActivity : BaseActivity() {
                 viewModel.updateTermsAcceptance(true)
                 WorkLauncher.enqueueSettingsRequest(this)
                 finishAffinity()
-                PermissionsActivity.start(this)
+                // The permissions screen is first-run onboarding. A user who only re-accepted
+                // upgraded terms has already granted the permissions it explains, so skip straight
+                // to home; show it whenever a core permission (location or phone state) is still
+                // missing, so a real first run - or a still-ungranted permission - is covered.
+                if (isCoarseLocationPermitted() && isReadPhoneStatePermitted()) {
+                    val home = Intent(this, HomeActivity::class.java)
+                    home.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(home)
+                } else {
+                    PermissionsActivity.start(this)
+                }
             } else {
                 SimpleDialog.Builder()
                     .messageText(R.string.text_terms_agree_empty)

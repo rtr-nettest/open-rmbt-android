@@ -10,6 +10,7 @@ import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
+import at.specure.data.TermsAndConditions
 import at.specure.data.repository.SettingsRepository
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpV4ChangeLiveData
@@ -25,12 +26,22 @@ class SettingsViewModel @Inject constructor(
     val measurementServers: MeasurementServers,
     settingsRepository: SettingsRepository,
     controlServerSettings: ControlServerSettings,
+    private val termsAndConditions: TermsAndConditions,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData
 ) :
     BaseViewModel() {
 
     val state = SettingsViewState(appConfig, clientUUID, measurementServers, controlServerSettings, settingsRepository)
+
+    /**
+     * Developer-only debug line: the accepted vs. bundled vs. backend (last settings-response)
+     * terms-and-conditions version.
+     */
+    val termsVersionsDebugInfo: String
+        get() = "Accepted=${termsAndConditions.acceptedTacVersion ?: "-"}, " +
+            "Bundled=${termsAndConditions.bundledTermsVersion}, " +
+            "backend=${termsAndConditions.tacVersion ?: "-"}"
 
     private val _openCodeWindow = MutableLiveData<Boolean>()
     private var count: Int = 0

@@ -148,6 +148,16 @@ class MeasurementViewModel @Inject constructor(
     val isTacAccepted: Boolean
         get() = tac.tacAccepted
 
+    /**
+     * Whether the terms must be (re-)shown at startup: either they were never accepted, or the
+     * accepted version is older than the version bundled in THIS apk. Comparing against the bundled
+     * version - not the server one - makes the re-prompt independent of the control server and of
+     * the (late, unreliable) settings fetch: an app update that ships newer terms re-prompts every
+     * install on the next cold start. A null accepted version (never recorded) counts as older.
+     */
+    val shouldShowTermsAtStartup: Boolean
+        get() = !tac.tacAccepted || (tac.acceptedTacVersion ?: Int.MIN_VALUE) < tac.bundledTermsVersion
+
     lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
     private val serviceConnection = object : ServiceConnection {

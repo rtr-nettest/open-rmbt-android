@@ -51,8 +51,7 @@ class HomeActivity : BaseActivity() {
     private var termsIsShown: Boolean = false
 
     private fun startHomeRunnable() {
-        val accepted = viewModel.isTacAccepted
-        if (!accepted) {
+        if (viewModel.shouldShowTermsAtStartup) {
             termsIsShown = true
             finish()
             TermsAcceptanceActivity.start(this)
