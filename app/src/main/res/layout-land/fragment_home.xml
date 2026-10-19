@@ -339,6 +339,26 @@
             app:primaryCellInfo="@{state.activeNetworkInfo}"
             app:primaryCellInfoExpert="@{state.expertModeIsEnabled}" />
 
+        <!-- Right-side overlay: DEVELOPER / Expert Mode flags plus the live temperature and barometric
+             pressure (expert mode). Mirrors tvPrimaryCellInfo at the bottom-right of the signal area.
+             Populated by a binding adapter. (Present in portrait; was missing in landscape.) -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvExpertRightInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginBottom="@dimen/padding_large"
+            android:gravity="end"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/leftView"
+            app:expertInfoDeveloper="@{state.developerModeIsEnabled}"
+            app:expertInfoExpert="@{state.expertModeIsEnabled}"
+            app:expertInfoTemperature="@{state.batteryTemperatureCelsius}"
+            app:expertInfoPressure="@{state.barometricPressureHpa}"
+            tools:text="DEVELOPER\nExpert Mode\nT = 27.5 °C\nP = 1013 hPa" />
+
         <View
             android:id="@+id/vBottomDivider"
             android:layout_width="0dp"
