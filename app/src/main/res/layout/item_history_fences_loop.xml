@@ -60,14 +60,30 @@
             app:layout_constraintTop_toBottomOf="@+id/textTime" />
 
         <!-- Aligns "N Points" with the "Down" column of the speed rows (and the single-fence rows),
-             instead of pushing it to the far right. 0.45 matches the 2/5 weighted left edge those
-             rows use, offset by the leading icon + date margin. -->
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/pointsGuideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.45" />
+             instead of pushing it to the far right. Those rows place the value column with layout
+             weights (date 2 : values 3) starting after the leading icon + date margin, i.e. at
+             2/5 of the width that remains after that offset. A fixed-percentage guideline only
+             matches that at one width and drifts in landscape, so reproduce the exact weighting with
+             a 2:3 horizontal chain anchored at the date start: spacePointsBoundary.start then sits at
+             the same 2/5 edge at any row width. The spaces are invisible 1px struts, measured only. -->
+        <Space
+            android:id="@+id/spaceDateWeight"
+            android:layout_width="0dp"
+            android:layout_height="1px"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toStartOf="@+id/textTime"
+            app:layout_constraintEnd_toStartOf="@+id/spacePointsBoundary"
+            app:layout_constraintTop_toTopOf="@+id/textTime" />
+
+        <Space
+            android:id="@+id/spacePointsBoundary"
+            android:layout_width="0dp"
+            android:layout_height="1px"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toEndOf="@+id/spaceDateWeight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textTime" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/fencesCountSum"
@@ -77,7 +93,7 @@
             android:gravity="start|center_vertical"
             android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
             android:textColor="@color/text_dark_gray"
-            app:layout_constraintStart_toStartOf="@+id/pointsGuideline"
+            app:layout_constraintStart_toStartOf="@+id/spacePointsBoundary"
             app:layout_constraintTop_toTopOf="@+id/textTime"
             app:layout_constraintBottom_toBottomOf="@+id/textTime"
             tools:text="238" />
