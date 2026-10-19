@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -104,13 +105,15 @@ class SignalMeasurementTermsActivity : BaseActivity() {
 
         // "Decline" during the terms/background steps, "Abort" during the waiting step - both cancel
         // and return to the start screen. During waiting we must also stop the service we started.
-        binding.decline.setOnClickListener {
-            if (waitingForStatus && !handedOff) {
-                viewModel.stopSignalMeasurement()
-            }
-            setResult(Activity.RESULT_CANCELED)
-            finish()
-        }
+        binding.decline.setOnClickListener { abortOrDecline() }
+
+        // System Back (gesture or button) performs the same dismiss as the Decline/Abort button:
+        // without this the predictive-back gesture animates but the screen is left in place (no-op).
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = abortOrDecline()
+            })
 
         binding.accept.setOnClickListener { onTermsAccepted() }
 
@@ -155,6 +158,19 @@ class SignalMeasurementTermsActivity : BaseActivity() {
      * The usage terms were accepted (or skipped after being shown enough times). Advances the flow:
      * background-permission info page -> permission request -> proceed to the measurement.
      */
+    /**
+     * Cancel this flow and return to the start screen: "Decline" during the terms/background steps,
+     * "Abort" during the waiting step (also stopping the service we started). Invoked by the
+     * Decline/Abort button and by system Back.
+     */
+    private fun abortOrDecline() {
+        if (waitingForStatus && !handedOff) {
+            viewModel.stopSignalMeasurement()
+        }
+        setResult(Activity.RESULT_CANCELED)
+        finish()
+    }
+
     private fun onTermsAccepted() {
         when {
             !backgroundInfoShown && viewModel.shouldAskForBackgroundPermission(this) -> {
