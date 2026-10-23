@@ -142,9 +142,17 @@ class MapRepositoryImpl @Inject constructor(
                             mapTypeOptions.options?.get(0)?.params?.mapOptions?.split('/')?.get(0) ?: "all"
                         filterType?.let {
                             MapFilterType.fromFilterString(it)?.let { filterType ->
-                                types[mapTypeOptions.title] = filterType
+                                // several groups may share a type (e.g. "signal measurement" uses mobile/... options):
+                                // keep the title of the first group and append the options of the following ones,
+                                // prefixed with their group title
+                                val isFirstGroup = !types.containsValue(filterType)
+                                if (isFirstGroup) {
+                                    types[mapTypeOptions.title] = filterType
+                                }
                                 mapTypeOptions.options?.let { mapTypesOptions ->
-                                    subTypes[filterType] = mapTypesOptions.toV1MapOptions()
+                                    val options = mapTypesOptions.toV1MapOptions()
+                                    subTypes[filterType] = subTypes[filterType].orEmpty() +
+                                        if (isFirstGroup) options else options.map { o -> o.copy(title = "${mapTypeOptions.title}: ${o.title}") }
                                 }
                             }
                         }
