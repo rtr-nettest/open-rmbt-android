@@ -34,6 +34,7 @@ import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.data.repository.SignalMeasurementRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl

@@ -30,8 +30,6 @@ object CoreInjector : CoreComponent {
 
     override fun inject(settingsWorker: SettingsWorker) = component.inject(settingsWorker)
 
-    override fun signalMeasurementRepository(): SignalMeasurementRepository = component.signalMeasurementRepository()
-
     override fun inject(sendDataWorker: SendDataWorker) = component.inject(sendDataWorker)
 
     override fun inject(service: MeasurementService) = component.inject(service)
@@ -45,4 +43,6 @@ object CoreInjector : CoreComponent {
     override fun inject(worker: CoverageMeasurementWorker) = component.inject(worker)
 
     override fun inject(worker: CoverageSyncWorker) = component.inject(worker)
+
+    override fun inject(signalMeasurementRepository: SignalMeasurementRepository) = component.inject(signalMeasurementRepository)
 }

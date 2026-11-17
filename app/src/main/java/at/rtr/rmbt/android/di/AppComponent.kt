@@ -12,6 +12,7 @@ import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.di.CoreComponent
 import at.specure.di.CoreModule
 import at.specure.di.DatabaseModule

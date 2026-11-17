@@ -57,7 +57,7 @@ object Injector : AppComponent {
 
     override fun inject(dialog: CoverageSettingsDialog) = component.inject(dialog)
 
-    override fun inject(app: App) = component.inject(app)
+    override fun inject(signalMeasurementRepository: SignalMeasurementRepository) = component.inject(signalMeasurementRepository)
 
-    override fun signalMeasurementRepository(): SignalMeasurementRepository = component.signalMeasurementRepository()
+    override fun inject(app: App) = component.inject(app)
 }

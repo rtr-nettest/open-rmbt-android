@@ -20,11 +20,15 @@ import at.specure.worker.WorkLauncher
 import java.io.File
 import javax.inject.Inject
 import androidx.core.content.edit
+import at.specure.data.repository.SignalMeasurementRepository
 
 class App : CoreApp(), Configuration.Provider {
 
     @Inject
     lateinit var config: Config
+
+    @Inject
+    lateinit var signalMeasurementRepository: SignalMeasurementRepository
 
     override val coreComponent: CoreComponent
         get() = Injector.component
@@ -50,6 +54,8 @@ class App : CoreApp(), Configuration.Provider {
             .build()
 
         CoreInjector.component = Injector.component
+
+        Injector.inject(this)
 
 
         WorkLauncher.enqueueSettingsRequest(this)
@@ -87,7 +93,7 @@ class App : CoreApp(), Configuration.Provider {
         if (now - lastRetentionRunMs < RETENTION_MIN_INTERVAL_MS) return
         lastRetentionRunMs = now
         retentionScope.launch {
-            runCatching { CoreApp.component.signalMeasurementRepository().runDatabaseRetention() }
+            runCatching { signalMeasurementRepository.runDatabaseRetention() }
                 .onFailure { Log.e("App", "Database retention failed", it) }
         }
     }

@@ -45,12 +45,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
+import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 // ~40 MB of free pages before we bother compacting the file (VACUUM rewrites the whole DB).
 private const val DATABASE_VACUUM_FREELIST_THRESHOLD_PAGES = 10_000L
 
-class SignalMeasurementRepositoryImpl(
+class SignalMeasurementRepositoryImpl @Inject constructor(
     private val db: CoreDatabase,
     private val context: Context,
     private val clientUUID: ClientUUID,

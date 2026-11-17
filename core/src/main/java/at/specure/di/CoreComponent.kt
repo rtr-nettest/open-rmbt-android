@@ -17,8 +17,7 @@ interface CoreComponent {
 
     fun inject(settingsWorker: SettingsWorker)
 
-    /** Provision for app-level database retention. */
-    fun signalMeasurementRepository(): SignalMeasurementRepository
+    fun inject(signalMeasurementRepository: SignalMeasurementRepository)
 
     fun inject(sendDataWorker: SendDataWorker)
 
