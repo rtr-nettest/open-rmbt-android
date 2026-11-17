@@ -35,6 +35,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.data.dao.COVERAGE_UNSENT_SESSION_MAX_AGE_MILLIS
+import at.specure.util.coroutines.runCatchingCancellable
 import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.Flow
@@ -523,13 +524,13 @@ class SignalMeasurementRepositoryImpl @Inject constructor(
 
     override suspend fun runDatabaseRetention() = withContext(Dispatchers.IO) {
         // Regular tests: keep only recent-results summaries + payloads still awaiting submission.
-        runCatching { testDao.pruneTestData(System.currentTimeMillis()) }
+        runCatchingCancellable { testDao.pruneTestData(System.currentTimeMillis()) }
             .onFailure { Timber.e(it, "Test data retention failed") }
         // Coverage: retire/purge synced, exhausted or unsendable sessions.
-        runCatching { removeOldFencesAndSessions() }
+        runCatchingCancellable { removeOldFencesAndSessions() }
             .onFailure { Timber.e(it, "Coverage retention failed") }
         // Return freed pages to the OS once a meaningful amount has been deleted.
-        runCatching {
+        runCatchingCancellable {
             val supportDb = db.openHelper.writableDatabase
             val freePages = supportDb.query("PRAGMA freelist_count").use { c ->
                 if (c.moveToFirst()) c.getLong(0) else 0L

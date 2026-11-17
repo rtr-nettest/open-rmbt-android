@@ -127,6 +127,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         scope.launch(Dispatchers.IO) {
             try {
                 signalMeasurementRepository.removeOldFencesAndSessions()
+            } catch (e: CancellationException) {
+                throw e;
             } catch (e: Exception) {
                 Timber.e(e, "Coverage cleanup at measurement start failed")
             }

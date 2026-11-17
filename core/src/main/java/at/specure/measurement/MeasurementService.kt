@@ -48,6 +48,7 @@ import at.specure.test.TestProgressListener
 import at.specure.test.TestUuidType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
+import at.specure.util.coroutines.runCatchingCancellable
 import at.specure.worker.WorkLauncher
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -417,7 +418,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 if (shouldShowResults && loopUUID == null) {
                     config.pendingResultTestUUID = testUUID
                 }
-                runCatching {
+                runCatchingCancellable {
                     resultRepository.sendTestResults(testUUID) {
                         it.onSuccess {
                             if (shouldShowResults) {
@@ -448,9 +449,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                         }
                     }
                 }.onFailure {
-                    if (it !is CancellationException) {
-                        Timber.e("Sending result exception caught $it")
-                    }
+                    Timber.e("Sending result exception caught $it")
                 }
             }
         }

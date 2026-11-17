@@ -21,6 +21,7 @@ import java.io.File
 import javax.inject.Inject
 import androidx.core.content.edit
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.util.coroutines.runCatchingCancellable
 
 class App : CoreApp(), Configuration.Provider {
 
@@ -93,7 +94,7 @@ class App : CoreApp(), Configuration.Provider {
         if (now - lastRetentionRunMs < RETENTION_MIN_INTERVAL_MS) return
         lastRetentionRunMs = now
         retentionScope.launch {
-            runCatching { signalMeasurementRepository.runDatabaseRetention() }
+            runCatchingCancellable { signalMeasurementRepository.runDatabaseRetention() }
                 .onFailure { Log.e("App", "Database retention failed", it) }
         }
     }
