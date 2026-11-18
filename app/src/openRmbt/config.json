@@ -396,6 +396,11 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_GET_NEWS_ENDPOINT",
+      "value": "news",
+      "visible": false
+    },
+    {
       "name": "REQUEST_HEADER_VALUE",
       "value": "",
       "visible": false
